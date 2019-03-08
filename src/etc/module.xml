@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Scandiweb_CatalogGraphQl
+ *
+ * @category    Scandiweb
+ * @package     ScandiPWA_CatalogGraphQl
+ * @author      Valerijs Sceglovs <info@scandiweb.com>
+ * @author      Viktors Pliska <info@scandiweb.com>
+ * @copyright   Copyright (c) 2018 Scandiweb, Ltd (https://scandiweb.com)
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:Module/etc/module.xsd">
+    <module name="ScandiPWA_CatalogGraphQl" setup_version="1.0.0">
+        <sequence>
+            <module name="Magento_CatalogGraphQl"/>
+        </sequence>
+    </module>
+</config>

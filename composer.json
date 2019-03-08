@@ -1,0 +1,28 @@
+{
+    "name": "scandipwa/catalog-graphql",
+    "description": "ScandiPWA GraphQl extend for Catalog",
+    "keywords": [
+        "magento2",
+        "module",
+        "scandipwa",
+        "pwa"
+    ],
+    "support": {
+        "email": "info@scandiweb.com"
+    },
+    "require": {
+        "magento/module-catalog-graph-ql": "*"
+    },
+    "type": "magento2-module",
+    "license": [
+        "OSL-3.0"
+    ],
+    "autoload": {
+        "files": [
+            "src/registration.php"
+        ],
+        "psr-4": {
+            "ScandiPWA\\CatalogGraphQl\\": "src/"
+        }
+    }
+}

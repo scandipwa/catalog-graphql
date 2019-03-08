@@ -1,0 +1,36 @@
+##
+# ScandiPWA_CatalogGraphQl
+#
+# @category    ScandiPWA
+# @package     ScandiPWA_CatalogGraphQl
+# @author      Viktors Pliska <info@scandiweb.com>
+# @author      Valerijs Sceglovs <info@scandiweb.com>
+# @copyright   Copyright (c) 2018 Scandiweb, Ltd (https://scandiweb.com)
+##
+
+type ProductThumbnail @doc(description: "Products thumbnail image") {
+    type: String @doc(description: "Product image type")
+    url: String @doc(description: "Product image url")
+    width: String @doc(description: "Product image width")
+    height: String @doc(description: "Product image height")
+}
+
+input ProductFilterInput {
+    category_url_key: FilterTypeInput @doc(description: "Category url_key the product belongs to")
+    category_url_path: FilterTypeInput @doc(description: "Category url_path the product belongs to")
+    color: FilterTypeInput @doc(description: "Product color")
+    size: FilterTypeInput @doc(description: "Product size")
+    shoes_size: FilterTypeInput @doc(description: "Product shoes size")
+}
+
+type MediaGalleryEntry  @doc(description: "MediaGalleryEntry defines characteristics about images and videos associated with a specific product") {
+    thumbnail: ProductThumbnail @doc(description: "The path of the thumbnail image on the server thumbnail")
+}
+
+type Query {
+    category (
+        id: Int @doc(description: "Id of the category")
+        url_path: String @doc(description: "Url path of the category")
+    ): CategoryTree
+    @resolver(class: "ScandiPWA\\CatalogGraphQl\\Model\\Resolver\\CategoryTree")
+}
