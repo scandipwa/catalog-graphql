@@ -4,7 +4,7 @@ This module extends Magento 2 Catalog GraphQl definitions.
 
 ## What is inside?
 
-1. Fixes the `pageSizeBySearchEngine` argument in `PageSizeProvider` class. By setting the `elasticsearch` and `elasticsearch5` to `10000`. See more in [di.xml](./src/etc/di.xml)
+1. Fixes the `pageSizeBySearchEngine` argument in `PageSizeProvider` class. See more in [di.xml](./src/etc/di.xml)
 
 2. Adds following fields to `ProductFilterInput`:
 
