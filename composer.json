@@ -11,7 +11,7 @@
         "email": "info@scandiweb.com"
     },
     "require": {
-        "magento/module-catalog-graph-ql": "*"
+        "magento/product-community-edition": "2.3.0"
     },
     "type": "magento2-module",
     "license": [
