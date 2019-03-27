@@ -103,7 +103,7 @@ class CategoryTree extends ExtendedCategoryTree
      * @return array
      * @throws \Exception
      */
-    public function getTree(ResolveInfo $resolveInfo, int $rootCategoryId) : array
+    public function getTree(ResolveInfo $resolveInfo, int $rootCategoryId) : \Iterator
     {
         $categoryQuery = $resolveInfo->fieldNodes[0];
         $collection = $this->collectionFactory->create();
@@ -119,7 +119,7 @@ class CategoryTree extends ExtendedCategoryTree
             $this->metadata->getMetadata(CategoryInterface::class)->getIdentifierField() . ' = ?',
             $rootCategoryId
         );
-        return $this->processTree($collection->getIterator());
+        return $collection->getIterator();
     }
 
     /**
