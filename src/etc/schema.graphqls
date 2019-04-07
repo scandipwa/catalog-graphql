@@ -27,6 +27,10 @@ type MediaGalleryEntry  @doc(description: "MediaGalleryEntry defines characteris
     thumbnail: ProductThumbnail @doc(description: "The path of the thumbnail image on the server thumbnail")
 }
 
+type ProductImage @doc(description: "Extend product Image fields for frontend-driven loading mechanism") {
+    path: String @doc(description: "Relative path to origin image") @resolver(class:"ScandiPWA\\CatalogGraphQl\\Model\\Resolver\\Product\\ProductImage\\Path")
+}
+
 type Query {
     category (
         id: Int @doc(description: "Id of the category")
