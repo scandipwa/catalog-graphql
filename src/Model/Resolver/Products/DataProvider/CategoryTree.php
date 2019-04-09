@@ -85,16 +85,10 @@ class CategoryTree extends ExtendedCategoryTree
             $attributesJoiner,
             $depthCalculator,
             $levelCalculator,
-            $metadata,
-            $hydrator
+            $metadata
         );
 
         $this->hydrator = $hydrator;
-        $this->depthCalculator = $depthCalculator;
-        $this->collectionFactory = $collectionFactory;
-        $this->levelCalculator = $levelCalculator;
-        $this->metadata = $metadata;
-        $this->attributesJoiner = $attributesJoiner;
     }
 
     /**
