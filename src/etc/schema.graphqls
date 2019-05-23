@@ -33,8 +33,35 @@ type ProductImage @doc(description: "Extend product Image fields for frontend-dr
 
 type Query {
     category (
-        id: Int @doc(description: "Id of the category")
+        id: Int @doc(description: "Ids of the category")
         url_path: String @doc(description: "Url path of the category")
     ): CategoryTree
     @resolver(class: "ScandiPWA\\CatalogGraphQl\\Model\\Resolver\\CategoryTree")
+}
+
+interface ProductInterface {
+    attributes (
+        attributes: [String!]
+    ): [AttributeWithValue] @resolver(class:"ScandiPWA\\CatalogGraphQl\\Model\\Resolver\\AttributesWithValue")
+}
+
+type AttributeWithValue {
+    attribute_code: String
+    entity_type: String
+    attribute_type: String
+    attribute_value: String
+    attribute_label: String
+    attribute_id: String
+    attribute_options: [AttributeWithValueOption]
+}
+
+type AttributeWithValueOption {
+    label: String
+    value: String
+    swatch_data: AttributeWithValueSwatchData
+}
+
+type AttributeWithValueSwatchData {
+    type: String
+    value: String
 }
