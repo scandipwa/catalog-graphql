@@ -19,6 +19,8 @@ use Magento\Framework\GraphQl\Config\Element\Field;
 use Magento\Framework\GraphQl\Query\ResolverInterface;
 use Magento\Swatches\Helper\Data;
 
+use Magento\Catalog\Model\ProductRepository;
+
 class AttributesWithValue implements ResolverInterface
 {
     /**
@@ -26,14 +28,18 @@ class AttributesWithValue implements ResolverInterface
      */
     private $swatchHelper;
 
+    private $productRepository;
+
     /**
      * CustomAttributes constructor.
      * @param Data $swatchHelper
      */
     public function __construct(
-        Data $swatchHelper
+        Data $swatchHelper,
+        ProductRepository $productRepository
     ) {
         $this->swatchHelper = $swatchHelper;
+        $this->productRepository = $productRepository;
     }
 
     /**
@@ -54,7 +60,8 @@ class AttributesWithValue implements ResolverInterface
         array $value = null,
         array $args = null
     ) {
-        $product = isset($value['product']) ? $value['product']['model'] : $value['model'];
+        $product = $this->productRepository->getById($value['entity_id']);
+//        $product = isset($value['product']) ? $value['product']['model'] : $value['model'];
         $attributes = $product->getAttributes();
         $attributesToSelect = array_unique($args['attributes']);
         $attributesToReturn = [];

@@ -51,7 +51,7 @@ type AttributeWithValue {
     attribute_type: String
     attribute_value: String
     attribute_label: String
-    attribute_id: String
+    attribute_id: Int
     attribute_options: [AttributeWithValueOption]
 }
 
