@@ -18,6 +18,7 @@ use Magento\Framework\GraphQl\Schema\Type\ResolveInfo;
 use Magento\Framework\GraphQl\Config\Element\Field;
 use Magento\Framework\GraphQl\Query\ResolverInterface;
 use Magento\Swatches\Helper\Data;
+use Magento\Catalog\Api\ProductAttributeManagementInterface;
 
 use Magento\Catalog\Model\ProductRepository;
 
@@ -26,13 +27,17 @@ class AttributesWithValue implements ResolverInterface
     /**
      * @var Data
      */
-    private $swatchHelper;
+    protected $swatchHelper;
 
-    private $productRepository;
+    /**
+     * @var ProductRepository
+     */
+    protected $productRepository;
 
     /**
      * CustomAttributes constructor.
      * @param Data $swatchHelper
+     * @param ProductRepository $productRepository
      */
     public function __construct(
         Data $swatchHelper,
@@ -61,28 +66,25 @@ class AttributesWithValue implements ResolverInterface
         array $args = null
     ) {
         $product = $this->productRepository->getById($value['entity_id']);
-//        $product = isset($value['product']) ? $value['product']['model'] : $value['model'];
         $attributes = $product->getAttributes();
-        $attributesToSelect = array_unique($args['attributes']);
         $attributesToReturn = [];
 
-        foreach ($attributesToSelect as $attributeToSelect) {
-            $attribute = $product->getCustomAttribute($attributeToSelect);
+        foreach ($attributes as $attribute) {
+            if ($attribute->getIsVisibleOnFront()) {
+                $productAttribute = $product->getCustomAttribute($attribute->getAttributeCode());
 
-            if (isset($attributes[$attributeToSelect])) {
-                $fullAttributeData = $attributes[$attributeToSelect];
-                $rawOptions = $fullAttributeData->getSource()->getAllOptions(true, true);
+                $rawOptions = $attribute->getSource()->getAllOptions(true, true);
                 array_shift($rawOptions);
 
                 $optionIds = array_map(function ($option) { return $option['value']; }, $rawOptions);
                 $swatchOptions = $this->swatchHelper->getSwatchesByOptionsId($optionIds);
 
                 $attributesToReturn[] = [
-                    'attribute_value' => $attribute ? $attribute->getValue() : null,
-                    'attribute_code' => $fullAttributeData->getAttributeCode(),
-                    'attribute_type' => $fullAttributeData->getFrontendInput(),
-                    'attribute_label' => $fullAttributeData->getFrontendLabel(),
-                    'attribute_id' => $fullAttributeData->getAttributeId(),
+                    'attribute_value' => $productAttribute ? $productAttribute->getValue() : null,
+                    'attribute_code' => $attribute->getAttributeCode(),
+                    'attribute_type' => $attribute->getFrontendInput(),
+                    'attribute_label' => $attribute->getFrontendLabel(),
+                    'attribute_id' => $attribute->getAttributeId(),
                     'attribute_options' => array_map(function ($option) use ($swatchOptions) {
                         $option['swatch_data'] = $swatchOptions[$option['value']] ?? [];
                         return $option;

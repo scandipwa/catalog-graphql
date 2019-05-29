@@ -40,9 +40,7 @@ type Query {
 }
 
 interface ProductInterface {
-    attributes (
-        attributes: [String!]
-    ): [AttributeWithValue] @resolver(class:"ScandiPWA\\CatalogGraphQl\\Model\\Resolver\\AttributesWithValue")
+    attributes: [AttributeWithValue] @resolver(class:"ScandiPWA\\CatalogGraphQl\\Model\\Resolver\\AttributesWithValue")
 }
 
 type AttributeWithValue {
