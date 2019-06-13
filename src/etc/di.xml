@@ -34,4 +34,32 @@
 
     <preference for="Magento\CatalogGraphQl\Model\Resolver\Products\DataProvider\CategoryTree"
                 type="ScandiPWA\CatalogGraphQl\Model\Resolver\Products\DataProvider\CategoryTree"/>
+
+    <preference for="Magento\CatalogGraphQl\Model\Resolver\Products\SearchResult"
+                type="ScandiPWA\CatalogGraphQl\Model\Resolver\Products\SearchResult"/>
+
+    <preference for="Magento\CatalogGraphQl\Model\Resolver\Products\SearchResultFactory"
+                type="ScandiPWA\CatalogGraphQl\Model\Resolver\Products\SearchResultFactory"/>
+
+    <preference for="Magento\CatalogGraphQl\Model\Resolver\Products"
+                type="ScandiPWA\CatalogGraphQl\Model\Resolver\Products"/>
+
+    <preference for="Magento\CatalogGraphQl\Model\Resolver\Category\Products"
+                type="ScandiPWA\CatalogGraphQl\Model\Resolver\Category\Products"/>
+
+    <preference for="Magento\CatalogGraphQl\Model\Resolver\Products\DataProvider\Product"
+                type="ScandiPWA\CatalogGraphQl\Model\Resolver\Products\DataProvider\Product"/>
+
+    <preference for="Magento\CatalogGraphQl\Model\Resolver\Products\Query\Filter"
+                type="ScandiPWA\CatalogGraphQl\Model\Resolver\Products\Query\Filter"/>
+
+    <preference for="Magento\CatalogGraphQl\Model\Resolver\Products\Query\Search"
+                type="ScandiPWA\CatalogGraphQl\Model\Resolver\Products\Query\Search"/>
+
+    <type name="ScandiPWA\CatalogGraphQl\Model\Resolver\Products\Query\Search">
+        <arguments>
+            <argument name="pageSize" xsi:type="object">ScandiPWA\CatalogGraphQl\Model\Search\PageSizeProvider</argument>
+        </arguments>
+    </type>
+
 </config>
