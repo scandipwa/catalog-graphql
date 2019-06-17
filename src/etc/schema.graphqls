@@ -43,6 +43,10 @@ interface ProductInterface {
     attributes: [AttributeWithValue] @resolver(class:"ScandiPWA\\CatalogGraphQl\\Model\\Resolver\\AttributesWithValue")
 }
 
+interface CategoryInterface {
+    canonical_url: String @doc(description: "Canonical Url") @resolver(class: "ScandiPWA\\CatalogGraphQl\\Model\\Resolver\\Category\\CanonicalUrl")
+}
+
 type AttributeWithValue {
     attribute_code: String
     entity_type: String
