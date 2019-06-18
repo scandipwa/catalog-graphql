@@ -39,8 +39,6 @@ class CanonicalUrl implements ResolverInterface
 
         /* @var $category Category */
         $category = $value['model'];
-        $url = $category->getUrl();
-
-        return $url;
+        return $category->getUrl();
     }
 }
