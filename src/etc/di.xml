@@ -23,6 +23,19 @@
         </arguments>
     </virtualType>
 
+    <!-- Prevent Magento to dynamically build product and category attributes -->
+    <virtualType name="ScandiPWA\CatalogGraphQl\GraphQlSchemaStitching\Reader" type="Magento\Framework\GraphQlSchemaStitching\Common\Reader">
+        <arguments>
+            <argument name="readers" xsi:type="array">
+                <item name="graphql_reader" xsi:type="object">Magento\Framework\GraphQlSchemaStitching\GraphQlReader</item>
+                <item name="categoryDynamicAttributeReader" xsi:type="object">Magento\CatalogGraphQl\Model\Config\CategoryAttributeReader</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <preference for="Magento\Framework\GraphQlSchemaStitching\Reader"
+                type="ScandiPWA\CatalogGraphQl\GraphQlSchemaStitching\Reader"/>
+    <!-- Prevent Magento to dynamically build product and category attributes -->
+
     <type name="Magento\CatalogGraphQl\Model\Resolver\Products\Query\Search">
         <arguments>
             <argument name="pageSize" xsi:type="object">ScandiPWA\CatalogGraphQl\Model\Search\PageSizeProvider</argument>
