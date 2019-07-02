@@ -123,12 +123,19 @@ class Search
                 }
             }
             $products = array_filter($ids);
-        } else {
-            foreach ($paginatedProducts as $product) {
-                $productId = isset($product['entity_id']) ? $product['entity_id'] : $product[$idField];
-                if (in_array($productId, $searchIds)) {
-                    $products[] = $product;
-                }
+
+            return $this->searchResultFactory->create(
+                $searchResult->getTotalCount(),
+                $searchResult->getMinPrice(),
+                $searchResult->getMaxPrice(),
+                $products
+            );
+        }
+
+        foreach ($paginatedProducts as $product) {
+            $productId = isset($product['entity_id']) ? $product['entity_id'] : $product[$idField];
+            if (in_array($productId, $searchIds)) {
+                $products[] = $product;
             }
         }
 
@@ -154,10 +161,9 @@ class Search
         // Search starts pages from 0
         $offset = $length * ($searchCriteria->getCurrentPage() - 1);
 
+        $maxPages = 0;
         if ($searchCriteria->getPageSize()) {
             $maxPages = ceil($searchResult->getTotalCount() / $searchCriteria->getPageSize()) - 1;
-        } else {
-            $maxPages = 0;
         }
 
         if ($searchCriteria->getCurrentPage() > $maxPages && $searchResult->getTotalCount() > 0) {

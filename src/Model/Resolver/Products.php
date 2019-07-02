@@ -24,6 +24,8 @@ use Magento\Catalog\Model\Layer\Resolver;
 /**
  * Products field resolver, used for GraphQL request processing.
  * Implementing support for min max price
+ *
+ * @SuppressWarnings(PHPMD)
  */
 class Products implements ResolverInterface
 {
@@ -91,10 +93,9 @@ class Products implements ResolverInterface
             $searchResult = $this->filterQuery->getResult($searchCriteria, $info);
         }
         //possible division by 0
+        $maxPages = 0;
         if ($searchCriteria->getPageSize()) {
             $maxPages = ceil($searchResult->getTotalCount() / $searchCriteria->getPageSize());
-        } else {
-            $maxPages = 0;
         }
 
         $currentPage = $searchCriteria->getCurrentPage();
