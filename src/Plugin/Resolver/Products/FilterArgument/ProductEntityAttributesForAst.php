@@ -18,9 +18,13 @@ use \Magento\CatalogGraphQl\Model\Resolver\Products\FilterArgument\ProductEntity
 class ProductEntityAttributesForAst
 {
     /**
-     * @var array
+     * ProductEntityAttributesForAst constructor.
+     * @param array $attributes
      */
-    private $additionalAttributes = ['category_url_key', 'category_url_path'];
+    public function __construct(array $attributes)
+    {
+        $this->additionalAttributes = $attributes;
+    }
 
     /**
      * Injects custom additional attributes
@@ -31,10 +35,8 @@ class ProductEntityAttributesForAst
      * @return array
      */
     public function afterGetEntityAttributes(MagentoProductEntityAttributesForAst $subject, $result) {
-        foreach ($this->additionalAttributes as $attribute) {
-            $result[$attribute] = $attribute;
-        }
-
+        $result = array_merge($result, $this->additionalAttributes);
+        
         return $result;
     }
 }
