@@ -55,15 +55,15 @@ class ConfigurableProductAttributeFilter implements CustomFilterInterface
             ->reset(\Zend_Db_Select::COLUMNS)
             ->columns(['e.entity_id']);
 
-        $configurableProductsCollection = $this->collectionFactory->create();
-        $select = $configurableProductsCollection->getConnection()
+        $configurableProductCollection = $this->collectionFactory->create();
+        $select = $configurableProductCollection->getConnection()
             ->select()
             ->distinct()
             ->from(['l' => 'catalog_product_super_link'], 'l.product_id')
             ->join(
-                ['k' => $configurableProductsCollection->getTable('catalog_product_entity')],
+                ['k' => $configurableProductCollection->getTable('catalog_product_entity')],
                 'k.entity_id = l.parent_id'
-            )->where($configurableProductsCollection->getConnection()->prepareSqlCondition(
+            )->where($configurableProductCollection->getConnection()->prepareSqlCondition(
                 'l.product_id', ['in' => $simpleSelect->getSelect()]
             ))
             ->reset(\Zend_Db_Select::COLUMNS)
