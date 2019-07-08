@@ -25,3 +25,5 @@ This module extends Magento 2 Catalog GraphQl definitions.
 5. Fixes the Layered Navigation when filtering by category.
 
 6. Adds `thumbnail` to `MediaGalleryEntry` type. See more in [schema.graphqls](./src/etc/schema.graphqls).
+ 
+7.  Adds support for product list `min_price` and `max_price` values.

@@ -5,6 +5,7 @@
 # @package     ScandiPWA_CatalogGraphQl
 # @author      Viktors Pliska <info@scandiweb.com>
 # @author      Valerijs Sceglovs <info@scandiweb.com>
+# @author      Raivis Dejus <info@scandiweb.com>
 # @copyright   Copyright (c) 2018 Scandiweb, Ltd (https://scandiweb.com)
 ##
 
@@ -66,4 +67,14 @@ type AttributeWithValueOption {
 type AttributeWithValueSwatchData {
     type: String
     value: String
+}
+
+type Products {
+    min_price: Float @doc(description: "Minimal price among all selected items")
+    max_price: Float @doc(description: "Maximal price among all selected items")
+}
+
+type CategoryProducts {
+    min_price: Float @doc(description: "Minimal price among all selected items")
+    max_price: Float @doc(description: "Maximal price among all selected items")
 }
