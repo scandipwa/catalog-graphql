@@ -1,15 +1,29 @@
-# CHANGELOG
+# Changelog
+All notable changes to this project will be documented in this file.
 
-## Version 1.0.0
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-Updated `products` field input options with:
-- Configurable products attributes (`color`, `size`, `shoes_size`)
-- Category URL (`category_url_key`, `category_url_path`)
+## [1.4.1] - 2019-07-08
+### Added
+- `min_price, max_price` fields for accurate price filter
 
-Added custom resolver to `category` field
-Updated `category` field input options with `url_path`
+### Changed
+- filterable attributes are added via `di.xml`
+- layered navigation (filters) now utilizes the same collection (avoiding loading unnecessary data)
 
-Added type `ProductThumbnails` to `ProductInterface` interface
+## [1.4.0] - 2019-07-02
+### Changed
+- attributes are not auto-injected into schema (reduce bootstrap time) 
 
-Added fix for elastic search page size
+## [1.0.0] - 2019-03-08
+### Added
+- custom resolver to `category` field
+- type `ProductThumbnails` to `ProductInterface` interface
 
+### Changed
+- elasticsearch page size
+- `category` field input options with `url_path`
+- `products` field input options with:
+- - Configurable products attributes (`color`, `size`, `shoes_size`)
+- - Category URL (`category_url_key`, `category_url_path`)
