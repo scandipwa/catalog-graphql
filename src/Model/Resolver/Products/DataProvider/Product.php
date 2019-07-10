@@ -17,6 +17,7 @@ use Magento\Catalog\Model\ResourceModel\Product\CollectionFactory;
 use Magento\Catalog\Api\Data\ProductSearchResultsInterfaceFactory;
 use Magento\Framework\Api\SearchResultsInterface;
 use Magento\CatalogGraphQl\Model\Resolver\Products\DataProvider\Product\CollectionProcessorInterface;
+use ScandiPWA\CatalogGraphQl\Model\Resolver\Products\DataProvider\Product\CriteriaCheck;
 
 /**
  * Product field data provider, used for GraphQL resolver processing.
@@ -93,9 +94,14 @@ class Product extends \Magento\CatalogGraphQl\Model\Resolver\Products\DataProvid
         $this->collectionProcessor->process($collection, $searchCriteria, $attributes);
 
         if (!$isChildSearch) {
-            $visibilityIds = $isSearch
-                ? $this->visibility->getVisibleInSearchIds()
-                : $this->visibility->getVisibleInCatalogIds();
+            $singleProduct = CriteriaCheck::isSingleProductFilter($searchCriteria);
+            if ($singleProduct) {
+                $visibilityIds = $this->visibility->getVisibleInSiteIds();
+            } else {
+                $visibilityIds = $isSearch
+                    ? $this->visibility->getVisibleInSearchIds()
+                    : $this->visibility->getVisibleInCatalogIds();
+            }
             $collection->setVisibility($visibilityIds);
         }
 
