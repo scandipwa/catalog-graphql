@@ -60,9 +60,6 @@
     <preference for="Magento\CatalogGraphQl\Model\Resolver\Product\MediaGalleryEntries"
                 type="ScandiPWA\CatalogGraphQl\Model\Resolver\Product\MediaGalleryEntries"/>
 
-    <preference for="Magento\CatalogGraphQl\Model\Resolver\Products\DataProvider\CategoryTree"
-                type="ScandiPWA\CatalogGraphQl\Model\Resolver\Products\DataProvider\CategoryTree"/>
-
     <preference for="Magento\CatalogGraphQl\Model\Resolver\Products\SearchResult"
                 type="ScandiPWA\CatalogGraphQl\Model\Resolver\Products\SearchResult"/>
 
