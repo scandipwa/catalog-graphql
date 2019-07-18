@@ -31,9 +31,6 @@
             <argument name="attributes" xsi:type="array">
                 <item name="category_url_key" xsi:type="string">category_url_key</item>
                 <item name="category_url_path" xsi:type="string">category_url_path</item>
-                <item name="color" xsi:type="string">color</item>
-                <item name="size" xsi:type="string">size</item>
-                <item name="shoes_size" xsi:type="string">shoes_size</item>
             </argument>
         </arguments>
     </type>

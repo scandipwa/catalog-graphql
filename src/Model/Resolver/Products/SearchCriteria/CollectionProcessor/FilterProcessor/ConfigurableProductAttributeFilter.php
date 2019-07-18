@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace ScandiPWA\CatalogGraphQl\Model\Resolver\Products\SearchCriteria\CollectionProcessor\FilterProcessor;
 
+use Magento\Catalog\Model\Product\Attribute\Source\Status;
 use Magento\Framework\Api\SearchCriteria\CollectionProcessor\FilterProcessor\CustomFilterInterface;
 use Magento\Framework\Data\Collection\AbstractDb;
 use Magento\Framework\Api\Filter;
@@ -47,9 +48,11 @@ class ConfigurableProductAttributeFilter implements CustomFilterInterface
 
         $simpleSelect = $this->collectionFactory->create()
             ->addAttributeToFilter($attributeName, [$conditionType => $attributeValue])
-            ->addAttributeToFilter('status',
-                \Magento\Catalog\Model\Product\Attribute\Source\Status::STATUS_ENABLED)
-            ->addCategoriesFilter(['in' => (int)$category->getId()]);
+            ->addAttributeToFilter('status', Status::STATUS_ENABLED);
+        if ($category) {
+            $simpleSelect->addCategoriesFilter(['in' => (int)$category->getId()]);
+        }
+        
 
         $simpleSelect->getSelect()
             ->reset(\Zend_Db_Select::COLUMNS)
