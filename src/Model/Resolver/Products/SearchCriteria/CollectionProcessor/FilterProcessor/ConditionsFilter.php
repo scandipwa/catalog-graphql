@@ -3,6 +3,7 @@
 namespace ScandiPWA\CatalogGraphQl\Model\Resolver\Products\SearchCriteria\CollectionProcessor\FilterProcessor;
 
 use Magento\CatalogWidget\Model\Rule;
+use Magento\Catalog\Model\Product\Attribute\Source\Status;
 use Magento\Catalog\Model\ResourceModel\Product\CollectionFactory;
 use Magento\Framework\Api\Filter;
 use Magento\Framework\Api\SearchCriteria\CollectionProcessor\FilterProcessor\CustomFilterInterface;
@@ -68,6 +69,7 @@ class ConditionsFilter implements CustomFilterInterface
         }
 
         $this->rule->loadPost(['conditions' => $conditions]);
+
         return $this->rule->getConditions();
     }
 
@@ -85,10 +87,11 @@ class ConditionsFilter implements CustomFilterInterface
 
         $conditions = $this->getConditions($filter->getValue());
 
-        $conditions->collectValidatedAttributes($collection);
-        $this->sqlBuilder->attachConditionToCollection($collection, $conditions);
         $simpleSelect = clone $collection;
+        $conditions->collectValidatedAttributes($simpleSelect);
+        $this->sqlBuilder->attachConditionToCollection($simpleSelect, $conditions);
 
+        $simpleSelect->addFieldToFilter('status', Status::STATUS_ENABLED);
         $simpleSelect->getSelect()
             ->reset(\Zend_Db_Select::COLUMNS)
             ->columns(['e.entity_id']);
@@ -110,6 +113,10 @@ class ConditionsFilter implements CustomFilterInterface
             ->columns(['l.parent_id']);
 
         $collection->getSelect()
+            ->where($collection->getConnection()->prepareSqlCondition(
+                'e.entity_id',
+                ['in' => $simpleSelect->getSelect()]
+            ))
             ->orWhere($collection->getConnection()->prepareSqlCondition(
                 'e.entity_id',
                 ['in' => $select]

@@ -52,7 +52,7 @@ class ConfigurableProductAttributeFilter implements CustomFilterInterface
         if ($category) {
             $simpleSelect->addCategoriesFilter(['in' => (int)$category->getId()]);
         }
-        
+
 
         $simpleSelect->getSelect()
             ->reset(\Zend_Db_Select::COLUMNS)
@@ -67,14 +67,21 @@ class ConfigurableProductAttributeFilter implements CustomFilterInterface
                 ['k' => $configurableProductCollection->getTable('catalog_product_entity')],
                 'k.entity_id = l.parent_id'
             )->where($configurableProductCollection->getConnection()->prepareSqlCondition(
-                'l.product_id', ['in' => $simpleSelect->getSelect()]
+                'l.product_id',
+                ['in' => $simpleSelect->getSelect()]
             ))
             ->reset(\Zend_Db_Select::COLUMNS)
             ->columns(['l.parent_id']);
 
-        $collection->getSelect()->where($collection->getConnection()->prepareSqlCondition(
-            'e.entity_id', ['in' => $select]
-        ));
+        $collection->getSelect()
+            ->where($collection->getConnection()->prepareSqlCondition(
+                'e.entity_id',
+                ['in' => $simpleSelect->getSelect()]
+            ))
+            ->orWhere($collection->getConnection()->prepareSqlCondition(
+                'e.entity_id',
+                ['in' => $select]
+            ));
 
         return true;
     }
