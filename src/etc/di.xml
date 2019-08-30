@@ -29,7 +29,6 @@
     <type name="ScandiPWA\CatalogGraphQl\Plugin\Resolver\Products\FilterArgument\ProductEntityAttributesForAst">
         <arguments>
             <argument name="attributes" xsi:type="array">
-                <item name="news_to_date" xsi:type="string">news_to_date</item>
                 <item name="category_url_key" xsi:type="string">category_url_key</item>
                 <item name="category_url_path" xsi:type="string">category_url_path</item>
             </argument>
