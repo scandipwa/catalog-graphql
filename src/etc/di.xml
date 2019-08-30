@@ -32,6 +32,7 @@
                 <item name="news_to_date" xsi:type="string">news_to_date</item>
                 <item name="category_url_key" xsi:type="string">category_url_key</item>
                 <item name="category_url_path" xsi:type="string">category_url_path</item>
+                <item name="conditions" xsi:type="string">conditions</item>
             </argument>
         </arguments>
     </type>
@@ -78,6 +79,9 @@
 
     <preference for="Magento\CatalogGraphQl\Model\Resolver\Products\Query\Search"
                 type="ScandiPWA\CatalogGraphQl\Model\Resolver\Products\Query\Search"/>
+
+    <preference for="Magento\CatalogWidget\Model\Rule\Condition\Product"
+                type="ScandiPWA\CatalogGraphQl\Model\Rule\Condition\Product" />
 
     <type name="ScandiPWA\CatalogGraphQl\Model\Resolver\Products\Query\Search">
         <arguments>
