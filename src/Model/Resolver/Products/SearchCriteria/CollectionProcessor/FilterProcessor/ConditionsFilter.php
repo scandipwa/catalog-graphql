@@ -1,16 +1,15 @@
 <?php
 
-
 namespace ScandiPWA\CatalogGraphQl\Model\Resolver\Products\SearchCriteria\CollectionProcessor\FilterProcessor;
-use Magento\Catalog\Model\Product\Attribute\Source\Status;
+
+use Magento\CatalogWidget\Model\Rule;
+use Magento\Catalog\Model\ResourceModel\Product\CollectionFactory;
 use Magento\Framework\Api\Filter;
 use Magento\Framework\Api\SearchCriteria\CollectionProcessor\FilterProcessor\CustomFilterInterface;
 use Magento\Framework\Data\Collection\AbstractDb;
 use Magento\Framework\Exception\LocalizedException;
-use Magento\Widget\Helper\Conditions;
-use Magento\CatalogWidget\Model\Rule;
 use Magento\Rule\Model\Condition\Sql\Builder;
-use Magento\Catalog\Model\ResourceModel\Product\CollectionFactory;
+use Magento\Widget\Helper\Conditions;
 
 class ConditionsFilter implements CustomFilterInterface
 {
@@ -56,7 +55,8 @@ class ConditionsFilter implements CustomFilterInterface
      *
      * @return \Magento\Rule\Model\Condition\Combine
      */
-    protected function getConditions($conditions) {
+    protected function getConditions($conditions)
+    {
         $conditions = $this->conditionsHelper->decode($conditions);
 
         foreach ($conditions as $key => $condition) {
@@ -74,7 +74,8 @@ class ConditionsFilter implements CustomFilterInterface
     /**
      * @inheritDoc
      */
-    public function apply(Filter $filter, AbstractDb $collection) {
+    public function apply(Filter $filter, AbstractDb $collection)
+    {
         $conditionType = $filter->getConditionType();
         $rawFilterField = $filter->getField();
 
@@ -102,14 +103,16 @@ class ConditionsFilter implements CustomFilterInterface
                 `k.entity_id = l.parent_id`
             )
             ->where($configurableProductCollection->getConnection()->prepareSqlCondition(
-                'l.product_id', ['in' => $simpleSelect->getSelect()]
+                'l.product_id',
+                ['in' => $simpleSelect->getSelect()]
             ))
             ->reset(\Zend_Db_Select::COLUMNS)
             ->columns(['l.parent_id']);
 
         $collection->getSelect()
             ->orWhere($collection->getConnection()->prepareSqlCondition(
-                'e.entity_id', ['in' => $select]
+                'e.entity_id',
+                ['in' => $select]
             ));
 
         return true;

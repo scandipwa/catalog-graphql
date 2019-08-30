@@ -1,9 +1,9 @@
 <?php
 namespace ScandiPWA\CatalogGraphQl\Model\Rule\Condition;
 
+use Magento\CatalogWidget\Model\Rule\Condition\Product as ProductCondition;
 use Magento\Catalog\Model\ResourceModel\Eav\Attribute;
 use Magento\Catalog\Model\ResourceModel\Product\Collection;
-use Magento\CatalogWidget\Model\Rule\Condition\Product as ProductCondition;
 
 /**
  * Class Product
