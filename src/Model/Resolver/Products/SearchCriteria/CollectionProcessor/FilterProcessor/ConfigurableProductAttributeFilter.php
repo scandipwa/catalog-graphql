@@ -73,14 +73,15 @@ class ConfigurableProductAttributeFilter implements CustomFilterInterface
             ->reset(\Zend_Db_Select::COLUMNS)
             ->columns(['l.parent_id']);
 
+        $unionCollection = $this->collectionFactory->create();
+        $unionSelect = $unionCollection->getConnection()
+            ->select()
+            ->union([$simpleSelect->getSelect(), $select]);
+
         $collection->getSelect()
             ->where($collection->getConnection()->prepareSqlCondition(
                 'e.entity_id',
-                ['in' => $simpleSelect->getSelect()]
-            ))
-            ->orWhere($collection->getConnection()->prepareSqlCondition(
-                'e.entity_id',
-                ['in' => $select]
+                ['in' => $unionSelect]
             ));
 
         return true;
