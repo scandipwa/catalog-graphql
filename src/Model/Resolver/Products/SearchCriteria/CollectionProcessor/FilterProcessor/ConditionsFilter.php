@@ -85,7 +85,8 @@ class ConditionsFilter implements CustomFilterInterface
             throw new LocalizedException(__($rawFilterField . " only supports 'eq' condition type."));
         }
 
-        $conditions = $this->getConditions($filter->getValue());
+        $conditions = base64_decode($filter->getValue());
+        $conditions = $this->getConditions($conditions);
 
         $simpleSelect = clone $collection;
         $conditions->collectValidatedAttributes($simpleSelect);
