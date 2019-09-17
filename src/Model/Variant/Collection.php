@@ -150,7 +150,6 @@ class Collection extends MagentoCollection
             $childCollection = $this->childCollectionFactory->create();
             $childCollection->setProductFilter($product);
             $childCollection->addAttributeToSelect($attributeData);
-            // Custom code. Ignore Disabled products
             $childCollection->addAttributeToFilter('status', '1');
 
             /** @var Product $childProduct */
