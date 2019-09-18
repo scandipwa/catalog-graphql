@@ -9,6 +9,7 @@ namespace ScandiPWA\CatalogGraphQl\Model\Variant;
 
 use Magento\Catalog\Api\Data\ProductInterface;
 use Magento\Catalog\Model\Product;
+use Magento\Catalog\Model\Product\Attribute\Source\Status;
 use Magento\Catalog\Model\ProductFactory;
 use Magento\ConfigurableProduct\Model\ResourceModel\Product\Type\Configurable\Product\Collection as ChildCollection;
 use Magento\ConfigurableProduct\Model\ResourceModel\Product\Type\Configurable\Product\CollectionFactory;
@@ -150,7 +151,7 @@ class Collection extends MagentoCollection
             $childCollection = $this->childCollectionFactory->create();
             $childCollection->setProductFilter($product);
             $childCollection->addAttributeToSelect($attributeData);
-            $childCollection->addAttributeToFilter('status', '1');
+            $childCollection->addAttributeToFilter('status', Status::STATUS_ENABLED);
 
             /** @var Product $childProduct */
             foreach ($childCollection->getItems() as $childProduct) {
