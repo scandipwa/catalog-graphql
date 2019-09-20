@@ -15,6 +15,7 @@ use Magento\ConfigurableProduct\Model\ResourceModel\Product\Type\Configurable\Pr
 use Magento\ConfigurableProduct\Model\ResourceModel\Product\Type\Configurable\Product\CollectionFactory;
 use Magento\Framework\EntityManager\MetadataPool;
 use Magento\Framework\Api\SearchCriteriaBuilder;
+use Magento\CatalogInventory\Helper\Stock;
 use Magento\CatalogGraphQl\Model\Resolver\Products\DataProvider\Product as DataProvider;
 use Magento\ConfigurableProductGraphQl\Model\Variant\Collection as MagentoCollection;
 
@@ -49,6 +50,11 @@ class Collection extends MagentoCollection
     private $metadataPool;
 
     /**
+     * @var Stock
+     */
+    private $stock;
+
+    /**
      * @var Product[]
      */
     private $parentProducts = [];
@@ -75,13 +81,15 @@ class Collection extends MagentoCollection
         ProductFactory $productFactory,
         SearchCriteriaBuilder $searchCriteriaBuilder,
         DataProvider $productDataProvider,
-        MetadataPool $metadataPool
+        MetadataPool $metadataPool,
+        Stock $stock
     ) {
         $this->childCollectionFactory = $childCollectionFactory;
         $this->productFactory = $productFactory;
         $this->searchCriteriaBuilder = $searchCriteriaBuilder;
         $this->productDataProvider = $productDataProvider;
         $this->metadataPool = $metadataPool;
+        $this->stock = $stock;
     }
 
     /**
@@ -152,6 +160,7 @@ class Collection extends MagentoCollection
             $childCollection->setProductFilter($product);
             $childCollection->addAttributeToSelect($attributeData);
             $childCollection->addAttributeToFilter('status', Status::STATUS_ENABLED);
+            $this->stock->addIsInStockFilterToCollection($childCollection);
 
             /** @var Product $childProduct */
             foreach ($childCollection->getItems() as $childProduct) {
