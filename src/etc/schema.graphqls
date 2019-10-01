@@ -25,6 +25,10 @@ input ProductFilterInput {
     conditions: FilterTypeInput @doc(description: "Searches products by JSON formatted conditions")
 }
 
+input ProductSortInput {
+    position: SortEnum @doc(description: "A number assigned to a product")
+}
+
 type MediaGalleryEntry  @doc(description: "MediaGalleryEntry defines characteristics about images and videos associated with a specific product") {
     thumbnail: ProductThumbnail @doc(description: "The path of the thumbnail image on the server thumbnail")
 }
