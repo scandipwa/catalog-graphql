@@ -18,6 +18,7 @@ use Magento\Catalog\Api\Data\ProductSearchResultsInterfaceFactory;
 use Magento\Framework\Api\SearchResultsInterface;
 use Magento\CatalogGraphQl\Model\Resolver\Products\DataProvider\Product\CollectionProcessorInterface;
 use ScandiPWA\CatalogGraphQl\Model\Resolver\Products\DataProvider\Product\CriteriaCheck;
+use Magento\Store\Model\StoreManagerInterface;
 
 /**
  * Product field data provider, used for GraphQL resolver processing.
@@ -56,21 +57,29 @@ class Product extends \Magento\CatalogGraphQl\Model\Resolver\Products\DataProvid
     private $maxPrice;
 
     /**
+     * @var StoreManagerInterface
+     */
+    private $storeManager;
+
+    /**
      * @param CollectionFactory $collectionFactory
      * @param ProductSearchResultsInterfaceFactory $searchResultsFactory
      * @param Visibility $visibility
      * @param CollectionProcessorInterface $collectionProcessor
+     * @param StoreManagerInterface $storeManager
      */
     public function __construct(
         CollectionFactory $collectionFactory,
         ProductSearchResultsInterfaceFactory $searchResultsFactory,
         Visibility $visibility,
-        CollectionProcessorInterface $collectionProcessor
+        CollectionProcessorInterface $collectionProcessor,
+        StoreManagerInterface $storeManager
     ) {
         $this->collectionFactory = $collectionFactory;
         $this->searchResultsFactory = $searchResultsFactory;
         $this->visibility = $visibility;
         $this->collectionProcessor = $collectionProcessor;
+        $this->storeManager = $storeManager;
     }
 
     /**
@@ -134,7 +143,13 @@ class Product extends \Magento\CatalogGraphQl\Model\Resolver\Products\DataProvid
         $connection = $collection->getConnection();
         $entityIds = $collection->getAllIds();
 
-        $row = $connection->fetchRow('SELECT MIN(min_price) as min_price, MAX(max_price) as max_price FROM catalog_product_index_price WHERE entity_id IN(\'' . \implode("','", $entityIds) . '\')');
+        $query = sprintf(
+            'SELECT MIN(min_price) as min_price, MAX(max_price) as max_price FROM catalog_product_index_price WHERE entity_id IN ("%s") AND website_id = %d',
+            implode('","', $entityIds),
+            $this->storeManager->getStore()->getWebsiteId()
+        );
+
+        $row = $connection->fetchRow($query);
 
         return [floatval($row['min_price']),floatval($row['max_price'])];
     }
