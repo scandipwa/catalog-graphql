@@ -46,6 +46,8 @@ class ConfigurableProductAttributeFilter implements CustomFilterInterface
         $attributeValue = $filter->getValue();
         $category = $this->registry->registry('current_category');
 
+        $this->_saveActiveFiltersToRegistry($attributeName, $attributeValue);
+
         $simpleSelect = $this->collectionFactory->create()
             ->addAttributeToFilter($attributeName, [$conditionType => $attributeValue])
             ->addAttributeToFilter('status', Status::STATUS_ENABLED);
@@ -85,5 +87,20 @@ class ConfigurableProductAttributeFilter implements CustomFilterInterface
             ));
 
         return true;
+    }
+
+    /**
+     * Save active filters to registry
+     *
+     * @param $attributeName
+     * @param $attributeValues
+     */
+    protected function _saveActiveFiltersToRegistry($attributeName, $attributeValues)
+    {
+        $registry = $this->registry->registry('filter_attributes') ?? [];
+        $registry[$attributeName] = $attributeValues;
+
+        $this->registry->unregister('filter_attributes');
+        $this->registry->register('filter_attributes', $registry);
     }
 }

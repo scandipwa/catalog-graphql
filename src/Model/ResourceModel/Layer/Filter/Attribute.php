@@ -58,39 +58,98 @@ class Attribute extends \Magento\Catalog\Model\ResourceModel\Layer\Filter\Attrib
         $select->reset(\Magento\Framework\DB\Select::LIMIT_COUNT);
         $select->reset(\Magento\Framework\DB\Select::LIMIT_OFFSET);
 
-        $connection = $this->getConnection();
-        $attribute = $filter->getAttributeModel();
-        $attributeTableAlias = sprintf('%s_idx', $attribute->getAttributeCode());
-        $categoryTableAlias = 'category_product';
-        $category = $this->registry->registry('current_category');
+        // join category and attribute statements
+        $this->_joinCategory($select);
+        $this->_joinAttribute($select, $filter->getAttributeModel(), $filter->getStoreId());
 
-        // join category
-        $categoryQueryConditions = [
-            "{$categoryTableAlias}.product_id = e.entity_id",
-            "{$categoryTableAlias}.category_id = {$category->getId()}"
+        return $this->getConnection()->fetchPairs($select);
+    }
+
+    /**
+     * Join current category to select statement
+     *
+     * @param $select
+     */
+    protected function _joinCategory(&$select)
+    {
+        $tableAlias = 'category_product';
+        $queryConditions = [
+            "{$tableAlias}.product_id = e.entity_id",
+            "{$tableAlias}.category_id = {$this->_getCurrentCategory()->getId()}"
         ];
+
         $select->join(
-            [$categoryTableAlias => $this->getTable('catalog_category_product')],
-            join(' AND ', $categoryQueryConditions),
+            [$tableAlias => $this->getTable('catalog_category_product')],
+            join(' AND ', $queryConditions),
             null
         );
+    }
 
-        // join attribute
-        $attributeQueryConditions = [
-            "{$attributeTableAlias}.entity_id = e.entity_id",
-            $connection->quoteInto("{$attributeTableAlias}.attribute_id = ?", $attribute->getAttributeId()),
-            $connection->quoteInto("{$attributeTableAlias}.store_id = ?", $filter->getStoreId()),
+    /**
+     * Join attribute to select statement
+     *
+     * @param $select
+     * @param $attribute
+     * @param $storeId
+     * @throws \Magento\Framework\Exception\LocalizedException
+     */
+    protected function _joinAttribute(&$select, $attribute, $storeId)
+    {
+        $tableAlias = 'attribute_idx';
+        $connection = $this->getConnection();
+        $activeFilters = $this->_getActiveFilters();
+
+        $queryConditions = [
+            "{$tableAlias}.entity_id = e.entity_id",
+            $connection->quoteInto("{$tableAlias}.attribute_id = ?", $attribute->getAttributeId()),
+            $connection->quoteInto("{$tableAlias}.store_id = ?", $storeId)
         ];
+
+        if (count($activeFilters) > 0) {
+            // add current active filters' join statement
+            if (isset($activeFilters[$attribute->getAttributeCode()])) {
+                $currentActiveFiltersQuery = $connection->select()
+                    ->from($this->getMainTable(), 'entity_id')
+                    ->where('value IN(?)', $activeFilters[$attribute->getAttributeCode()]);
+                $queryConditions[] = "{$tableAlias}.entity_id IN({$currentActiveFiltersQuery})";
+                unset($activeFilters[$attribute->getAttributeCode()]);
+            }
+
+            // add the rest active filter join statements
+            if (count($activeFilters) > 0) {
+                foreach ($activeFilters as $activeFilter) {
+                    $otherActiveFiltersSelect = $connection->select()
+                        ->from($this->getMainTable(), 'entity_id')
+                        ->where('value IN(?)', $activeFilter);
+                    $queryConditions[] = "{$tableAlias}.entity_id IN({$otherActiveFiltersSelect})";
+                }
+            }
+        }
+
         $select->join(
-            [$attributeTableAlias => $this->getMainTable()],
-            join(' AND ', $attributeQueryConditions),
-            ['value', 'count' => new \Zend_Db_Expr("COUNT({$attributeTableAlias}.entity_id)")]
-        );
+            [$tableAlias => $this->getMainTable()],
+            join(' AND ', $queryConditions),
+            ['value', 'count' => new \Zend_Db_Expr("COUNT({$tableAlias}.entity_id)")]
+        )->group(["{$tableAlias}.value"]);
+    }
 
-        $select->group(
-            ["{$attributeTableAlias}.value", "{$categoryTableAlias}.category_id"]
-        );
+    /**
+     * Get current category
+     *
+     * @return \Magento\Catalog\Model\Category
+     */
+    protected function _getCurrentCategory()
+    {
+        return $this->registry->registry('current_category');
+    }
 
-        return $connection->fetchPairs($select);
+    /**
+     * Get active filters
+     *
+     * @return array
+     */
+    protected function _getActiveFilters()
+    {
+        return $this->registry->registry('filter_attributes') ?? [];
     }
 }
