@@ -18,7 +18,6 @@
                 <item name="color" xsi:type="object">ScandiPWA\CatalogGraphQl\Model\Resolver\Products\SearchCriteria\CollectionProcessor\FilterProcessor\ConfigurableProductAttributeFilter</item>
                 <item name="size" xsi:type="object">ScandiPWA\CatalogGraphQl\Model\Resolver\Products\SearchCriteria\CollectionProcessor\FilterProcessor\ConfigurableProductAttributeFilter</item>
                 <item name="shoes_size" xsi:type="object">ScandiPWA\CatalogGraphQl\Model\Resolver\Products\SearchCriteria\CollectionProcessor\FilterProcessor\ConfigurableProductAttributeFilter</item>
-                <item name="conditions" xsi:type="object">ScandiPWA\CatalogGraphQl\Model\Resolver\Products\SearchCriteria\CollectionProcessor\FilterProcessor\ConditionsFilter</item>
             </argument>
         </arguments>
     </virtualType>

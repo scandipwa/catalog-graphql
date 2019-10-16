@@ -46,15 +46,13 @@ class ConfigurableProductAttributeFilter implements CustomFilterInterface
         $attributeValue = $filter->getValue();
         $category = $this->registry->registry('current_category');
 
-        $this->_saveActiveFiltersToRegistry($attributeName, $attributeValue);
-
         $simpleSelect = $this->collectionFactory->create()
             ->addAttributeToFilter($attributeName, [$conditionType => $attributeValue])
             ->addAttributeToFilter('status', Status::STATUS_ENABLED);
         if ($category) {
             $simpleSelect->addCategoriesFilter(['in' => (int)$category->getId()]);
         }
-
+        
 
         $simpleSelect->getSelect()
             ->reset(\Zend_Db_Select::COLUMNS)
@@ -69,38 +67,15 @@ class ConfigurableProductAttributeFilter implements CustomFilterInterface
                 ['k' => $configurableProductCollection->getTable('catalog_product_entity')],
                 'k.entity_id = l.parent_id'
             )->where($configurableProductCollection->getConnection()->prepareSqlCondition(
-                'l.product_id',
-                ['in' => $simpleSelect->getSelect()]
+                'l.product_id', ['in' => $simpleSelect->getSelect()]
             ))
             ->reset(\Zend_Db_Select::COLUMNS)
             ->columns(['l.parent_id']);
 
-        $unionCollection = $this->collectionFactory->create();
-        $unionSelect = $unionCollection->getConnection()
-            ->select()
-            ->union([$simpleSelect->getSelect(), $select]);
-
-        $collection->getSelect()
-            ->where($collection->getConnection()->prepareSqlCondition(
-                'e.entity_id',
-                ['in' => $unionSelect]
-            ));
+        $collection->getSelect()->where($collection->getConnection()->prepareSqlCondition(
+            'e.entity_id', ['in' => $select]
+        ));
 
         return true;
-    }
-
-    /**
-     * Save active filters to registry
-     *
-     * @param $attributeName
-     * @param $attributeValues
-     */
-    protected function _saveActiveFiltersToRegistry($attributeName, $attributeValues)
-    {
-        $registry = $this->registry->registry('filter_attributes') ?? [];
-        $registry[$attributeName] = $attributeValues;
-
-        $this->registry->unregister('filter_attributes');
-        $this->registry->register('filter_attributes', $registry);
     }
 }

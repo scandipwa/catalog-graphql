@@ -38,7 +38,7 @@ class StockProcessor extends MagentoStockProcessor implements CollectionProcesso
     }
     
     public function process(
-        Collection $collection,
+        $collection,
         SearchCriteriaInterface $searchCriteria,
         array $attributeNames
     ): Collection
