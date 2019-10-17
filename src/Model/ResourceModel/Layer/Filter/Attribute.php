@@ -11,6 +11,7 @@
 namespace ScandiPWA\CatalogGraphQl\Model\ResourceModel\Layer\Filter;
 
 use Magento\Framework\Registry;
+use ScandiPWA\CatalogGraphQl\Helper\FiltersHelper;
 use Magento\Framework\Model\ResourceModel\Db\Context;
 use Magento\Catalog\Model\Layer\Filter\FilterInterface;
 
@@ -26,6 +27,11 @@ class Attribute extends \Magento\Catalog\Model\ResourceModel\Layer\Filter\Attrib
     protected $registry;
 
     /**
+     * @var FiltersHelper
+     */
+    protected $filtersHelper;
+
+    /**
      * @param Registry $registry
      * @param Context $context
      * @param null $connectionName
@@ -33,10 +39,12 @@ class Attribute extends \Magento\Catalog\Model\ResourceModel\Layer\Filter\Attrib
     public function __construct(
         Registry $registry,
         Context $context,
+        FiltersHelper $filtersHelper,
         $connectionName = null
     )
     {
         $this->registry = $registry;
+        $this->filtersHelper = $filtersHelper;
         parent::__construct($context, $connectionName);
     }
 
@@ -150,6 +158,6 @@ class Attribute extends \Magento\Catalog\Model\ResourceModel\Layer\Filter\Attrib
      */
     protected function _getActiveFilters()
     {
-        return $this->registry->registry('filter_attributes') ?? [];
+        return $this->filtersHelper->getFilters();
     }
 }

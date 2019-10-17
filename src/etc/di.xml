@@ -83,9 +83,6 @@
     <preference for="Magento\CatalogWidget\Model\Rule\Condition\Product"
                 type="ScandiPWA\CatalogGraphQl\Model\Rule\Condition\Product" />
 
-    <preference for="Magento\Catalog\Model\ResourceModel\Layer\Filter\Attribute"
-                type="ScandiPWA\CatalogGraphQl\Model\ResourceModel\Layer\Filter\Attribute" />
-
     <type name="ScandiPWA\CatalogGraphQl\Model\Resolver\Products\Query\Search">
         <arguments>
             <argument name="pageSize" xsi:type="object">ScandiPWA\CatalogGraphQl\Model\Search\PageSizeProvider</argument>

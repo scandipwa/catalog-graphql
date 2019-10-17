@@ -19,6 +19,7 @@ use Magento\Framework\Api\Filter;
 use Magento\Catalog\Model\ResourceModel\Product\CollectionFactory;
 use Magento\ConfigurableProduct\Model\ResourceModel\Product\Type\Configurable;
 use Magento\Framework\Registry;
+use ScandiPWA\CatalogGraphQl\Helper\FiltersHelper;
 
 /**
  * Category filter allows to filter products collection using custom defined filters from search criteria.
@@ -28,15 +29,18 @@ class ConfigurableProductAttributeFilter implements CustomFilterInterface
     protected $configurable;
     protected $collectionFactory;
     protected $registry;
+    protected $filtersHelper;
 
     public function __construct(
         Configurable $configurable,
         CollectionFactory $collectionFactory,
-        Registry $registry
+        Registry $registry,
+        FiltersHelper $filtersHelper
     ) {
         $this->registry = $registry;
         $this->configurable = $configurable;
         $this->collectionFactory = $collectionFactory;
+        $this->filtersHelper = $filtersHelper;
     }
 
     public function apply(Filter $filter, AbstractDb $collection)
@@ -46,7 +50,7 @@ class ConfigurableProductAttributeFilter implements CustomFilterInterface
         $attributeValue = $filter->getValue();
         $category = $this->registry->registry('current_category');
 
-        $this->_saveActiveFiltersToRegistry($attributeName, $attributeValue);
+        $this->filtersHelper->addFilter($attributeName, $attributeValue);
 
         $simpleSelect = $this->collectionFactory->create()
             ->addAttributeToFilter($attributeName, [$conditionType => $attributeValue])
@@ -87,20 +91,5 @@ class ConfigurableProductAttributeFilter implements CustomFilterInterface
             ));
 
         return true;
-    }
-
-    /**
-     * Save active filters to registry
-     *
-     * @param $attributeName
-     * @param $attributeValues
-     */
-    protected function _saveActiveFiltersToRegistry($attributeName, $attributeValues)
-    {
-        $registry = $this->registry->registry('filter_attributes') ?? [];
-        $registry[$attributeName] = $attributeValues;
-
-        $this->registry->unregister('filter_attributes');
-        $this->registry->register('filter_attributes', $registry);
     }
 }
