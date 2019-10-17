@@ -19,7 +19,6 @@ use Magento\Framework\Api\Filter;
 use Magento\Catalog\Model\ResourceModel\Product\CollectionFactory;
 use Magento\ConfigurableProduct\Model\ResourceModel\Product\Type\Configurable;
 use Magento\Framework\Registry;
-use ScandiPWA\CatalogGraphQl\Helper\FiltersHelper;
 
 /**
  * Category filter allows to filter products collection using custom defined filters from search criteria.
@@ -29,18 +28,15 @@ class ConfigurableProductAttributeFilter implements CustomFilterInterface
     protected $configurable;
     protected $collectionFactory;
     protected $registry;
-    protected $filtersHelper;
 
     public function __construct(
         Configurable $configurable,
         CollectionFactory $collectionFactory,
-        Registry $registry,
-        FiltersHelper $filtersHelper
+        Registry $registry
     ) {
         $this->registry = $registry;
         $this->configurable = $configurable;
         $this->collectionFactory = $collectionFactory;
-        $this->filtersHelper = $filtersHelper;
     }
 
     public function apply(Filter $filter, AbstractDb $collection)
@@ -49,8 +45,6 @@ class ConfigurableProductAttributeFilter implements CustomFilterInterface
         $attributeName = $filter->getField();
         $attributeValue = $filter->getValue();
         $category = $this->registry->registry('current_category');
-
-        $this->filtersHelper->addFilter($attributeName, $attributeValue);
 
         $simpleSelect = $this->collectionFactory->create()
             ->addAttributeToFilter($attributeName, [$conditionType => $attributeValue])

@@ -10,17 +10,17 @@
 
 namespace ScandiPWA\CatalogGraphQl\Helper;
 
-class FiltersHelper
+class GraphqlRequestData
 {
-    private $filters = [];
+    private $request = [];
 
-    public function addFilter($filterName, $filterValues)
+    public function setRequest($request)
     {
-        $this->filters[$filterName] = $filterValues;
+        $this->request = $request;
     }
 
-    public function getFilters()
+    public function getRequest()
     {
-        return $this->filters;
+        return $this->request;
     }
 }

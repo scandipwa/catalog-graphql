@@ -20,6 +20,7 @@ use Magento\Framework\GraphQl\Query\Resolver\Argument\SearchCriteria\Builder;
 use Magento\Framework\GraphQl\Query\Resolver\Argument\SearchCriteria\SearchFilter;
 use Magento\Framework\GraphQl\Query\ResolverInterface;
 use Magento\Catalog\Model\Layer\Resolver;
+use ScandiPWA\CatalogGraphQl\Helper\GraphqlRequestData;
 
 /**
  * Products field resolver, used for GraphQL request processing.
@@ -49,6 +50,8 @@ class Products implements ResolverInterface
      */
     private $searchFilter;
 
+    private $graphqlRequestData;
+
     /**
      * @param Builder $searchCriteriaBuilder
      * @param Search $searchQuery
@@ -59,12 +62,14 @@ class Products implements ResolverInterface
         Builder $searchCriteriaBuilder,
         Search $searchQuery,
         Filter $filterQuery,
-        SearchFilter $searchFilter
+        SearchFilter $searchFilter,
+        GraphqlRequestData $graphqlRequestData
     ) {
         $this->searchCriteriaBuilder = $searchCriteriaBuilder;
         $this->searchQuery = $searchQuery;
         $this->filterQuery = $filterQuery;
         $this->searchFilter = $searchFilter;
+        $this->graphqlRequestData = $graphqlRequestData;
     }
 
     /**
@@ -77,6 +82,8 @@ class Products implements ResolverInterface
         array $value = null,
         array $args = null
     ) {
+        $this->graphqlRequestData->setRequest($args);
+
         $searchCriteria = $this->searchCriteriaBuilder->build($field->getName(), $args);
         $searchCriteria->setCurrentPage($args['currentPage']);
         $searchCriteria->setPageSize($args['pageSize']);
@@ -107,7 +114,6 @@ class Products implements ResolverInterface
                 )
             );
         }
-
 
         $data = [
             'total_count' => $searchResult->getTotalCount(),

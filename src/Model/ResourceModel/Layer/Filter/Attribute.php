@@ -13,7 +13,7 @@ namespace ScandiPWA\CatalogGraphQl\Model\ResourceModel\Layer\Filter;
 use Magento\Catalog\Helper\Data as CatalogHelper;
 use Magento\Framework\Model\ResourceModel\Db\Context;
 use Magento\Catalog\Model\Layer\Filter\FilterInterface;
-use ScandiPWA\CatalogGraphQl\Helper\FiltersHelper;
+use ScandiPWA\CatalogGraphQl\Helper\GraphqlRequestData;
 
 /**
  * Class Attribute
@@ -22,9 +22,9 @@ use ScandiPWA\CatalogGraphQl\Helper\FiltersHelper;
 class Attribute extends \Magento\Catalog\Model\ResourceModel\Layer\Filter\Attribute
 {
     /**
-     * @var FiltersHelper
-     */
-    protected $filtersHelper;
+     * @var GraphqlRequestData
+    */
+    protected $graphqlRequestData;
 
     /**
      * @var CatalogHelper
@@ -33,19 +33,18 @@ class Attribute extends \Magento\Catalog\Model\ResourceModel\Layer\Filter\Attrib
 
     /**
      * @param CatalogHelper $catalogHelper
-     * @param FiltersHelper $filtersHelper
      * @param Context $context
      * @param null $connectionName
      */
     public function __construct(
         Context $context,
         CatalogHelper $catalogHelper,
-        FiltersHelper $filtersHelper,
+        GraphqlRequestData $graphqlRequestData,
         $connectionName = null
     )
     {
         $this->catalogHelper = $catalogHelper;
-        $this->filtersHelper = $filtersHelper;
+        $this->graphqlRequestData = $graphqlRequestData;
         parent::__construct($context, $connectionName);
     }
 
@@ -106,7 +105,7 @@ class Attribute extends \Magento\Catalog\Model\ResourceModel\Layer\Filter\Attrib
     {
         $tableAlias = 'attribute_idx';
         $connection = $this->getConnection();
-        $activeFilters = $this->filtersHelper->getFilters();
+        $activeFilters = $this->getFilters();
 
         $queryConditions = [
             "{$tableAlias}.entity_id = e.entity_id",
@@ -140,5 +139,25 @@ class Attribute extends \Magento\Catalog\Model\ResourceModel\Layer\Filter\Attrib
             join(' AND ', $queryConditions),
             ['value', 'count' => new \Zend_Db_Expr("COUNT({$tableAlias}.entity_id)")]
         )->group(["{$tableAlias}.value"]);
+    }
+
+    /**
+     * Returns active filters from request
+     *
+     * @return array
+     */
+    protected function getFilters() {
+        $requestData = $this->graphqlRequestData->getRequest();
+
+        $filter = $requestData['filter'] ?? [];
+
+        $activeFilters = [];
+        foreach ($filter as $argument => $value) {
+            if (isset($value['in'])) {
+                $activeFilters[$argument] = $value['in'];
+            }
+        }
+
+        return $activeFilters;
     }
 }
