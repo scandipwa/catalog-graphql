@@ -104,7 +104,7 @@ class Filters extends \Magento\CatalogGraphQl\Model\Resolver\Layer\DataProvider\
      */
     protected function hasFilterContents(AbstractFilter $filter)
     {
-        if (!$this->requiredAttributes) {
+        if (count($this->requiredAttributes) <= 0) {
             return true;
         }
 
