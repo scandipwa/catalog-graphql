@@ -108,30 +108,6 @@ class Products implements ResolverInterface
             );
         }
 
-        // $items = $searchResult->getProductsSearchResult();
-
-        // echo $searchResult->getTotalCount();
-        // exit;
-
-        // $attributes = [];
-
-        // foreach ($items as $item) {
-        //     $model = $item['model'];
-        //     $itemAttributes = $model->getAttributes();
-
-        //     $itemAttributeCodes = [];
-        //     foreach ($itemAttributes as $attribute) {
-        //         echo $model->getName() . ': ' . $attribute->getAttributeCode() . PHP_EOL;
-        //         $itemAttributeCodes[] = $attribute->getAttributeCode();
-        //     }
-
-        //     $attributes = array_unique(array_merge($attributes, $itemAttributeCodes));
-        // }
-
-        // exit;
-        // print_r($attributes);
-
-
         $data = [
             'total_count' => $searchResult->getTotalCount(),
             'min_price' => $searchResult->getMinPrice(),

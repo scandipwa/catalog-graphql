@@ -18,7 +18,7 @@ use Magento\Framework\GraphQl\Schema\Type\ResolveInfo;
 /**
  * Layered navigation filters resolver, used for GraphQL request processing.
  */
-class LayerFilters implements ResolverInterface
+class LayerFilters extends \Magento\CatalogGraphQl\Model\Resolver\LayerFilters implements ResolverInterface
 {
     /**
      * @var Layer\DataProvider\Filters
