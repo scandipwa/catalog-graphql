@@ -20,7 +20,7 @@ use Magento\Framework\GraphQl\Query\Resolver\Argument\SearchCriteria\Builder;
 use Magento\Framework\GraphQl\Query\Resolver\Argument\SearchCriteria\SearchFilter;
 use Magento\Framework\GraphQl\Query\ResolverInterface;
 use Magento\Catalog\Model\Layer\Resolver;
-use ScandiPWA\CatalogGraphQl\Helper\GraphqlRequestData;
+use ScandiPWA\CatalogGraphQl\Helper\GraphqlRequest;
 
 /**
  * Products field resolver, used for GraphQL request processing.
@@ -50,7 +50,7 @@ class Products implements ResolverInterface
      */
     private $searchFilter;
 
-    private $graphqlRequestData;
+    private $graphqlRequest;
 
     /**
      * @param Builder $searchCriteriaBuilder
@@ -63,13 +63,13 @@ class Products implements ResolverInterface
         Search $searchQuery,
         Filter $filterQuery,
         SearchFilter $searchFilter,
-        GraphqlRequestData $graphqlRequestData
+        GraphqlRequest $graphqlRequest
     ) {
         $this->searchCriteriaBuilder = $searchCriteriaBuilder;
         $this->searchQuery = $searchQuery;
         $this->filterQuery = $filterQuery;
         $this->searchFilter = $searchFilter;
-        $this->graphqlRequestData = $graphqlRequestData;
+        $this->graphqlRequest = $graphqlRequest;
     }
 
     /**
@@ -82,7 +82,7 @@ class Products implements ResolverInterface
         array $value = null,
         array $args = null
     ) {
-        $this->graphqlRequestData->setRequest($args);
+        $this->graphqlRequest->setArguments($args);
 
         $searchCriteria = $this->searchCriteriaBuilder->build($field->getName(), $args);
         $searchCriteria->setCurrentPage($args['currentPage']);

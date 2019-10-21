@@ -10,17 +10,17 @@
 
 namespace ScandiPWA\CatalogGraphQl\Helper;
 
-class GraphqlRequestData
+class GraphqlRequest
 {
-    private $request = [];
+    private $arguments = [];
 
-    public function setRequest($request)
+    public function setArguments($arguments)
     {
-        $this->request = $request;
+        $this->arguments = $arguments;
     }
 
-    public function getRequest()
+    public function getArguments()
     {
-        return $this->request;
+        return $this->arguments;
     }
 }

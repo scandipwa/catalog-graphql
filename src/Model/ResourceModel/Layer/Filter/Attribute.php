@@ -13,7 +13,7 @@ namespace ScandiPWA\CatalogGraphQl\Model\ResourceModel\Layer\Filter;
 use Magento\Catalog\Helper\Data as CatalogHelper;
 use Magento\Framework\Model\ResourceModel\Db\Context;
 use Magento\Catalog\Model\Layer\Filter\FilterInterface;
-use ScandiPWA\CatalogGraphQl\Helper\GraphqlRequestData;
+use ScandiPWA\CatalogGraphQl\Helper\GraphqlRequest;
 
 /**
  * Class Attribute
@@ -22,9 +22,9 @@ use ScandiPWA\CatalogGraphQl\Helper\GraphqlRequestData;
 class Attribute extends \Magento\Catalog\Model\ResourceModel\Layer\Filter\Attribute
 {
     /**
-     * @var GraphqlRequestData
+     * @var GraphqlRequest
     */
-    protected $graphqlRequestData;
+    protected $graphqlRequest;
 
     /**
      * @var CatalogHelper
@@ -39,12 +39,12 @@ class Attribute extends \Magento\Catalog\Model\ResourceModel\Layer\Filter\Attrib
     public function __construct(
         Context $context,
         CatalogHelper $catalogHelper,
-        GraphqlRequestData $graphqlRequestData,
+        GraphqlRequest $graphqlRequest,
         $connectionName = null
     )
     {
         $this->catalogHelper = $catalogHelper;
-        $this->graphqlRequestData = $graphqlRequestData;
+        $this->graphqlRequest = $graphqlRequest;
         parent::__construct($context, $connectionName);
     }
 
@@ -147,7 +147,7 @@ class Attribute extends \Magento\Catalog\Model\ResourceModel\Layer\Filter\Attrib
      * @return array
      */
     protected function getFilters() {
-        $requestData = $this->graphqlRequestData->getRequest();
+        $requestData = $this->graphqlRequest->getArguments();
 
         $filter = $requestData['filter'] ?? [];
 
