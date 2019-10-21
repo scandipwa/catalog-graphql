@@ -108,6 +108,7 @@ class Products implements ResolverInterface
             );
         }
 
+
         $data = [
             'total_count' => $searchResult->getTotalCount(),
             'min_price' => $searchResult->getMinPrice(),
