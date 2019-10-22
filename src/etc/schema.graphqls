@@ -22,6 +22,11 @@ input ProductFilterInput {
     color: FilterTypeInput @doc(description: "Product color")
     size: FilterTypeInput @doc(description: "Product size")
     shoes_size: FilterTypeInput @doc(description: "Product shoes size")
+    conditions: FilterTypeInput @doc(description: "Searches products by JSON formatted conditions")
+}
+
+input ProductSortInput {
+    position: SortEnum @doc(description: "A number assigned to a product")
 }
 
 type MediaGalleryEntry  @doc(description: "MediaGalleryEntry defines characteristics about images and videos associated with a specific product") {
