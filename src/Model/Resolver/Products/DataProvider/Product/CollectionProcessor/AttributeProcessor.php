@@ -70,15 +70,16 @@ class AttributeProcessor implements CollectionProcessorInterface
         foreach ($attributeNames as $name) {
             if ($name != self::ATTRIBUTES_FIELD) {
                 $collection->addAttributeToSelect($name);
-            } else {
-                $attributesVisibleOnFront = $this->getAttributesVisibleOnFrontend();
-
-                $attributeCodes = array_map(function($attr) {
-                    return $attr->getAttributeCode();
-                }, $attributesVisibleOnFront->getItems());
-
-                $collection->addAttributeToSelect($attributeCodes);
+                continue;
             }
+
+            $attributesVisibleOnFront = $this->getAttributesVisibleOnFrontend();
+
+            $attributeCodes = array_map(function($attr) {
+                return $attr->getAttributeCode();
+            }, $attributesVisibleOnFront->getItems());
+
+            $collection->addAttributeToSelect($attributeCodes);
         }
 
         return $collection;
