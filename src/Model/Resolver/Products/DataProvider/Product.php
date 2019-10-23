@@ -12,12 +12,16 @@ declare(strict_types=1);
 namespace ScandiPWA\CatalogGraphQl\Model\Resolver\Products\DataProvider;
 
 use Magento\Catalog\Model\Product\Visibility;
+use Magento\Catalog\Model\ResourceModel\Product\Collection;
 use Magento\Framework\Api\SearchCriteriaInterface;
 use Magento\Catalog\Model\ResourceModel\Product\CollectionFactory;
 use Magento\Catalog\Api\Data\ProductSearchResultsInterfaceFactory;
 use Magento\Framework\Api\SearchResultsInterface;
 use Magento\CatalogGraphQl\Model\Resolver\Products\DataProvider\Product\CollectionProcessorInterface;
+use Magento\Framework\Exception\LocalizedException;
 use ScandiPWA\CatalogGraphQl\Model\Resolver\Products\DataProvider\Product\CriteriaCheck;
+use Magento\Review\Model\Review;
+use Magento\Review\Model\ResourceModel\Review\Product\Collection as ProductCollection;
 
 /**
  * Product field data provider, used for GraphQL resolver processing.
@@ -56,17 +60,26 @@ class Product extends \Magento\CatalogGraphQl\Model\Resolver\Products\DataProvid
     private $maxPrice;
 
     /**
+     * @var Review
+     */
+    protected $review;
+
+    /**
+     * Product constructor.
      * @param CollectionFactory $collectionFactory
      * @param ProductSearchResultsInterfaceFactory $searchResultsFactory
      * @param Visibility $visibility
      * @param CollectionProcessorInterface $collectionProcessor
+     * @param Review $review
      */
     public function __construct(
         CollectionFactory $collectionFactory,
         ProductSearchResultsInterfaceFactory $searchResultsFactory,
         Visibility $visibility,
-        CollectionProcessorInterface $collectionProcessor
+        CollectionProcessorInterface $collectionProcessor,
+        Review $review
     ) {
+        $this->review = $review;
         $this->collectionFactory = $collectionFactory;
         $this->searchResultsFactory = $searchResultsFactory;
         $this->visibility = $visibility;
@@ -81,6 +94,7 @@ class Product extends \Magento\CatalogGraphQl\Model\Resolver\Products\DataProvid
      * @param bool $isSearch
      * @param bool $isChildSearch
      * @return SearchResultsInterface
+     * @throws LocalizedException
      */
     public function getList(
         SearchCriteriaInterface $searchCriteria,
@@ -88,7 +102,7 @@ class Product extends \Magento\CatalogGraphQl\Model\Resolver\Products\DataProvid
         bool $isSearch = false,
         bool $isChildSearch = false
     ): SearchResultsInterface {
-        /** @var \Magento\Catalog\Model\ResourceModel\Product\Collection $collection */
+        /** @var Collection $collection */
         $collection = $this->collectionFactory->create();
 
         $this->collectionProcessor->process($collection, $searchCriteria, $attributes);
@@ -115,6 +129,12 @@ class Product extends \Magento\CatalogGraphQl\Model\Resolver\Products\DataProvid
             $collection->addOptionsToResult();
         }
 
+        if (in_array('review_summary', $attributes)) {
+            /** @var ProductCollection $collection */
+            // Only getItems is used inside
+            $this->review->appendSummary($collection);
+        }
+
         $searchResult = $this->searchResultsFactory->create();
         $searchResult->setSearchCriteria($searchCriteria);
         $searchResult->setItems($collection->getItems());
@@ -126,7 +146,7 @@ class Product extends \Magento\CatalogGraphQl\Model\Resolver\Products\DataProvid
 
 
     /**
-     * @param \Magento\Catalog\Model\ResourceModel\Product\Collection $collection
+     * @param Collection $collection
      * @return array
      */
     public function getCollectionMinMaxPrice($collection)

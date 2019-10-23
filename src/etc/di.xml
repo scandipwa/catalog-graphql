@@ -15,7 +15,11 @@
     </type>
 
     <preference for="Magento\CatalogGraphQl\Model\Resolver\Products\DataProvider\Product\CollectionProcessor\StockProcessor"
-     type="ScandiPWA\CatalogGraphQl\Model\Resolver\Products\DataProvider\Product\CollectionProcessor\StockProcessor"/>
+                type="ScandiPWA\CatalogGraphQl\Model\Resolver\Products\DataProvider\Product\CollectionProcessor\StockProcessor" />
+
+    <preference for="Magento\CatalogGraphQl\Model\Resolver\Products\DataProvider\Product\CollectionProcessor\AttributeProcessor"
+                type="ScandiPWA\CatalogGraphQl\Model\Resolver\Products\DataProvider\Product\CollectionProcessor\AttributeProcessor" />
+
 
     <virtualType name="ScandiPWA\CatalogGraphQl\Model\Search\PageSizeProvider" type="Magento\Search\Model\Search\PageSizeProvider">
         <arguments>
