@@ -54,7 +54,7 @@ class Filters extends \Magento\CatalogGraphQl\Model\Resolver\Layer\DataProvider\
 
             $itemAttributeCodes = [];
             foreach ($model->getAttributes() as $attribute) {
-                if ($attribute->getIsVisibleOnFront()) {
+                if ($attribute->getIsFilterable()) {
                     $itemAttributeCodes[] = $attribute->getAttributeCode();
                 }
             }
