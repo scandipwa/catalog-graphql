@@ -51,11 +51,12 @@ class Filters extends \Magento\CatalogGraphQl\Model\Resolver\Layer\DataProvider\
 
         foreach ($items as $item) {
             $model = $item['model'];
-            $itemAttributes = $model->getAttributes();
 
             $itemAttributeCodes = [];
-            foreach ($itemAttributes as $attribute) {
-                $itemAttributeCodes[] = $attribute->getAttributeCode();
+            foreach ($model->getAttributes() as $attribute) {
+                if ($attribute->getIsVisibleOnFront()) {
+                    $itemAttributeCodes[] = $attribute->getAttributeCode();
+                }
             }
 
             $attributes = array_unique(array_merge($attributes, $itemAttributeCodes));
