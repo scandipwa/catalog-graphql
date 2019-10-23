@@ -54,9 +54,7 @@ class AttributeProcessor implements CollectionProcessorInterface
 
         // Add filter by storefront visibility
         $collection->addFieldToFilter('additional_table.is_visible_on_front', ['gt' => 0]);
-        $collection->load();
-
-        return $collection;
+        return $collection->load();
     }
 
     /**
@@ -68,7 +66,7 @@ class AttributeProcessor implements CollectionProcessorInterface
         array $attributeNames
     ): Collection {
         foreach ($attributeNames as $name) {
-            if ($name != self::ATTRIBUTES_FIELD) {
+            if ($name !== self::ATTRIBUTES_FIELD) {
                 $collection->addAttributeToSelect($name);
                 continue;
             }
