@@ -7,6 +7,7 @@ declare(strict_types=1);
 
 namespace ScandiPWA\CatalogGraphQl\Model\Resolver\Products\DataProvider\Product\CollectionProcessor;
 
+use Magento\Catalog\Model\ResourceModel\Eav\Attribute;
 use Magento\Catalog\Model\ResourceModel\Product\Attribute\CollectionFactory;
 use Magento\Catalog\Model\ResourceModel\Product\Collection;
 use Magento\CatalogGraphQl\Model\Resolver\Products\DataProvider\Product\CollectionProcessorInterface;
@@ -48,7 +49,7 @@ class AttributeProcessor implements CollectionProcessorInterface
 
     protected function getAttributesVisibleOnFrontend() {
         $collection = $this->collectionFactory->create();
-        $collection->setItemObjectClass(\Magento\Catalog\Model\ResourceModel\Eav\Attribute::class)
+        $collection->setItemObjectClass(Attribute::class)
             ->addStoreLabel($this->storeManager->getStore()->getId())
             ->setOrder('position', 'ASC');
 

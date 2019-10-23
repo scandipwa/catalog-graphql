@@ -20,6 +20,8 @@
     <preference for="Magento\CatalogGraphQl\Model\Resolver\Products\DataProvider\Product\CollectionProcessor\AttributeProcessor"
                 type="ScandiPWA\CatalogGraphQl\Model\Resolver\Products\DataProvider\Product\CollectionProcessor\AttributeProcessor" />
 
+    <preference for="Magento\CatalogGraphQl\Model\Resolver\Product"
+                type="ScandiPWA\CatalogGraphQl\Model\Resolver\Product" />
 
     <virtualType name="ScandiPWA\CatalogGraphQl\Model\Search\PageSizeProvider" type="Magento\Search\Model\Search\PageSizeProvider">
         <arguments>

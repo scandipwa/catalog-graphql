@@ -11,12 +11,19 @@ declare(strict_types=1);
 
 namespace ScandiPWA\CatalogGraphQl\Model\Resolver\Products\Query;
 
+use Magento\Catalog\Api\ProductAttributeRepositoryInterface;
+use Magento\Catalog\Model\Layer\Resolver;
+use Magento\Framework\Api\SearchCriteriaBuilder;
+use Magento\Framework\Api\SearchResultsInterface;
+use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\GraphQl\Schema\Type\ResolveInfo;
 use Magento\Framework\Api\SearchCriteriaInterface;
+use Magento\Swatches\Helper\Data;
 use ScandiPWA\CatalogGraphQl\Model\Resolver\Products\DataProvider\Product;
 use ScandiPWA\CatalogGraphQl\Model\Resolver\Products\SearchResult;
 use ScandiPWA\CatalogGraphQl\Model\Resolver\Products\SearchResultFactory;
 use Magento\Framework\GraphQl\Query\FieldTranslator;
+use Magento\Catalog\Model\ResourceModel\Eav\Attribute;
 
 /**
  * Retrieve filtered product data based off given search criteria in a format that GraphQL can interpret.
@@ -40,26 +47,50 @@ class Filter
     private $fieldTranslator;
 
     /**
-     * @var \Magento\Catalog\Model\Layer\Resolver
+     * @var Resolver
      */
     private $layerResolver;
 
     /**
+     * @var SearchCriteriaBuilder
+     */
+    protected $searchCriteriaBuilder;
+
+    /**
+     * @var ProductAttributeRepositoryInterface
+     */
+    protected $attributeRepository;
+
+    /**
+     * @var Data
+     */
+    protected $swatchHelper;
+
+    /**
      * @param SearchResultFactory $searchResultFactory
      * @param Product $productDataProvider
-     * @param \Magento\Catalog\Model\Layer\Resolver $layerResolver
+     * @param Resolver $layerResolver
      * @param FieldTranslator $fieldTranslator
+     * @param SearchCriteriaBuilder $searchCriteriaBuilder
+     * @param ProductAttributeRepositoryInterface $attributeRepository
+     * @param Data $swatchHelper
      */
     public function __construct(
         SearchResultFactory $searchResultFactory,
         Product $productDataProvider,
-        \Magento\Catalog\Model\Layer\Resolver $layerResolver,
-        FieldTranslator $fieldTranslator
+        Resolver $layerResolver,
+        FieldTranslator $fieldTranslator,
+        SearchCriteriaBuilder $searchCriteriaBuilder,
+        ProductAttributeRepositoryInterface $attributeRepository,
+        Data $swatchHelper
     ) {
+        $this->searchCriteriaBuilder = $searchCriteriaBuilder;
+        $this->attributeRepository = $attributeRepository;
         $this->searchResultFactory = $searchResultFactory;
         $this->productDataProvider = $productDataProvider;
         $this->fieldTranslator = $fieldTranslator;
         $this->layerResolver = $layerResolver;
+        $this->swatchHelper = $swatchHelper;
     }
 
     /**
@@ -69,6 +100,7 @@ class Filter
      * @param ResolveInfo $info
      * @param bool $isSearch
      * @return SearchResult
+     * @throws LocalizedException
      */
     public function getResult(
         SearchCriteriaInterface $searchCriteria,
@@ -78,10 +110,22 @@ class Filter
         $fields = $this->getProductFields($info);
         $products = $this->productDataProvider->getList($searchCriteria, $fields, $isSearch);
         $productArray = [];
+        $attributes = [];
+
+        if (in_array('attributes', $fields)) {
+            $attributes = $this->getProductAttributes($products);
+        }
+
         /** @var \Magento\Catalog\Model\Product $product */
         foreach ($products->getItems() as $product) {
-            $productArray[$product->getId()] = $product->getData();
-            $productArray[$product->getId()]['model'] = $product;
+            $id = $product->getId();
+
+            $productArray[$id] = $product->getData();
+            $productArray[$id]['model'] = $product;
+
+            if (isset($attributes[$id])) {
+                $productArray[$id]['attributes'] = $attributes[$id];
+            }
         }
 
         return $this->searchResultFactory->create(
@@ -90,6 +134,116 @@ class Filter
             $this->productDataProvider->getMaxPrice(),
             $productArray
         );
+    }
+
+    /**
+     * @param $products SearchResultsInterface
+     * @return array
+     */
+    protected function getProductAttributes($products) {
+        $items = $products->getItems();
+
+        $productAttributes = [];
+        $attributes = [];
+        $swatchAttributes = [];
+
+        // Collect attributes for request
+        /** @var \Magento\Catalog\Model\Product $product */
+        foreach ($items as $product) {
+            $id = $product->getId();
+
+            // Create storage for future attributes
+            $productAttributes[$id] = [];
+
+            foreach ($product->getAttributes() as $key => $attribute) {
+                if ($attribute->getIsVisibleOnFront()) {
+                    $value = $product[$key];
+
+                    $productAttributes[$id][$key] = [
+                        'attribute_value' => $value,
+                        'attribute_code' => $attribute->getAttributeCode(),
+                        'attribute_type' => $attribute->getFrontendInput(),
+                        'attribute_label' => $attribute->getFrontendLabel(),
+                        'attribute_id' => $attribute->getAttributeId()
+                    ];
+
+                    if (!isset($attributes[$key])) {
+                        $attributes[$key] = $attribute;
+
+                        // Collect all swatches (we will need additional data for them)
+                        /** @var Attribute $attribute */
+                        if ($this->swatchHelper->isSwatchAttribute($attribute)) {
+                            $swatchAttributes[] = $key;
+                        }
+                    }
+                }
+            }
+        }
+
+        $attributeCodes = array_keys($attributes);
+        $searchCriteria = $this->searchCriteriaBuilder
+            ->addFilter('main_table.attribute_code', $attributeCodes, 'in')
+            ->create();
+
+        /** @var \Magento\Framework\Api\Search\SearchCriteriaInterface $searchCriteria */
+        $attributeRepository = $this->attributeRepository->getList($searchCriteria);
+        $detailedAttributes = $attributeRepository->getItems();
+
+        // To collect ids of options, to later load swatch data
+        $optionIds = [];
+
+        // Loop again, get options sorted in the right places
+        /** @var \Magento\Catalog\Model\Product $product */
+        foreach ($items as $product) {
+            $id = $product->getId();
+
+            foreach ($detailedAttributes as $attribute) {
+                $key = $attribute->getAttributeCode();
+                $options = $attribute->getOptions();
+                array_shift($options);
+
+                $productAttributes[$id][$key]['attribute_options'] = [];
+
+                foreach ($options as $option) {
+                    $value = $option->getValue();
+                    $optionIds[] = $value;
+
+                    $productAttributes[$id][$key]['attribute_options'][$value] = [
+                        'value' => $value,
+                        'label' => $option->getLabel()
+                    ];
+                }
+            }
+        }
+
+        $swatchOptions = $this->swatchHelper->getSwatchesByOptionsId($optionIds);
+
+        if (empty($swatchAttributes)) {
+            return $productAttributes;
+        }
+
+        // Loop last time, appending swatches
+        /** @var \Magento\Catalog\Model\Product $product */
+        foreach ($items as $product) {
+            $id = $product->getId();
+
+            foreach ($detailedAttributes as $attribute) {
+                $key = $attribute->getAttributeCode();
+
+                if (in_array($key, $swatchAttributes)) {
+                    $options = $attribute->getOptions();
+                    array_shift($options);
+
+                    foreach ($options as $option) {
+                        $value = $option->getValue();
+                        $swatchOption = $swatchOptions[$value];
+                        $productAttributes[$id][$key]['attribute_options'][$value]['swatch_data'] = $swatchOption;
+                    }
+                }
+            }
+        }
+
+        return $productAttributes;
     }
 
     /**
