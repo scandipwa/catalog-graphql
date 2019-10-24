@@ -50,6 +50,8 @@ class AttributeProcessor implements CollectionProcessorInterface
     protected function getAttributesVisibleOnFrontend() {
         $collection = $this->collectionFactory->create();
         $collection->setItemObjectClass(Attribute::class)
+            ->addFieldToSelect('attribute_code')
+            ->addFieldToSelect('attribute_id')
             ->addStoreLabel($this->storeManager->getStore()->getId())
             ->setOrder('position', 'ASC');
 

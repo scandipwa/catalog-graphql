@@ -23,6 +23,9 @@
     <preference for="Magento\CatalogGraphQl\Model\Resolver\Product"
                 type="ScandiPWA\CatalogGraphQl\Model\Resolver\Product" />
 
+    <preference for="Magento\ConfigurableProductGraphQl\Model\Resolver\ConfigurableVariant"
+                type="ScandiPWA\CatalogGraphQl\Model\Resolver\ConfigurableVariant" />
+
     <virtualType name="ScandiPWA\CatalogGraphQl\Model\Search\PageSizeProvider" type="Magento\Search\Model\Search\PageSizeProvider">
         <arguments>
             <argument name="pageSizeBySearchEngine" xsi:type="array">
@@ -95,7 +98,7 @@
         </arguments>
     </type>
 
-    <type name="Magento\ConfigurableProductGraphQl\Model\Resolver\ConfigurableVariant">
+    <type name="ScandiPWA\CatalogGraphQl\Model\Resolver\ConfigurableVariant">
         <arguments>
             <argument name="variantCollection" xsi:type="object">ScandiPWA\CatalogGraphQl\Model\Variant\Collection</argument>
         </arguments>

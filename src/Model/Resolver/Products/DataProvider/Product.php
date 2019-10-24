@@ -125,6 +125,7 @@ class Product extends \Magento\CatalogGraphQl\Model\Resolver\Products\DataProvid
         if (in_array('media_gallery_entries', $attributes)) {
             $collection->addMediaGalleryData();
         }
+
         if (in_array('options', $attributes)) {
             $collection->addOptionsToResult();
         }

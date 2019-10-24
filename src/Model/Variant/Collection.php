@@ -7,6 +7,7 @@ declare(strict_types=1);
 
 namespace ScandiPWA\CatalogGraphQl\Model\Variant;
 
+use Exception;
 use Magento\Catalog\Api\Data\ProductInterface;
 use Magento\Catalog\Model\Product;
 use Magento\Catalog\Model\Product\Attribute\Source\Status;
@@ -18,6 +19,7 @@ use Magento\Framework\Api\SearchCriteriaBuilder;
 use Magento\CatalogInventory\Helper\Stock;
 use Magento\CatalogGraphQl\Model\Resolver\Products\DataProvider\Product as DataProvider;
 use Magento\ConfigurableProductGraphQl\Model\Variant\Collection as MagentoCollection;
+use ScandiPWA\CatalogGraphQl\Model\Resolver\ConfigurableVariant;
 
 /**
  * Collection for fetching configurable child product data.
@@ -97,6 +99,7 @@ class Collection extends MagentoCollection
      *
      * @param Product $product
      * @return void
+     * @throws Exception
      */
     public function addParentProduct(Product $product) : void
     {
@@ -129,6 +132,7 @@ class Collection extends MagentoCollection
      *
      * @param int $id
      * @return array
+     * @throws Exception
      */
     public function getChildProductsByParentId(int $id) : array
     {
@@ -145,7 +149,7 @@ class Collection extends MagentoCollection
      * Fetch all children products from parent id's.
      *
      * @return array
-     * @throws \Exception
+     * @throws Exception
      */
     private function fetch() : array
     {
@@ -154,13 +158,20 @@ class Collection extends MagentoCollection
         }
 
         foreach ($this->parentProducts as $product) {
-            $attributeData = $this->getAttributesCodes($product);
+            $attributes = $this->attributeCodes;
+
             /** @var ChildCollection $childCollection */
             $childCollection = $this->childCollectionFactory->create();
+            $childCollection->addAttributeToSelect($attributes);
+
+            // Filter
             $childCollection->setProductFilter($product);
-            $childCollection->addAttributeToSelect($attributeData);
-            $childCollection->addAttributeToFilter('status', Status::STATUS_ENABLED);
             $this->stock->addIsInStockFilterToCollection($childCollection);
+            $childCollection->addAttributeToFilter('status', Status::STATUS_ENABLED);
+
+            if (in_array(ConfigurableVariant::MEDIA_GALLERY_ENTRIES, $attributes)) {
+                $childCollection->addMediaGalleryData();
+            }
 
             /** @var Product $childProduct */
             foreach ($childCollection->getItems() as $childProduct) {
@@ -175,25 +186,5 @@ class Collection extends MagentoCollection
         }
 
         return $this->childrenMap;
-    }
-
-    /**
-     * Get attributes code
-     *
-     * @param \Magento\Catalog\Model\Product $currentProduct
-     * @return array
-     */
-    private function getAttributesCodes(Product $currentProduct): array
-    {
-        $attributeCodes = [];
-        $allowAttributes = $currentProduct->getTypeInstance()->getConfigurableAttributes($currentProduct);
-        foreach ($allowAttributes as $attribute) {
-            $productAttribute = $attribute->getProductAttribute();
-            if (!\in_array($productAttribute->getAttributeCode(), $attributeCodes)) {
-                $attributeCodes[] = $productAttribute->getAttributeCode();
-            }
-        }
-
-        return $attributeCodes;
     }
 }

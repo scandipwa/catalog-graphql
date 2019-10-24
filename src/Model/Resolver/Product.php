@@ -15,6 +15,8 @@ use Magento\Framework\GraphQl\Query\FieldTranslator;
 use Magento\Framework\GraphQl\Query\Resolver\Value;
 use Magento\Framework\GraphQl\Query\Resolver\ValueFactory;
 use Magento\Framework\GraphQl\Query\ResolverInterface;
+use ScandiPWA\CatalogGraphQl\Helper\Attributes;
+use ScandiPWA\CatalogGraphQl\Helper\Images;
 
 /**
  * @inheritdoc
@@ -35,6 +37,7 @@ class Product implements ResolverInterface
      * @var FieldTranslator
      */
     private $fieldTranslator;
+
 
     /**
      * @param ProductDataProvider $productDataProvider
@@ -59,29 +62,16 @@ class Product implements ResolverInterface
         if (!isset($value['sku'])) {
             throw new GraphQlInputException(__('No child sku found for product link.'));
         }
-        $this->productDataProvider->addProductSku($value['sku']);
-        $fields = $this->getProductFields($info);
-        $this->productDataProvider->addEavAttributes($fields);
 
         $result = function () use ($value) {
-            $data = $this->productDataProvider->getProductBySku($value['sku']);
-            if (empty($data)) {
+            if (empty($value['product'])) {
                 return null;
             }
-            $productModel = $data['model'];
-            /** @var \Magento\Catalog\Model\Product $productModel */
-            $data = $productModel->getData();
-            $data['model'] = $productModel;
 
-            if (!empty($productModel->getCustomAttributes())) {
-                foreach ($productModel->getCustomAttributes() as $customAttribute) {
-                    if (!isset($data[$customAttribute->getAttributeCode()])) {
-                        $data[$customAttribute->getAttributeCode()] = $customAttribute->getValue();
-                    }
-                }
-            }
+            $product = $value['product'];
+            $data = array_merge($product['model']->getData(), $product);
 
-            return array_replace($value, $data);
+            return $data;
         };
 
         return $this->valueFactory->create($result);

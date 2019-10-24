@@ -33,10 +33,6 @@ type MediaGalleryEntry  @doc(description: "MediaGalleryEntry defines characteris
     thumbnail: ProductThumbnail @doc(description: "The path of the thumbnail image on the server thumbnail")
 }
 
-type ProductImage @doc(description: "Extend product Image fields for frontend-driven loading mechanism") {
-    path: String @doc(description: "Relative path to origin image") @resolver(class:"ScandiPWA\\CatalogGraphQl\\Model\\Resolver\\Product\\ProductImage\\Path")
-}
-
 type Query {
     category (
         id: Int @doc(description: "Ids of the category")
@@ -47,6 +43,20 @@ type Query {
 
 interface ProductInterface {
     attributes: [AttributeWithValue]
+    image: OptimizedProductImage @resolver(class: "ScandiPWA\\CatalogGraphQl\\Model\\Resolver\\Value")
+    small_image: OptimizedProductImage @resolver(class: "ScandiPWA\\CatalogGraphQl\\Model\\Resolver\\Value")
+    thumbnail: OptimizedProductImage @resolver(class: "ScandiPWA\\CatalogGraphQl\\Model\\Resolver\\Value")
+    only_x_left_in_stock: Float @resolver(class: "ScandiPWA\\CatalogGraphQl\\Model\\Resolver\\Value")
+    stock_status: ProductStockStatus @resolver(class: "ScandiPWA\\CatalogGraphQl\\Model\\Resolver\\Value")
+}
+
+type ProductBreadcrumbs {
+    path: String
+    url: String
+}
+
+type OptimizedProductImage {
+     path: String
 }
 
 interface CategoryInterface {
