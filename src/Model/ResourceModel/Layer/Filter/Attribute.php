@@ -4,14 +4,13 @@
  *
  * @category    ScandiPWA
  * @package     ScandiPWA_CatalogGraphQl
- * @author      Kirils Scerba <kirill@scandiweb.com | info@scandiweb.com>
+ * @author      Artjoms Travkovs <info@scandiweb.com>
  * @copyright   Copyright (c) 2019 Scandiweb, Ltd (https://scandiweb.com)
  */
+declare(strict_types=1);
 
 namespace ScandiPWA\CatalogGraphQl\Model\ResourceModel\Layer\Filter;
 
-use Magento\Catalog\Helper\Data as CatalogHelper;
-use Magento\Framework\Model\ResourceModel\Db\Context;
 use Magento\Catalog\Model\Layer\Filter\FilterInterface;
 
 /**
@@ -21,26 +20,6 @@ use Magento\Catalog\Model\Layer\Filter\FilterInterface;
 class Attribute extends \Magento\Catalog\Model\ResourceModel\Layer\Filter\Attribute
 {
     /**
-     * @var CatalogHelper
-     */
-    protected $catalogHelper;
-
-    /**
-     * @param CatalogHelper $catalogHelper
-     * @param Context $context
-     * @param null $connectionName
-     */
-    public function __construct(
-        Context $context,
-        CatalogHelper $catalogHelper,
-        $connectionName = null
-    )
-    {
-        $this->catalogHelper = $catalogHelper;
-        parent::__construct($context, $connectionName);
-    }
-
-    /**
      * Retrieve array with products counts per attribute option
      *
      * @param FilterInterface $filter
@@ -49,12 +28,7 @@ class Attribute extends \Magento\Catalog\Model\ResourceModel\Layer\Filter\Attrib
      */
     public function getCount(FilterInterface $filter)
     {
-        $category = $this->catalogHelper->getCategory();
-
-        $productCollection = clone $filter->getLayer()->getProductCollection();
-        $productCollection->addCategoriesFilter([ 'in' => (int) $category->getId() ]);
-
-        $select = $productCollection->getSelect();
+        $select = clone $filter->getLayer()->getProductCollection()->getSelect();
         // reset columns, order and limitation conditions
         $select->reset(\Magento\Framework\DB\Select::COLUMNS);
         $select->reset(\Magento\Framework\DB\Select::ORDER);
