@@ -36,12 +36,17 @@ abstract class AbstractHelper extends CoreAbstractHelper {
     protected function getFieldsFromProductInfo($info) {
         $fields = [];
 
-        foreach ($info->fieldNodes as $node) {
+        $nodes = isset($info->fieldNodes) ?
+            $info->fieldNodes :
+            $info->selectionSet->selections;
+
+        foreach ($nodes as $node) {
             if (!isset($node->name)) continue;
 
             if (
                 $node->name->value !== 'products'
                 && $node->name->value !== 'variants'
+                && $node->name->value !== 'items'
             ) {
                 continue;
             }

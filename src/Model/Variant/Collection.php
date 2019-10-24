@@ -164,7 +164,7 @@ class Collection extends MagentoCollection
             $childCollection = $this->childCollectionFactory->create();
             $childCollection->addAttributeToSelect($attributes);
 
-            // Filter
+            // Filter collection
             $childCollection->setProductFilter($product);
             $this->stock->addIsInStockFilterToCollection($childCollection);
             $childCollection->addAttributeToFilter('status', Status::STATUS_ENABLED);

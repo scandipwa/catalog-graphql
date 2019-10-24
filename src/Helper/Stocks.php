@@ -73,6 +73,7 @@ class Stocks extends AbstractHelper {
         foreach($node->selectionSet->selections as $selection) {
             if (!isset($selection->name)) continue;
             $name = $selection->name->value;
+
             if (in_array($name, $validFields)) {
                 $stocks[] = $name;
             }

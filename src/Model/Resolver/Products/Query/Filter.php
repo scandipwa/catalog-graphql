@@ -122,14 +122,14 @@ class Filter
             $productArray[$id]['model'] = $product;
 
             if (isset($images[$id])) {
-                foreach ($images[$id] as $key => $value) {
-                    $productArray[$id][$key] = $value;
+                foreach ($images[$id] as $imageType => $imageData) {
+                    $productArray[$id][$imageType] = $imageData;
                 }
             }
 
             if (isset($stocks[$id])) {
-                foreach ($stocks[$id] as $key => $value) {
-                    $productArray[$id][$key] = $value;
+                foreach ($stocks[$id] as $stockType => $stockData) {
+                    $productArray[$id][$stockType] = $stockData;
                 }
             }
 

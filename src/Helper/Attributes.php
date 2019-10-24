@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace ScandiPWA\CatalogGraphQl\Helper;
 
 use GraphQL\Language\AST\FieldNode;
+use GraphQL\Language\AST\SelectionNode;
 use Magento\Catalog\Api\ProductAttributeRepositoryInterface;
 use Magento\Catalog\Model\Product;
 use Magento\Catalog\Model\ResourceModel\Eav\Attribute;
@@ -81,7 +82,7 @@ class Attributes extends AbstractHelper {
 
     /**
      * @param $products ExtensibleDataInterface[]
-     * @param $info ResolveInfo
+     * @param $info ResolveInfo | SelectionNode
      * @return array
      */
     public function getProductAttributes($products, $info) {
