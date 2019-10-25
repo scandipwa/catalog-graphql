@@ -63,15 +63,19 @@ class Stocks extends AbstractHelper {
      * @param $node
      * @return string[]
      */
-    protected function getFieldContent($node) {
+    protected function getFieldContent($node)
+    {
         $stocks = [];
         $validFields = [
             self::ONLY_X_LEFT_IN_STOCK,
             self::STOCK_STATUS
         ];
 
-        foreach($node->selectionSet->selections as $selection) {
-            if (!isset($selection->name)) continue;
+        foreach ($node->selectionSet->selections as $selection) {
+            if (!isset($selection->name)) {
+                continue;
+            };
+
             $name = $selection->name->value;
 
             if (in_array($name, $validFields)) {
@@ -82,7 +86,8 @@ class Stocks extends AbstractHelper {
         return $stocks;
     }
 
-    public function getProductStocks($products, $info) {
+    public function getProductStocks($products, $info)
+    {
         $fields = $this->getFieldsFromProductInfo($info);
         $productStocks = [];
 

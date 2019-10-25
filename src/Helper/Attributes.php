@@ -12,7 +12,6 @@ declare(strict_types=1);
 
 namespace ScandiPWA\CatalogGraphQl\Helper;
 
-use GraphQL\Language\AST\FieldNode;
 use GraphQL\Language\AST\SelectionNode;
 use Magento\Catalog\Api\ProductAttributeRepositoryInterface;
 use Magento\Catalog\Model\Product;
@@ -23,9 +22,9 @@ use Magento\Framework\Api\SearchCriteriaBuilder;
 use Magento\Framework\App\Helper\Context;
 use Magento\Framework\GraphQl\Schema\Type\ResolveInfo;
 use Magento\Swatches\Helper\Data;
-use ScandiPWA\CatalogGraphQl\Helper\AbstractHelper;
 
-class Attributes extends AbstractHelper {
+class Attributes extends AbstractHelper
+{
     /**
      * @var SearchCriteriaBuilder
      */
@@ -58,11 +57,15 @@ class Attributes extends AbstractHelper {
      * @param $node
      * @return string[]
      */
-    protected function getFieldContent($node) {
+    protected function getFieldContent($node)
+    {
         $attributes = null;
 
-        foreach($node->selectionSet->selections as $selection) {
-            if (!isset($selection->name)) continue;
+        foreach ($node->selectionSet->selections as $selection) {
+            if (!isset($selection->name)) {
+                continue;
+            };
+
             if ($selection->name->value === 'attributes') {
                 $attributes = $selection->selectionSet->selections;
                 break;
@@ -85,7 +88,8 @@ class Attributes extends AbstractHelper {
      * @param $info ResolveInfo | SelectionNode
      * @return array
      */
-    public function getProductAttributes($products, $info) {
+    public function getProductAttributes($products, $info)
+    {
         $productAttributes = [];
         $attributes = [];
         $swatchAttributes = [];

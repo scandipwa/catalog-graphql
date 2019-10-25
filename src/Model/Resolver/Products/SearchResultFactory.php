@@ -46,8 +46,7 @@ class SearchResultFactory
         float $minPrice,
         float $maxPrice,
         array $productsSearchResult
-    ) : SearchResult
-    {
+    ) : SearchResult {
         return $this->objectManager->create(
             SearchResult::class,
             [

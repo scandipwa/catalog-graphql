@@ -24,8 +24,7 @@ class Path implements ResolverInterface
         ResolveInfo $info,
         array $value = null,
         array $args = null
-    )
-    {
+    ) {
         if (!isset($value['image_type'])) {
             throw new LocalizedException(__('"image_type" value should be specified'));
         }

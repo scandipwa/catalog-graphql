@@ -47,7 +47,8 @@ class AttributeProcessor implements CollectionProcessorInterface
         $this->storeManager = $storeManager;
     }
 
-    protected function getAttributesVisibleOnFrontend() {
+    protected function getAttributesVisibleOnFrontend()
+    {
         $collection = $this->collectionFactory->create();
         $collection->setItemObjectClass(Attribute::class)
             ->addFieldToSelect('attribute_code')
@@ -76,7 +77,7 @@ class AttributeProcessor implements CollectionProcessorInterface
 
             $attributesVisibleOnFront = $this->getAttributesVisibleOnFrontend();
 
-            $attributeCodes = array_map(function($attr) {
+            $attributeCodes = array_map(function ($attr) {
                 return $attr->getAttributeCode();
             }, $attributesVisibleOnFront->getItems());
 

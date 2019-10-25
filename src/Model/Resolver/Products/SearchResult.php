@@ -11,8 +11,6 @@ declare(strict_types=1);
 
 namespace ScandiPWA\CatalogGraphQl\Model\Resolver\Products;
 
-use phpDocumentor\Reflection\Types\Float_;
-
 /**
  * Container for a product search holding the item result and the array in the GraphQL-readable product type format.
  * This class adds support for min and max price

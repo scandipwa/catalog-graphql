@@ -18,7 +18,8 @@ use Magento\Catalog\Model\Product\ImageFactory;
 use Magento\CatalogGraphQl\Model\Resolver\Products\DataProvider\Image\Placeholder as PlaceholderProvider;
 use Magento\Framework\App\Helper\Context;
 
-class Images extends AbstractHelper {
+class Images extends AbstractHelper
+{
     /**
      * @var ImageFactory
      */
@@ -49,7 +50,8 @@ class Images extends AbstractHelper {
      * @param $node
      * @return string[]
      */
-    protected function getFieldContent($node) {
+    protected function getFieldContent($node)
+    {
         $images = [];
         $validFields = [
             'image',
@@ -57,8 +59,11 @@ class Images extends AbstractHelper {
             'thumbnail'
         ];
 
-        foreach($node->selectionSet->selections as $selection) {
-            if (!isset($selection->name)) continue;
+        foreach ($node->selectionSet->selections as $selection) {
+            if (!isset($selection->name)) {
+                continue;
+            };
+
             $name = $selection->name->value;
             if (in_array($name, $validFields)) {
                 $images[] = $name;
@@ -69,7 +74,8 @@ class Images extends AbstractHelper {
         return $images;
     }
 
-    public function getProductImages($products, $info) {
+    public function getProductImages($products, $info)
+    {
         $fields = $this->getFieldsFromProductInfo($info);
         $productImages = [];
 
@@ -86,7 +92,9 @@ class Images extends AbstractHelper {
                 $productImages[$id][$field] = [];
                 $image = $product->getData($field);
 
-                if (!$image) continue;
+                if (!$image) {
+                    continue;
+                };
 
                 $productImages[$id][$field] = [
                     'path' => $image,
@@ -107,7 +115,8 @@ class Images extends AbstractHelper {
      * @return string
      * @throws Exception
      */
-    private function getImageUrl(string $imageType, ?string $imagePath): string {
+    private function getImageUrl(string $imageType, ?string $imagePath): string
+    {
         $image = $this->productImageFactory->create();
         $image->setDestinationSubdir($imageType)
             ->setBaseFile($imagePath);

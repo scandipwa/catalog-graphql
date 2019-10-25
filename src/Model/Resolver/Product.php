@@ -76,34 +76,4 @@ class Product implements ResolverInterface
 
         return $this->valueFactory->create($result);
     }
-
-    /**
-     * Return field names for all requested product fields.
-     *
-     * @param ResolveInfo $info
-     * @return string[]
-     */
-    private function getProductFields(ResolveInfo $info) : array
-    {
-        $fieldNames = [];
-        foreach ($info->fieldNodes as $node) {
-            if ($node->name->value !== 'product') {
-                continue;
-            }
-            foreach ($node->selectionSet->selections as $selectionNode) {
-                if ($selectionNode->kind === 'InlineFragment') {
-                    foreach ($selectionNode->selectionSet->selections as $inlineSelection) {
-                        if ($inlineSelection->kind === 'InlineFragment') {
-                            continue;
-                        }
-                        $fieldNames[] = $this->fieldTranslator->translate($inlineSelection->name->value);
-                    }
-                    continue;
-                }
-                $fieldNames[] = $this->fieldTranslator->translate($selectionNode->name->value);
-            }
-        }
-
-        return $fieldNames;
-    }
 }

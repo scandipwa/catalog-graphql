@@ -9,6 +9,7 @@ use Magento\Framework\Api\Filter;
 use Magento\Framework\Api\SearchCriteria\CollectionProcessor\FilterProcessor\CustomFilterInterface;
 use Magento\Framework\Data\Collection\AbstractDb;
 use Magento\Framework\Exception\LocalizedException;
+use Magento\Rule\Model\Condition\Combine;
 use Magento\Rule\Model\Condition\Sql\Builder;
 use Magento\Widget\Helper\Conditions;
 
@@ -28,6 +29,7 @@ class ConditionsFilter implements CustomFilterInterface
      * @var Builder
      */
     protected $sqlBuilder;
+
     /**
      * @var CollectionFactory
      */
@@ -54,7 +56,7 @@ class ConditionsFilter implements CustomFilterInterface
     /**
      * Get conditions
      *
-     * @return \Magento\Rule\Model\Condition\Combine
+     * @return Combine
      */
     protected function getConditions($conditions)
     {
@@ -85,6 +87,7 @@ class ConditionsFilter implements CustomFilterInterface
             throw new LocalizedException(__($rawFilterField . " only supports 'eq' condition type."));
         }
 
+        // TODO: fix this as "base64_decode" is discouraged due security reasons
         $conditions = base64_decode($filter->getValue());
         $conditions = $this->getConditions($conditions);
 

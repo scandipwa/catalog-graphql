@@ -200,21 +200,27 @@ class ConfigurableVariant implements ResolverInterface
         $fieldNames = [];
 
         foreach ($info->fieldNodes as $node) {
-            if (!isset($node->name)) continue;
+            if (!isset($node->name)) {
+                continue;
+            };
 
             if ($node->name->value !== 'variants') {
                 continue;
             }
 
             foreach ($node->selectionSet->selections as $selectionNode) {
-                if (!isset($selectionNode->name)) continue;
+                if (!isset($selectionNode->name)) {
+                    continue;
+                };
 
                 if ($selectionNode->name->value !== 'product') {
                     continue;
                 }
 
                 foreach ($selectionNode->selectionSet->selections as $productSelection) {
-                    if (!isset($selectionNode->name)) continue;
+                    if (!isset($selectionNode->name)) {
+                        continue;
+                    };
 
                     $fieldNames[] = $productSelection->name->value;
                 }
@@ -224,7 +230,8 @@ class ConfigurableVariant implements ResolverInterface
         return $fieldNames;
     }
 
-    protected function processAttributes($attributeNames) {
+    protected function processAttributes($attributeNames)
+    {
         $attributesToRequest = [];
 
         foreach ($attributeNames as $name) {
@@ -234,11 +241,11 @@ class ConfigurableVariant implements ResolverInterface
                         $this->getAttributesVisibleOnFrontend();
                     }
 
-                    $attributeCodes = array_map(function($attr) {
+                    $attributeCodes = array_map(function ($attr) {
                         return $attr->getAttributeCode();
                     }, $this->attributesVisibleOnFrontend);
 
-                    $attributesToRequest = array_merge($attributeCodes, $attributesToRequest);
+                    $attributesToRequest = $attributesToRequest + $attributeCodes;
                     break;
                 case self::MEDIA_GALLERY_ENTRIES:
                 default:
@@ -250,7 +257,8 @@ class ConfigurableVariant implements ResolverInterface
         $this->variantCollection->addEavAttributes($attributesToRequest);
     }
 
-    protected function getAttributesVisibleOnFrontend() {
+    protected function getAttributesVisibleOnFrontend()
+    {
         $collection = $this->collectionFactory->create();
         $collection->setItemObjectClass(Attribute::class)
             ->addFieldToSelect('attribute_code')

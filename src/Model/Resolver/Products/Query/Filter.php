@@ -152,7 +152,7 @@ class Filter
      * @param ResolveInfo $info
      * @return string[]
      */
-    private function getProductFields(ResolveInfo $info) : array
+    protected function getProductFields(ResolveInfo $info) : array
     {
         $fieldNames = [];
         foreach ($info->fieldNodes as $node) {

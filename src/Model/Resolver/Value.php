@@ -16,7 +16,8 @@ use Magento\Framework\GraphQl\Schema\Type\ResolveInfo;
 use Magento\Framework\GraphQl\Config\Element\Field;
 use Magento\Framework\GraphQl\Query\ResolverInterface;
 
-class Value implements ResolverInterface {
+class Value implements ResolverInterface
+{
     /**
      * @inheritdoc
      */
