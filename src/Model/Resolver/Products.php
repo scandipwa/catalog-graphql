@@ -49,6 +49,9 @@ class Products implements ResolverInterface
      */
     private $searchFilter;
 
+    protected $_resourceConnection;
+    protected $_connection;
+
     /**
      * @param Builder $searchCriteriaBuilder
      * @param Search $searchQuery
@@ -59,12 +62,14 @@ class Products implements ResolverInterface
         Builder $searchCriteriaBuilder,
         Search $searchQuery,
         Filter $filterQuery,
-        SearchFilter $searchFilter
+        SearchFilter $searchFilter,
+        \Magento\Framework\App\ResourceConnection $resourceConnection
     ) {
         $this->searchCriteriaBuilder = $searchCriteriaBuilder;
         $this->searchQuery = $searchQuery;
         $this->filterQuery = $filterQuery;
         $this->searchFilter = $searchFilter;
+        $this->_resourceConnection = $resourceConnection;
     }
 
     /**
@@ -108,11 +113,17 @@ class Products implements ResolverInterface
             );
         }
 
+        $this->_connection = $this->_resourceConnection->getConnection();
+        $sql = "SELECT position as pos FROM eav_attribute JOIN catalog_eav_attribute
+                ON eav_attribute.attribute_id = catalog_eav_attribute.attribute_id
+                where eav_attribute.attribute_code = 'price'";
+        $priceIsOnTop = boolval($this->_connection->fetchOne($sql));
 
         $data = [
             'total_count' => $searchResult->getTotalCount(),
             'min_price' => $searchResult->getMinPrice(),
             'max_price' => $searchResult->getMaxPrice(),
+            'price_on_top' => $priceIsOnTop,
             'items' => $searchResult->getProductsSearchResult(),
             'page_info' => [
                 'page_size' => $searchCriteria->getPageSize(),

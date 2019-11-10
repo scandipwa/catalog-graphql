@@ -77,6 +77,7 @@ type AttributeWithValueSwatchData {
 type Products {
     min_price: Float @doc(description: "Minimal price among all selected items")
     max_price: Float @doc(description: "Maximal price among all selected items")
+    price_on_top: Boolean @doc(description: "Price in layered navigation is positioned on top of other attributes")
 }
 
 type CategoryProducts {
