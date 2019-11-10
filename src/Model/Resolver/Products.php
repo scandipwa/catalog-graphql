@@ -19,6 +19,7 @@ use Magento\Framework\GraphQl\Exception\GraphQlInputException;
 use Magento\Framework\GraphQl\Query\Resolver\Argument\SearchCriteria\Builder;
 use Magento\Framework\GraphQl\Query\Resolver\Argument\SearchCriteria\SearchFilter;
 use Magento\Framework\GraphQl\Query\ResolverInterface;
+use Magento\Framework\App\ResourceConnection;
 use Magento\Catalog\Model\Layer\Resolver;
 
 /**
@@ -52,26 +53,27 @@ class Products implements ResolverInterface
     /**
      * @var ResourceConnection
      */
-    protected $_resourceConnection;
+    protected $resourceConnection;
 
     /**
      * @param Builder $searchCriteriaBuilder
      * @param Search $searchQuery
      * @param Filter $filterQuery
      * @param SearchFilter $searchFilter
+     * @param ResourceConnection $searchFilter
      */
     public function __construct(
         Builder $searchCriteriaBuilder,
         Search $searchQuery,
         Filter $filterQuery,
         SearchFilter $searchFilter,
-        \Magento\Framework\App\ResourceConnection $resourceConnection
+        ResourceConnection $resourceConnection
     ) {
         $this->searchCriteriaBuilder = $searchCriteriaBuilder;
         $this->searchQuery = $searchQuery;
         $this->filterQuery = $filterQuery;
         $this->searchFilter = $searchFilter;
-        $this->_resourceConnection = $resourceConnection;
+        $this->resourceConnection = $resourceConnection;
     }
 
     /**
@@ -115,7 +117,7 @@ class Products implements ResolverInterface
             );
         }
 
-        $connection = $this->_resourceConnection->getConnection();
+        $connection = $this->resourceConnection->getConnection();
         $sql = "SELECT position as pos FROM eav_attribute JOIN catalog_eav_attribute
                 ON eav_attribute.attribute_id = catalog_eav_attribute.attribute_id
                 where eav_attribute.attribute_code = 'price'";
