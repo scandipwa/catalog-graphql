@@ -119,7 +119,7 @@ class Products implements ResolverInterface
         $sql = "SELECT position as pos FROM eav_attribute JOIN catalog_eav_attribute
                 ON eav_attribute.attribute_id = catalog_eav_attribute.attribute_id
                 where eav_attribute.attribute_code = 'price'";
-        $priceIsOnTop = boolval($this->_connection->fetchOne($sql));
+        $priceIsOnTop = boolval($connection->fetchOne($sql));
 
         $data = [
             'total_count' => $searchResult->getTotalCount(),
