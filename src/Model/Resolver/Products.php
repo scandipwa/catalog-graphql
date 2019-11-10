@@ -49,8 +49,10 @@ class Products implements ResolverInterface
      */
     private $searchFilter;
 
+    /**
+     * @var ResourceConnection
+     */
     protected $_resourceConnection;
-    protected $_connection;
 
     /**
      * @param Builder $searchCriteriaBuilder
@@ -113,7 +115,7 @@ class Products implements ResolverInterface
             );
         }
 
-        $this->_connection = $this->_resourceConnection->getConnection();
+        $connection = $this->_resourceConnection->getConnection();
         $sql = "SELECT position as pos FROM eav_attribute JOIN catalog_eav_attribute
                 ON eav_attribute.attribute_id = catalog_eav_attribute.attribute_id
                 where eav_attribute.attribute_code = 'price'";
