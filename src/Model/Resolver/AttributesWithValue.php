@@ -48,10 +48,15 @@ class AttributesWithValue implements ResolverInterface
     }
 
     protected function getAttributeOptions($attr, $rawOptions) {
-        if (!$this->swatchHelper->isSwatchAttribute($attr)) return [];
+        $optionIds = array_map(function ($option) {
+            return $option['value'];
+        }, $rawOptions);
 
-        $optionIds = array_map(function ($option) { return $option['value']; }, $rawOptions);
         $swatchOptions = $this->swatchHelper->getSwatchesByOptionsId($optionIds);
+
+        if (!$this->swatchHelper->isSwatchAttribute($attr)) {
+            return $rawOptions;
+        }
 
         return array_map(function ($option) use ($swatchOptions) {
             $option['swatch_data'] = $swatchOptions[$option['value']] ?? [];
