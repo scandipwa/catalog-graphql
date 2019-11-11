@@ -82,11 +82,13 @@ class AttributesWithValue implements ResolverInterface
 
         foreach ($product->getAttributes() as $attr) {
             if ($attr->getIsVisibleOnFront()) {
+                $productAttr = $product->getCustomAttribute($attr->getAttributeCode());
+
                 $rawOptions = $attr->getSource()->getAllOptions(true, true);
                 array_shift($rawOptions);
 
                 $attributesToReturn[] = [
-                    'attribute_value' => $attr ? $attr->getValue() : null,
+                    'attribute_value' => $productAttr ? $productAttr->getValue() : null,
                     'attribute_code' => $attr->getAttributeCode(),
                     'attribute_type' => $attr->getFrontendInput(),
                     'attribute_label' => $attr->getFrontendLabel(),
