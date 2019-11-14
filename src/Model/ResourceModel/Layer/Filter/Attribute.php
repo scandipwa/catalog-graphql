@@ -11,6 +11,7 @@ declare(strict_types=1);
 
 namespace ScandiPWA\CatalogGraphQl\Model\ResourceModel\Layer\Filter;
 
+use Magento\Framework\Registry;
 use Magento\Catalog\Model\Layer\Filter\FilterInterface;
 
 /**
@@ -20,6 +21,21 @@ use Magento\Catalog\Model\Layer\Filter\FilterInterface;
 class Attribute extends \Magento\Catalog\Model\ResourceModel\Layer\Filter\Attribute
 {
     /**
+     * @var Registry
+     */
+    protected $registry;
+
+    public function __construct(
+        \Magento\Framework\Model\ResourceModel\Db\Context $context,
+        $connectionName = null,
+        Registry $registry
+    )
+    {
+        parent::__construct($context, $connectionName);
+        $this->registry = $registry;
+    }
+
+    /**
      * Retrieve array with products counts per attribute option
      *
      * @param FilterInterface $filter
@@ -28,7 +44,14 @@ class Attribute extends \Magento\Catalog\Model\ResourceModel\Layer\Filter\Attrib
      */
     public function getCount(FilterInterface $filter)
     {
-        $select = clone $filter->getLayer()->getProductCollection()->getSelect();
+        $productCollection = clone $filter->getLayer()->getProductCollection();
+
+        $category = $this->registry->registry('current_category');
+        if ($category) {
+            $productCollection->addCategoriesFilter(['in' => (int)$category->getId()]);
+        }
+
+        $select = $productCollection->getSelect();
         // reset columns, order and limitation conditions
         $select->reset(\Magento\Framework\DB\Select::COLUMNS);
         $select->reset(\Magento\Framework\DB\Select::ORDER);
