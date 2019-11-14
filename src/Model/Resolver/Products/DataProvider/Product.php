@@ -153,10 +153,14 @@ class Product extends \Magento\CatalogGraphQl\Model\Resolver\Products\DataProvid
     {
         $connection = $collection->getConnection();
         $entityIds = $collection->getAllIds();
+        $currencyRate = $collection->getCurrencyRate();
 
         $row = $connection->fetchRow('SELECT MIN(min_price) as min_price, MAX(max_price) as max_price FROM catalog_product_index_price WHERE entity_id IN(\'' . \implode("','", $entityIds) . '\')');
 
-        return [floatval($row['min_price']),floatval($row['max_price'])];
+        return [
+            floatval($row['min_price']) * $currencyRate,
+            floatval($row['max_price']) * $currencyRate
+        ];
     }
 
     /**
