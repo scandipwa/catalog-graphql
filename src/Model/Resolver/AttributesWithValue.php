@@ -19,6 +19,8 @@ use Magento\Framework\GraphQl\Config\Element\Field;
 use Magento\Framework\GraphQl\Query\ResolverInterface;
 use Magento\Swatches\Helper\Data;
 use Magento\Catalog\Api\ProductAttributeManagementInterface;
+use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Store\Model\ScopeInterface;
 
 use Magento\Catalog\Model\ProductRepository;
 
@@ -35,16 +37,23 @@ class AttributesWithValue implements ResolverInterface
     protected $productRepository;
 
     /**
+     * @var ScopeConfigInterface
+     */
+    protected $scopeConfig;
+
+    /**
      * CustomAttributes constructor.
      * @param Data $swatchHelper
      * @param ProductRepository $productRepository
      */
     public function __construct(
         Data $swatchHelper,
-        ProductRepository $productRepository
+        ProductRepository $productRepository,
+        ScopeConfigInterface $scopeConfig
     ) {
         $this->swatchHelper = $swatchHelper;
         $this->productRepository = $productRepository;
+        $this->scopeConfig = $scopeConfig;
     }
 
     protected function getAttributeOptions($attr, $rawOptions) {
@@ -62,6 +71,27 @@ class AttributesWithValue implements ResolverInterface
             $option['swatch_data'] = $swatchOptions[$option['value']] ?? [];
             return $option;
         }, $rawOptions);
+    }
+
+    /**
+     * Gets attribute value
+     * @param $productAttr
+     * @param $attr
+     * @param $product
+     * @return string|null
+     */
+    protected function getAttributeValue($attr, $product)
+    {
+        if ($attr->getAttributeCode() == 'weight' && $product->getWeight() != 0) {
+            $unit = $this->scopeConfig->getValue(
+                'general/locale/weight_unit',
+                ScopeInterface::SCOPE_STORE
+            ) ?? null;
+            return (float)$product->getWeight().' '.$unit ?? null;
+        }
+        $productAttr = $product->getCustomAttribute($attr->getAttributeCode());
+
+        return $productAttr ? $productAttr->getValue() : null;
     }
 
     /**
@@ -87,13 +117,12 @@ class AttributesWithValue implements ResolverInterface
 
         foreach ($product->getAttributes() as $attr) {
             if ($attr->getIsVisibleOnFront()) {
-                $productAttr = $product->getCustomAttribute($attr->getAttributeCode());
 
                 $rawOptions = $attr->getSource()->getAllOptions(true, true);
                 array_shift($rawOptions);
 
                 $attributesToReturn[] = [
-                    'attribute_value' => $productAttr ? $productAttr->getValue() : null,
+                    'attribute_value' => $this->getAttributeValue($attr, $product),
                     'attribute_code' => $attr->getAttributeCode(),
                     'attribute_type' => $attr->getFrontendInput(),
                     'attribute_label' => $attr->getFrontendLabel(),
