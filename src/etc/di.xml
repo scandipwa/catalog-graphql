@@ -46,6 +46,7 @@
         <arguments>
             <argument name="readers" xsi:type="array">
                 <item name="graphql_reader" xsi:type="object">Magento\Framework\GraphQlSchemaStitching\GraphQlReader</item>
+                <item name="productFiltersDynamicAttributeReader" xsi:type="object">ScandiPWA\CatalogGraphQl\Model\Config\ProductAttributeReader</item>
                 <item name="categoryDynamicAttributeReader" xsi:type="object">Magento\CatalogGraphQl\Model\Config\CategoryAttributeReader</item>
             </argument>
         </arguments>

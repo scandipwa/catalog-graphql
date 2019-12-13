@@ -43,8 +43,8 @@ class ConfigurableProductAttributeFilter implements CustomFilterInterface
     {
         $attributeName = $filter->getField();
         $attributeValue = $filter->getValue();
+        $conditionType = $filter->getConditionType();
         $category = $this->registry->registry('current_category');
-        $conditionType = $filter->getConditionType() ? $filter->getConditionType() : 'eq';
 
         $simpleSelect = $this->collectionFactory->create()
             ->addAttributeToFilter($attributeName, [$conditionType => $attributeValue])
