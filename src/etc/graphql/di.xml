@@ -13,12 +13,12 @@
     <virtualType name="Magento\Catalog\Model\Api\SearchCriteria\CollectionProcessor\ProductFilterProcessor" type="Magento\Eav\Model\Api\SearchCriteria\CollectionProcessor\FilterProcessor">
         <arguments>
             <argument name="customFilters" xsi:type="array">
+                <item name="conditions" xsi:type="object">ScandiPWA\CatalogGraphQl\Model\Resolver\Products\SearchCriteria\CollectionProcessor\FilterProcessor\ConditionsFilter</item>
                 <item name="category_url_key" xsi:type="object">ScandiPWA\CatalogGraphQl\Model\Resolver\Products\SearchCriteria\CollectionProcessor\FilterProcessor\CategoryFilter</item>
                 <item name="category_url_path" xsi:type="object">ScandiPWA\CatalogGraphQl\Model\Resolver\Products\SearchCriteria\CollectionProcessor\FilterProcessor\CategoryFilter</item>
                 <item name="color" xsi:type="object">ScandiPWA\CatalogGraphQl\Model\Resolver\Products\SearchCriteria\CollectionProcessor\FilterProcessor\ConfigurableProductAttributeFilter</item>
                 <item name="size" xsi:type="object">ScandiPWA\CatalogGraphQl\Model\Resolver\Products\SearchCriteria\CollectionProcessor\FilterProcessor\ConfigurableProductAttributeFilter</item>
                 <item name="shoes_size" xsi:type="object">ScandiPWA\CatalogGraphQl\Model\Resolver\Products\SearchCriteria\CollectionProcessor\FilterProcessor\ConfigurableProductAttributeFilter</item>
-                <item name="conditions" xsi:type="object">ScandiPWA\CatalogGraphQl\Model\Resolver\Products\SearchCriteria\CollectionProcessor\FilterProcessor\ConditionsFilter</item>
             </argument>
         </arguments>
     </virtualType>
