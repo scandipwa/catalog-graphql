@@ -11,6 +11,7 @@ declare(strict_types=1);
 
 namespace ScandiPWA\CatalogGraphQl\Model\Resolver\Product;
 
+use Magento\Framework\App\Area;
 use Magento\Framework\GraphQl\Schema\Type\ResolveInfo;
 use Magento\Catalog\Model\Product;
 use Magento\Framework\GraphQl\Config\Element\Field;
@@ -29,22 +30,22 @@ class MediaGalleryEntries implements ResolverInterface
     /**
      * @var ValueFactory
      */
-    private $valueFactory;
+    protected $valueFactory;
 
     /**
      * @var HelperFactory
      */
-    private $helperFactory;
+    protected $helperFactory;
 
     /**
      * @var StoreManagerInterface
      */
-    private $storeManager;
+    protected $storeManager;
 
     /**
      * @var Emulation
      */
-    private $emulation;
+    protected $emulation;
 
     /**
      * MediaGalleryEntries constructor.
@@ -58,12 +59,34 @@ class MediaGalleryEntries implements ResolverInterface
         StoreManagerInterface $storeManager,
         HelperFactory $helperFactory,
         Emulation $emulation
-    )
-    {
+    ) {
         $this->valueFactory = $valueFactory;
         $this->storeManager = $storeManager;
         $this->helperFactory = $helperFactory;
         $this->emulation = $emulation;
+    }
+
+    protected function getImageOfType(
+        $mediaGalleryEntry,
+        $imageId,
+        $type
+    ) {
+        $storeId = $this->storeManager->getStore()->getId();
+        $this->emulation->startEnvironmentEmulation($storeId, Area::AREA_FRONTEND, true);
+
+        $image = $this->helperFactory->init($mediaGalleryEntry, $imageId, ['type' => $type])
+            ->setImageFile($mediaGalleryEntry->getData('file'))
+            ->constrainOnly(true)
+            ->keepAspectRatio(true)
+            ->keepTransparency(true)
+            ->keepFrame(false);
+
+        $this->emulation->stopEnvironmentEmulation();
+
+        return [
+            'url' => $image->getUrl(),
+            'type' => $type
+        ];
     }
 
     /**
@@ -82,41 +105,20 @@ class MediaGalleryEntries implements ResolverInterface
             $result = function () {
                 return null;
             };
+
             return $this->valueFactory->create($result);
         }
 
         /** @var Product $product */
         $product = $value['model'];
-
         $mediaGalleryEntries = [];
+
         if (!empty($product->getMediaGalleryEntries())) {
             foreach ($product->getMediaGalleryEntries() as $key => $entry) {
-                $storeId = $this->storeManager->getStore()->getId();
-                $this->emulation->startEnvironmentEmulation($storeId, \Magento\Framework\App\Area::AREA_FRONTEND, true);
+                $thumbnail = $this->getImageOfType($entry, 'product_media_thumbnail', 'thumbnail');
+                $base = $this->getImageOfType($entry, 'product_media_base', 'base');
+                $mediaGalleryEntries[$key] = $entry->getData() + ['thumbnail' => $thumbnail, 'base' => $base];
 
-                $image = $this->helperFactory->init($entry, "product_media_thumbnail", ["type" => "thumbnail"])
-                    ->setImageFile($entry->getData("file"))
-                    ->constrainOnly(true)
-                    ->keepAspectRatio(true)
-                    ->keepTransparency(true)
-                    ->keepFrame(false);
-
-                $imageSizeInfo = $image->getResizedImageInfo();
-
-                $this->emulation->stopEnvironmentEmulation();
-
-                $thumbnail = [
-                    'url' => $image->getUrl(),
-                    'type' => 'thumbnail',
-                    'width' => $imageSizeInfo[0],
-                    'height' => $imageSizeInfo[1],
-                ];
-
-                $entryData = $entry->getData();
-
-                $entryData['thumbnail'] = $thumbnail;
-
-                $mediaGalleryEntries[$key] = $entryData;
                 if ($entry->getExtensionAttributes() && $entry->getExtensionAttributes()->getVideoContent()) {
                     $mediaGalleryEntries[$key]['video_content']
                         = $entry->getExtensionAttributes()->getVideoContent()->getData();
