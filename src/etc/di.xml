@@ -60,6 +60,9 @@
         </arguments>
     </type>
 
+    <preference for="Magento\CatalogGraphQl\Model\Resolver\Product\MediaGallery\Url"
+                type="ScandiPWA\CatalogGraphQl\Model\Resolver\Product\MediaGallery\Url" />
+
     <preference for="Magento\CatalogGraphQl\Model\Resolver\Product\MediaGalleryEntries"
                 type="ScandiPWA\CatalogGraphQl\Model\Resolver\Product\MediaGalleryEntries"/>
 
