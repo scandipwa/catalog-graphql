@@ -19,6 +19,9 @@
                 <width>450</width>
             </image>
             <image id="product_thumbnail" type="image">
+                <width>100</width>
+            </image>
+            <image id="product_small_image" type="image">
                 <width>250</width>
             </image>
         </images>
