@@ -101,7 +101,7 @@ class Url implements ResolverInterface
             $image = $this->imageHelper
                 ->init(
                     $product,
-                    sprintf('product_%s', $value['image_type']),
+                    sprintf('scandipwa_%s', $value['image_type']),
                     ['type' => $value['image_type']]
                 )
                 ->constrainOnly(true)
