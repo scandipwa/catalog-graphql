@@ -12,14 +12,14 @@ declare(strict_types=1);
 
 namespace ScandiPWA\CatalogGraphQl\Model\Resolver;
 
+use Magento\Eav\Model\Entity\Attribute;
 use Magento\Framework\GraphQl\Query\Resolver\ContextInterface;
 use Magento\Framework\GraphQl\Query\Resolver\Value;
 use Magento\Framework\GraphQl\Schema\Type\ResolveInfo;
 use Magento\Framework\GraphQl\Config\Element\Field;
 use Magento\Framework\GraphQl\Query\ResolverInterface;
+use Magento\Store\Model\StoreManagerInterface;
 use Magento\Swatches\Helper\Data;
-use Magento\Catalog\Api\ProductAttributeManagementInterface;
-
 use Magento\Catalog\Model\ProductRepository;
 
 class AttributesWithValue implements ResolverInterface
@@ -35,16 +35,24 @@ class AttributesWithValue implements ResolverInterface
     protected $productRepository;
 
     /**
+     * @var StoreManagerInterface
+     */
+    private $storeManager;
+
+    /**
      * CustomAttributes constructor.
      * @param Data $swatchHelper
      * @param ProductRepository $productRepository
+     * @param StoreManagerInterface $storeManager
      */
     public function __construct(
         Data $swatchHelper,
-        ProductRepository $productRepository
+        ProductRepository $productRepository,
+        StoreManagerInterface $storeManager
     ) {
         $this->swatchHelper = $swatchHelper;
         $this->productRepository = $productRepository;
+        $this->storeManager = $storeManager;
     }
 
     protected function getAttributeOptions($attr, $rawOptions) {
@@ -85,18 +93,21 @@ class AttributesWithValue implements ResolverInterface
         $product = $value['model'];
         $attributesToReturn = [];
 
+        $storeId = $this->storeManager->getStore()->getId();
+        /** @var $attr Attribute */
+
         foreach ($product->getAttributes() as $attr) {
             if ($attr->getIsVisibleOnFront()) {
                 $productAttr = $product->getCustomAttribute($attr->getAttributeCode());
 
-                $rawOptions = $attr->getSource()->getAllOptions(true, true);
+                $rawOptions = $attr->getSource()->getAllOptions(true, false);
                 array_shift($rawOptions);
 
                 $attributesToReturn[] = [
                     'attribute_value' => $productAttr ? $productAttr->getValue() : null,
                     'attribute_code' => $attr->getAttributeCode(),
                     'attribute_type' => $attr->getFrontendInput(),
-                    'attribute_label' => $attr->getFrontendLabel(),
+                    'attribute_label' => $attr->getStoreLabel(),
                     'attribute_id' => $attr->getAttributeId(),
                     'attribute_options' => $this->getAttributeOptions($attr, $rawOptions)
                 ];
