@@ -41,9 +41,9 @@ class ConfigurableProductAttributeFilter implements CustomFilterInterface
 
     public function apply(Filter $filter, AbstractDb $collection)
     {
-        $conditionType = $filter->getConditionType();
         $attributeName = $filter->getField();
         $attributeValue = $filter->getValue();
+        $conditionType = $filter->getConditionType();
         $category = $this->registry->registry('current_category');
 
         $simpleSelect = $this->collectionFactory->create()

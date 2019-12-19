@@ -9,19 +9,14 @@
 # @copyright   Copyright (c) 2018 Scandiweb, Ltd (https://scandiweb.com)
 ##
 
-type ProductThumbnail @doc(description: "Products thumbnail image") {
+type MediaGalleryImageOfType @doc(description: "Products thumbnail image") {
     type: String @doc(description: "Product image type")
     url: String @doc(description: "Product image url")
-    width: String @doc(description: "Product image width")
-    height: String @doc(description: "Product image height")
 }
 
 input ProductFilterInput {
     category_url_key: FilterTypeInput @doc(description: "Category url_key the product belongs to")
     category_url_path: FilterTypeInput @doc(description: "Category url_path the product belongs to")
-    color: FilterTypeInput @doc(description: "Product color")
-    size: FilterTypeInput @doc(description: "Product size")
-    shoes_size: FilterTypeInput @doc(description: "Product shoes size")
     conditions: FilterTypeInput @doc(description: "Searches products by JSON formatted conditions")
 }
 
@@ -30,7 +25,8 @@ input ProductSortInput {
 }
 
 type MediaGalleryEntry  @doc(description: "MediaGalleryEntry defines characteristics about images and videos associated with a specific product") {
-    thumbnail: ProductThumbnail @doc(description: "The path of the thumbnail image on the server thumbnail")
+    thumbnail: MediaGalleryImageOfType @doc(description: "The path of the thumbnail image on the server thumbnail")
+    base: MediaGalleryImageOfType @doc(description: "The path of the thumbnail image on the server thumbnail")
 }
 
 type ProductImage @doc(description: "Extend product Image fields for frontend-driven loading mechanism") {
@@ -47,6 +43,7 @@ type Query {
 
 interface ProductInterface {
     attributes: [AttributeWithValue] @resolver(class:"ScandiPWA\\CatalogGraphQl\\Model\\Resolver\\AttributesWithValue")
+    stock_item: ProductStockItem @resolver(class: "ScandiPWA\\CatalogGraphQl\\Model\\Resolver\\Inventory\\StockCount")
 }
 
 interface CategoryInterface {
@@ -82,4 +79,9 @@ type Products {
 type CategoryProducts {
     min_price: Float @doc(description: "Minimal price among all selected items")
     max_price: Float @doc(description: "Maximal price among all selected items")
+}
+
+type ProductStockItem {
+    min_sale_qty: Int @doc(description: "Minimal amount of item that can be bought")
+    max_sale_qty: Int @doc(description: "Maximal amount of item that can be bought")
 }

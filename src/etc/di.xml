@@ -46,6 +46,7 @@
         <arguments>
             <argument name="readers" xsi:type="array">
                 <item name="graphql_reader" xsi:type="object">Magento\Framework\GraphQlSchemaStitching\GraphQlReader</item>
+                <item name="productFiltersDynamicAttributeReader" xsi:type="object">ScandiPWA\CatalogGraphQl\Model\Config\ProductAttributeReader</item>
                 <item name="categoryDynamicAttributeReader" xsi:type="object">Magento\CatalogGraphQl\Model\Config\CategoryAttributeReader</item>
             </argument>
         </arguments>
@@ -59,6 +60,9 @@
             <argument name="pageSize" xsi:type="object">ScandiPWA\CatalogGraphQl\Model\Search\PageSizeProvider</argument>
         </arguments>
     </type>
+
+    <preference for="Magento\CatalogGraphQl\Model\Resolver\Product\MediaGallery\Url"
+                type="ScandiPWA\CatalogGraphQl\Model\Resolver\Product\MediaGallery\Url" />
 
     <preference for="Magento\CatalogGraphQl\Model\Resolver\Product\MediaGalleryEntries"
                 type="ScandiPWA\CatalogGraphQl\Model\Resolver\Product\MediaGalleryEntries"/>
@@ -86,6 +90,9 @@
 
     <preference for="Magento\CatalogWidget\Model\Rule\Condition\Product"
                 type="ScandiPWA\CatalogGraphQl\Model\Rule\Condition\Product" />
+
+    <preference for="Magento\CatalogGraphQl\Model\Resolver\LayerFilters"
+                type="ScandiPWA\CatalogGraphQl\Model\Resolver\LayerFilters" />
 
     <type name="ScandiPWA\CatalogGraphQl\Model\Resolver\Products\Query\Search">
         <arguments>
