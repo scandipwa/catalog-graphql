@@ -12,13 +12,17 @@ declare(strict_types=1);
 namespace ScandiPWA\CatalogGraphQl\Model\Resolver\Products\DataProvider;
 
 use Magento\Catalog\Model\Product\Visibility;
+use Magento\Catalog\Model\ResourceModel\Product\Collection;
 use Magento\Framework\Api\SearchCriteriaInterface;
 use Magento\Catalog\Model\ResourceModel\Product\CollectionFactory;
 use Magento\Catalog\Api\Data\ProductSearchResultsInterfaceFactory;
 use Magento\Framework\Api\SearchResultsInterface;
 use Magento\CatalogGraphQl\Model\Resolver\Products\DataProvider\Product\CollectionProcessorInterface;
+use Magento\Framework\Exception\LocalizedException;
 use ScandiPWA\CatalogGraphQl\Model\Resolver\Products\DataProvider\Product\CriteriaCheck;
 use Magento\Store\Model\StoreManagerInterface;
+use Magento\Review\Model\Review;
+use Magento\Review\Model\ResourceModel\Review\Product\Collection as ProductCollection;
 
 /**
  * Product field data provider, used for GraphQL resolver processing.
@@ -62,19 +66,28 @@ class Product extends \Magento\CatalogGraphQl\Model\Resolver\Products\DataProvid
     private $storeManager;
 
     /**
+     * @var Review
+     */
+    protected $review;
+
+    /**
+     * Product constructor.
      * @param CollectionFactory $collectionFactory
      * @param ProductSearchResultsInterfaceFactory $searchResultsFactory
      * @param Visibility $visibility
      * @param CollectionProcessorInterface $collectionProcessor
      * @param StoreManagerInterface $storeManager
+     * @param Review $review
      */
     public function __construct(
         CollectionFactory $collectionFactory,
         ProductSearchResultsInterfaceFactory $searchResultsFactory,
         Visibility $visibility,
         CollectionProcessorInterface $collectionProcessor,
-        StoreManagerInterface $storeManager
+        StoreManagerInterface $storeManager,
+        Review $review
     ) {
+        $this->review = $review;
         $this->collectionFactory = $collectionFactory;
         $this->searchResultsFactory = $searchResultsFactory;
         $this->visibility = $visibility;
@@ -90,6 +103,7 @@ class Product extends \Magento\CatalogGraphQl\Model\Resolver\Products\DataProvid
      * @param bool $isSearch
      * @param bool $isChildSearch
      * @return SearchResultsInterface
+     * @throws LocalizedException
      */
     public function getList(
         SearchCriteriaInterface $searchCriteria,
@@ -97,7 +111,7 @@ class Product extends \Magento\CatalogGraphQl\Model\Resolver\Products\DataProvid
         bool $isSearch = false,
         bool $isChildSearch = false
     ): SearchResultsInterface {
-        /** @var \Magento\Catalog\Model\ResourceModel\Product\Collection $collection */
+        /** @var Collection $collection */
         $collection = $this->collectionFactory->create();
 
         $this->collectionProcessor->process($collection, $searchCriteria, $attributes);
@@ -124,6 +138,12 @@ class Product extends \Magento\CatalogGraphQl\Model\Resolver\Products\DataProvid
             $collection->addOptionsToResult();
         }
 
+        if (in_array('review_summary', $attributes)) {
+            /** @var ProductCollection $collection */
+            // Only getItems is used inside
+            $this->review->appendSummary($collection);
+        }
+
         $searchResult = $this->searchResultsFactory->create();
         $searchResult->setSearchCriteria($searchCriteria);
         $searchResult->setItems($collection->getItems());
@@ -135,13 +155,14 @@ class Product extends \Magento\CatalogGraphQl\Model\Resolver\Products\DataProvid
 
 
     /**
-     * @param \Magento\Catalog\Model\ResourceModel\Product\Collection $collection
+     * @param Collection $collection
      * @return array
      */
     public function getCollectionMinMaxPrice($collection)
     {
         $connection = $collection->getConnection();
         $entityIds = $collection->getAllIds();
+        $currencyRate = $collection->getCurrencyRate();
 
         $query = sprintf(
             'SELECT MIN(min_price) as min_price, MAX(max_price) as max_price FROM catalog_product_index_price WHERE entity_id IN ("%s") AND website_id = %d',
@@ -151,7 +172,10 @@ class Product extends \Magento\CatalogGraphQl\Model\Resolver\Products\DataProvid
 
         $row = $connection->fetchRow($query);
 
-        return [floatval($row['min_price']),floatval($row['max_price'])];
+        return [
+            floatval($row['min_price']) * $currencyRate,
+            floatval($row['max_price']) * $currencyRate
+        ];
     }
 
     /**

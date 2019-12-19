@@ -15,6 +15,7 @@
     <module name="ScandiPWA_CatalogGraphQl" setup_version="1.0.0">
         <sequence>
             <module name="Magento_CatalogGraphQl"/>
+            <module name="Magento_CatalogInventoryGraphQl"/>
         </sequence>
     </module>
 </config>
