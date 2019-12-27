@@ -20,17 +20,17 @@ class FilterProcessor implements CollectionProcessorInterface
     /**
      * @var CustomFilterInterface[]
      */
-    private $customFilters;
+    protected $customFilters;
 
     /**
      * @var array
      */
-    private $fieldMapping;
+    protected $fieldMapping;
 
     /**
      * @var CustomFilterInterface
      */
-    private $defaultFilter;
+    protected $defaultFilter;
 
     /**
      * @param CustomFilterInterface $defaultFilter

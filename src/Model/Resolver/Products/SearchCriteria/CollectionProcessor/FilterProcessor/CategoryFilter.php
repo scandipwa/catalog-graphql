@@ -88,7 +88,10 @@ class CategoryFilter implements CustomFilterInterface
             ->addAttributeToSelect(['entity_id'])->getFirstItem()->getEntityId();
 
         $this->categoryResourceModel->load($category, $categoryId);
-        $this->registry->register('current_category', $category);
+
+        if (!$this->registry->registry('current_category')) {
+            $this->registry->register('current_category', $category);
+        }
 
         $collection->addCategoryFilter($category);
 

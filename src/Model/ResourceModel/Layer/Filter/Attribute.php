@@ -27,7 +27,7 @@ class Attribute extends \Magento\Catalog\Model\ResourceModel\Layer\Filter\Attrib
     public function __construct(
         \Magento\Framework\Model\ResourceModel\Db\Context $context,
         $connectionName = null,
-        \ScandiPWA\CatalogGraphQl\Model\Resolver\Products\SearchCriteria\CollectionProcessor\ExclusiveFilterProcessor $filterProcessor
+        \Magento\Framework\Api\SearchCriteria\CollectionProcessorInterface $filterProcessor
     ) {
         parent::__construct($context, $connectionName);
         $this->filterProcessor = $filterProcessor;
@@ -51,11 +51,10 @@ class Attribute extends \Magento\Catalog\Model\ResourceModel\Layer\Filter\Attrib
         $attribute = $filter->getAttributeModel();
         $productCollection = clone $filter->getLayer()->getProductCollection();
 
-        // echo 'Couont: '  . count($this->searchCriteria->ge
-
-        $this->filterProcessor
-            ->setIgnoredFilters([$attribute->getAttributeCode()])
-            ->process($this->searchCriteria, $productCollection);
+        if ($this->searchCriteria) {
+            $this->filterProcessor->setIgnoredFilters([$attribute->getAttributeCode()]);
+            $this->filterProcessor->process($this->searchCriteria, $productCollection);
+        }
 
         $select = $productCollection->getSelect();
         // reset columns, order and limitation conditions
