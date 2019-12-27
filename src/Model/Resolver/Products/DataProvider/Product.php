@@ -20,6 +20,7 @@ use Magento\Framework\Api\SearchResultsInterface;
 use Magento\CatalogGraphQl\Model\Resolver\Products\DataProvider\Product\CollectionProcessorInterface;
 use Magento\Framework\Exception\LocalizedException;
 use ScandiPWA\CatalogGraphQl\Model\Resolver\Products\DataProvider\Product\CriteriaCheck;
+use Magento\Store\Model\StoreManagerInterface;
 use Magento\Review\Model\Review;
 use Magento\Review\Model\ResourceModel\Review\Product\Collection as ProductCollection;
 
@@ -60,6 +61,11 @@ class Product extends \Magento\CatalogGraphQl\Model\Resolver\Products\DataProvid
     private $maxPrice;
 
     /**
+     * @var StoreManagerInterface
+     */
+    private $storeManager;
+
+    /**
      * @var Review
      */
     protected $review;
@@ -70,6 +76,7 @@ class Product extends \Magento\CatalogGraphQl\Model\Resolver\Products\DataProvid
      * @param ProductSearchResultsInterfaceFactory $searchResultsFactory
      * @param Visibility $visibility
      * @param CollectionProcessorInterface $collectionProcessor
+     * @param StoreManagerInterface $storeManager
      * @param Review $review
      */
     public function __construct(
@@ -77,6 +84,7 @@ class Product extends \Magento\CatalogGraphQl\Model\Resolver\Products\DataProvid
         ProductSearchResultsInterfaceFactory $searchResultsFactory,
         Visibility $visibility,
         CollectionProcessorInterface $collectionProcessor,
+        StoreManagerInterface $storeManager,
         Review $review
     ) {
         $this->review = $review;
@@ -84,6 +92,7 @@ class Product extends \Magento\CatalogGraphQl\Model\Resolver\Products\DataProvid
         $this->searchResultsFactory = $searchResultsFactory;
         $this->visibility = $visibility;
         $this->collectionProcessor = $collectionProcessor;
+        $this->storeManager = $storeManager;
     }
 
     /**
@@ -153,10 +162,20 @@ class Product extends \Magento\CatalogGraphQl\Model\Resolver\Products\DataProvid
     {
         $connection = $collection->getConnection();
         $entityIds = $collection->getAllIds();
+        $currencyRate = $collection->getCurrencyRate();
 
-        $row = $connection->fetchRow('SELECT MIN(min_price) as min_price, MAX(max_price) as max_price FROM catalog_product_index_price WHERE entity_id IN(\'' . \implode("','", $entityIds) . '\')');
+        $query = sprintf(
+            'SELECT MIN(min_price) as min_price, MAX(max_price) as max_price FROM catalog_product_index_price WHERE entity_id IN ("%s") AND website_id = %d',
+            implode('","', $entityIds),
+            $this->storeManager->getStore()->getWebsiteId()
+        );
 
-        return [floatval($row['min_price']),floatval($row['max_price'])];
+        $row = $connection->fetchRow($query);
+
+        return [
+            floatval($row['min_price']) * $currencyRate,
+            floatval($row['max_price']) * $currencyRate
+        ];
     }
 
     /**
