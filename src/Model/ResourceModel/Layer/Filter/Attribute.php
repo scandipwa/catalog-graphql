@@ -20,19 +20,23 @@ use Magento\Catalog\Model\Layer\Filter\FilterInterface;
  */
 class Attribute extends \Magento\Catalog\Model\ResourceModel\Layer\Filter\Attribute
 {
-    /**
-     * @var Registry
-     */
-    protected $registry;
+    private $searchCriteria;
+
+    protected $filterProcessor;
 
     public function __construct(
         \Magento\Framework\Model\ResourceModel\Db\Context $context,
         $connectionName = null,
-        Registry $registry
-    )
-    {
+        \ScandiPWA\CatalogGraphQl\Model\Resolver\Products\SearchCriteria\CollectionProcessor\ExclusiveFilterProcessor $filterProcessor
+    ) {
         parent::__construct($context, $connectionName);
-        $this->registry = $registry;
+        $this->filterProcessor = $filterProcessor;
+    }
+
+    public function setSearchCriteria($searchCriteria)
+    {
+        $this->searchCriteria = $searchCriteria;
+        return $this;
     }
 
     /**
@@ -44,12 +48,14 @@ class Attribute extends \Magento\Catalog\Model\ResourceModel\Layer\Filter\Attrib
      */
     public function getCount(FilterInterface $filter)
     {
+        $attribute = $filter->getAttributeModel();
         $productCollection = clone $filter->getLayer()->getProductCollection();
 
-        $category = $this->registry->registry('current_category');
-        if ($category) {
-            $productCollection->addCategoriesFilter(['in' => (int)$category->getId()]);
-        }
+        // echo 'Couont: '  . count($this->searchCriteria->ge
+
+        $this->filterProcessor
+            ->setIgnoredFilters([$attribute->getAttributeCode()])
+            ->process($this->searchCriteria, $productCollection);
 
         $select = $productCollection->getSelect();
         // reset columns, order and limitation conditions
@@ -59,7 +65,6 @@ class Attribute extends \Magento\Catalog\Model\ResourceModel\Layer\Filter\Attrib
         $select->reset(\Magento\Framework\DB\Select::LIMIT_OFFSET);
 
         $connection = $this->getConnection();
-        $attribute = $filter->getAttributeModel();
         $tableAlias = sprintf('%s_idx', $attribute->getAttributeCode());
         $conditions = [
             "{$tableAlias}.entity_id = e.entity_id",

@@ -119,6 +119,7 @@ class Products implements ResolverInterface
                 'current_page' => $currentPage,
                 'total_pages' => $maxPages
             ],
+            'searchCriteria' => $searchCriteria,
             'layer_type' => $layerType
         ];
 

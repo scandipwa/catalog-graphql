@@ -94,6 +94,9 @@
     <preference for="Magento\CatalogGraphQl\Model\Resolver\LayerFilters"
                 type="ScandiPWA\CatalogGraphQl\Model\Resolver\LayerFilters" />
 
+    <preference for="Magento\Catalog\Model\Layer\Filter\Attribute"
+                type="ScandiPWA\CatalogGraphQl\Model\Resolver\Layer\Filter\Attribute" />
+
     <type name="ScandiPWA\CatalogGraphQl\Model\Resolver\Products\Query\Search">
         <arguments>
             <argument name="pageSize" xsi:type="object">ScandiPWA\CatalogGraphQl\Model\Search\PageSizeProvider</argument>

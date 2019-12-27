@@ -32,7 +32,6 @@ class FilterProcessor implements CollectionProcessorInterface
      */
     private $defaultFilter;
 
-
     /**
      * @param CustomFilterInterface $defaultFilter
      * @param CustomFilterInterface[] $customFilters
@@ -69,7 +68,7 @@ class FilterProcessor implements CollectionProcessorInterface
      * @param AbstractDb $collection
      * @return void
      */
-    private function addFilterGroupToCollection(
+    protected function addFilterGroupToCollection(
         FilterGroup $filterGroup,
         AbstractDb $collection
     ) {
@@ -95,7 +94,7 @@ class FilterProcessor implements CollectionProcessorInterface
      * @return CustomFilterInterface|null
      * @throws \InvalidArgumentException
      */
-    private function getCustomFilterForField($field)
+    protected function getCustomFilterForField($field)
     {
         $filter = null;
         if (isset($this->customFilters[$field])) {
@@ -119,7 +118,7 @@ class FilterProcessor implements CollectionProcessorInterface
      * @param string $field
      * @return string
      */
-    private function getFieldMapping($field)
+    protected function getFieldMapping($field)
     {
         return isset($this->fieldMapping[$field]) ? $this->fieldMapping[$field] : $field;
     }

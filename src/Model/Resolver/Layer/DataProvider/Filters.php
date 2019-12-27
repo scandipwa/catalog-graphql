@@ -29,6 +29,8 @@ class Filters extends \Magento\CatalogGraphQl\Model\Resolver\Layer\DataProvider\
      */
     private $requiredAttributes = [];
 
+    private $searchCriteria = [];
+
     /**
      * Filters constructor.
      * @param FiltersProvider $filtersProvider
@@ -63,6 +65,14 @@ class Filters extends \Magento\CatalogGraphQl\Model\Resolver\Layer\DataProvider\
         }
 
         $this->requiredAttributes = $attributes;
+
+        return $this;
+    }
+
+    public function setSearchCriteria($searchCriteria)
+    {
+        $this->searchCriteria = $searchCriteria;
+        return $this;
     }
 
     /**
@@ -76,6 +86,7 @@ class Filters extends \Magento\CatalogGraphQl\Model\Resolver\Layer\DataProvider\
         $filtersData = [];
         /** @var AbstractFilter $filter */
         foreach ($this->filtersProvider->getFilters($layerType) as $filter) {
+            $filter->setSearchCriteria($this->searchCriteria);
             if ($filter->getItemsCount() && $this->hasFilterContents($filter)) {
                 $filterGroup = [
                     'name' => (string) $filter->getName(),
