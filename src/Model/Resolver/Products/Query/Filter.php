@@ -1,22 +1,24 @@
 <?php
 /**
- * ScandiPWA_CatalogGraphQl
- *
  * @category    ScandiPWA
  * @package     ScandiPWA_CatalogGraphQl
- * @author      Raivis Dejus <info@scandiweb.com>
+ * @author      Alfreds Genkins <info@scandiweb.com>
  * @copyright   Copyright (c) 2019 Scandiweb, Ltd (https://scandiweb.com)
  */
+
 declare(strict_types=1);
 
 namespace ScandiPWA\CatalogGraphQl\Model\Resolver\Products\Query;
 
+use Magento\Catalog\Model\Layer\Resolver;
+use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\GraphQl\Schema\Type\ResolveInfo;
 use Magento\Framework\Api\SearchCriteriaInterface;
 use ScandiPWA\CatalogGraphQl\Model\Resolver\Products\DataProvider\Product;
 use ScandiPWA\CatalogGraphQl\Model\Resolver\Products\SearchResult;
 use ScandiPWA\CatalogGraphQl\Model\Resolver\Products\SearchResultFactory;
 use Magento\Framework\GraphQl\Query\FieldTranslator;
+use ScandiPWA\Performance\Model\Resolver\ProductPostProcessor;
 
 /**
  * Retrieve filtered product data based off given search criteria in a format that GraphQL can interpret.
@@ -27,39 +29,46 @@ class Filter
     /**
      * @var SearchResultFactory
      */
-    private $searchResultFactory;
+    protected $searchResultFactory;
 
     /**
-     * @var \ScandiPWA\CatalogGraphQl\Model\Resolver\Products\DataProvider\Product
+     * @var Product
      */
-    private $productDataProvider;
+    protected $productDataProvider;
 
     /**
      * @var FieldTranslator
      */
-    private $fieldTranslator;
+    protected $fieldTranslator;
 
     /**
-     * @var \Magento\Catalog\Model\Layer\Resolver
+     * @var Resolver
      */
-    private $layerResolver;
+    protected $layerResolver;
+
+    /**
+     * @var ProductPostProcessor
+     */
+    protected $productPostProcessor;
 
     /**
      * @param SearchResultFactory $searchResultFactory
      * @param Product $productDataProvider
-     * @param \Magento\Catalog\Model\Layer\Resolver $layerResolver
+     * @param Resolver $layerResolver
      * @param FieldTranslator $fieldTranslator
      */
     public function __construct(
         SearchResultFactory $searchResultFactory,
         Product $productDataProvider,
-        \Magento\Catalog\Model\Layer\Resolver $layerResolver,
-        FieldTranslator $fieldTranslator
+        Resolver $layerResolver,
+        FieldTranslator $fieldTranslator,
+        ProductPostProcessor $productPostProcessor
     ) {
         $this->searchResultFactory = $searchResultFactory;
         $this->productDataProvider = $productDataProvider;
         $this->fieldTranslator = $fieldTranslator;
         $this->layerResolver = $layerResolver;
+        $this->productPostProcessor = $productPostProcessor;
     }
 
     /**
@@ -69,6 +78,7 @@ class Filter
      * @param ResolveInfo $info
      * @param bool $isSearch
      * @return SearchResult
+     * @throws LocalizedException
      */
     public function getResult(
         SearchCriteriaInterface $searchCriteria,
@@ -77,12 +87,12 @@ class Filter
     ): SearchResult {
         $fields = $this->getProductFields($info);
         $products = $this->productDataProvider->getList($searchCriteria, $fields, $isSearch);
-        $productArray = [];
-        /** @var \Magento\Catalog\Model\Product $product */
-        foreach ($products->getItems() as $product) {
-            $productArray[$product->getId()] = $product->getData();
-            $productArray[$product->getId()]['model'] = $product;
-        }
+
+        $productArray = $this->productPostProcessor->process(
+            $products->getItems(),
+            'products/items',
+            $info
+        );
 
         return $this->searchResultFactory->create(
             $products->getTotalCount(),
@@ -92,15 +102,20 @@ class Filter
         );
     }
 
+    // phpcs:disable
+    // Disabling, logic bellow is taken from original M2 class
+
     /**
      * Return field names for all requested product fields.
      *
      * @param ResolveInfo $info
      * @return string[]
      */
-    private function getProductFields(ResolveInfo $info) : array
-    {
+    protected function getProductFields(
+        ResolveInfo $info
+    ): array {
         $fieldNames = [];
+
         foreach ($info->fieldNodes as $node) {
             if ($node->name->value !== 'products') {
                 continue;
@@ -116,6 +131,7 @@ class Filter
                             if ($inlineSelection->kind === 'InlineFragment') {
                                 continue;
                             }
+
                             $fieldNames[] = $this->fieldTranslator->translate($inlineSelection->name->value);
                         }
                         continue;
@@ -127,4 +143,6 @@ class Filter
 
         return $fieldNames;
     }
+
+    // phpcs:enable
 }

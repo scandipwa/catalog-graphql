@@ -16,25 +16,29 @@ use Magento\Framework\Api\SearchCriteriaInterface;
  *
  * {@inheritdoc}
  */
-class AttributeProcessor implements CollectionProcessorInterface
+class ImagesProcessor implements CollectionProcessorInterface
 {
-    const ATTRIBUTES_FIELD = 'attributes';
+    const IMAGE_FIELDS = ['thumbnail', 'small_image', 'image'];
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function process(
         Collection $collection,
         SearchCriteriaInterface $searchCriteria,
         array $attributeNames
     ): Collection {
-        foreach ($attributeNames as $name) {
-            if ($name !== self::ATTRIBUTES_FIELD) {
-                $collection->addAttributeToSelect($name);
-                continue;
+        if (array_intersect(self::IMAGE_FIELDS, $attributeNames)) {
+            $imagesToBeRequested = [];
+
+            foreach (self::IMAGE_FIELDS as $imageType) {
+                if (isset($attributesFlipped[$imageType])) {
+                    $imagesToBeRequested[] = $imageType;
+                    $imagesToBeRequested[] = sprintf('%s_label', $imageType);
+                }
             }
 
-            // DO NOTHING, BECAUSE LOADING OF getAttributesVisibleOnFrontend TAKES AGES
+            $collection->addAttributeToSelect($imagesToBeRequested);
         }
 
         return $collection;

@@ -100,9 +100,21 @@
         </arguments>
     </type>
 
-    <type name="Magento\ConfigurableProductGraphQl\Model\Resolver\ConfigurableVariant">
+    <!-- Performance related changes -->
+    <preference for="Magento\ConfigurableProductGraphQl\Model\Resolver\ConfigurableVariant"
+                type="ScandiPWA\CatalogGraphQl\Model\Resolver\ConfigurableVariant" />
+
+    <type name="ScandiPWA\CatalogGraphQl\Model\Resolver\ConfigurableVariant">
         <arguments>
             <argument name="variantCollection" xsi:type="object">ScandiPWA\CatalogGraphQl\Model\Variant\Collection</argument>
+        </arguments>
+    </type>
+
+    <type name="Magento\CatalogGraphQl\Model\Resolver\Products\DataProvider\Product\CompositeCollectionProcessor">
+        <arguments>
+            <argument name="collectionProcessors" xsi:type="array">
+                <item name="images" xsi:type="object">ScandiPWA\CatalogGraphQl\Model\Resolver\Products\DataProvider\Product\CollectionProcessor\ImagesProcessor</item>
+            </argument>
         </arguments>
     </type>
 </config>

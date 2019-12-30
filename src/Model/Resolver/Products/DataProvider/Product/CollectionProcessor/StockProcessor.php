@@ -3,7 +3,6 @@
 
 namespace ScandiPWA\CatalogGraphQl\Model\Resolver\Products\DataProvider\Product\CollectionProcessor;
 
-
 use Magento\Catalog\Model\ResourceModel\Product\Collection;
 use Magento\CatalogGraphQl\Model\Resolver\Products\DataProvider\Product\CollectionProcessor\StockProcessor as MagentoStockProcessor;
 use Magento\CatalogGraphQl\Model\Resolver\Products\DataProvider\Product\CollectionProcessorInterface;
@@ -31,8 +30,7 @@ class StockProcessor extends MagentoStockProcessor implements CollectionProcesso
     public function __construct(
         StockConfigurationInterface $stockConfig,
         StockStatusResource $stockStatusResource
-    )
-    {
+    ) {
         $this->stockConfig = $stockConfig;
         $this->stockStatusResource = $stockStatusResource;
     }
@@ -41,8 +39,7 @@ class StockProcessor extends MagentoStockProcessor implements CollectionProcesso
         Collection $collection,
         SearchCriteriaInterface $searchCriteria,
         array $attributeNames
-    ): Collection
-    {
+    ): Collection {
         $singleProduct = CriteriaCheck::isSingleProductFilter($searchCriteria);
         if (!$singleProduct && !$this->stockConfig->isShowOutOfStock()) {
             $this->stockStatusResource->addIsInStockFilterToCollection($collection);
