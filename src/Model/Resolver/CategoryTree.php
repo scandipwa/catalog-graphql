@@ -29,11 +29,6 @@ class CategoryTree implements ResolverInterface
     private $categoryFactory;
 
     /**
-     * @var CategoryResourceModel
-     */
-
-    private $categoryResourceModel;
-    /**
      * @var DataCategoryTree
      */
     private $categoryTree;
@@ -46,18 +41,15 @@ class CategoryTree implements ResolverInterface
     /**
      * CategoryTree constructor.
      * @param DataCategoryTree $categoryTree
-     * @param CategoryResourceModel $categoryResourceModel
      * @param CategoryFactory $categoryFactory
      * @param ExtractDataFromCategoryTree $extractDataFromCategoryTree
      */
     public function __construct(
         DataCategoryTree $categoryTree,
-        CategoryResourceModel $categoryResourceModel,
         CategoryFactory $categoryFactory,
         ExtractDataFromCategoryTree $extractDataFromCategoryTree
     ) {
         $this->categoryTree = $categoryTree;
-        $this->categoryResourceModel = $categoryResourceModel;
         $this->categoryFactory = $categoryFactory;
         $this->extractDataFromCategoryTree = $extractDataFromCategoryTree;
     }
@@ -71,7 +63,7 @@ class CategoryTree implements ResolverInterface
             return $value[$field->getName()];
         }
 
-        $rootCategoryParameters = $this->getCategoryId($args);
+        $rootCategoryParameters = $this->getCategoryParameters($args);
         $rootCategoryId = $rootCategoryParameters['id'];
         $categoriesTree = $this->categoryTree->getTree($info, $rootCategoryId);
         if (!empty($categoriesTree)) {
@@ -80,7 +72,6 @@ class CategoryTree implements ResolverInterface
 
             $active = $rootCategoryParameters['is_active'];
             return array_merge($category, ['is_active' => $active]);
-            // return current($result);
         }
 
         return null;
@@ -91,13 +82,11 @@ class CategoryTree implements ResolverInterface
      * @return array
      * @throws GraphQlInputException
      */
-    private function getCategoryParameters(array $args): int
+    private function getCategoryParameters(array $args): array
     {
         if (isset($args['id'])) {
             $categoryFactory = $this->categoryFactory->create();
-            // $category = $categoryFactory->load((int)$args['id']);
-            // $category = $categoryFactory->load((int)$args['id']);
-            // $category = $this->categoryResourceModel->load($category, $categoryId);
+            $category = $categoryFactory->load((int)$args['id']);
 
             return [
                 'id' => (int)$args['id'],
@@ -107,7 +96,6 @@ class CategoryTree implements ResolverInterface
 
         if (isset($args['url_path'])) {
             $categoryFactory = $this->categoryFactory->create();
-            // $this->categoryResourceModel->load($category, $categoryId);
             $category = $categoryFactory->loadByAttribute('url_path', $args['url_path']);
 
             return [
