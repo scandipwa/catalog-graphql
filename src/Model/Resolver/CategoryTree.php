@@ -14,6 +14,7 @@ namespace ScandiPWA\CatalogGraphQl\Model\Resolver;
 
 use Magento\CatalogGraphQl\Model\Resolver\Products\DataProvider\CategoryTree as DataCategoryTree;
 use Magento\CatalogGraphQl\Model\Resolver\Products\DataProvider\ExtractDataFromCategoryTree;
+use Magento\Catalog\Model\ResourceModel\Category as CategoryResourceModel;
 use Magento\Framework\GraphQl\Schema\Type\ResolveInfo;
 use Magento\Framework\GraphQl\Config\Element\Field;
 use Magento\Framework\GraphQl\Exception\GraphQlInputException;
@@ -28,6 +29,11 @@ class CategoryTree implements ResolverInterface
     private $categoryFactory;
 
     /**
+     * @var CategoryResourceModel
+     */
+
+    private $categoryResourceModel;
+    /**
      * @var DataCategoryTree
      */
     private $categoryTree;
@@ -40,15 +46,18 @@ class CategoryTree implements ResolverInterface
     /**
      * CategoryTree constructor.
      * @param DataCategoryTree $categoryTree
+     * @param CategoryResourceModel $categoryResourceModel
      * @param CategoryFactory $categoryFactory
      * @param ExtractDataFromCategoryTree $extractDataFromCategoryTree
      */
     public function __construct(
         DataCategoryTree $categoryTree,
+        CategoryResourceModel $categoryResourceModel,
         CategoryFactory $categoryFactory,
         ExtractDataFromCategoryTree $extractDataFromCategoryTree
     ) {
         $this->categoryTree = $categoryTree;
+        $this->categoryResourceModel = $categoryResourceModel;
         $this->categoryFactory = $categoryFactory;
         $this->extractDataFromCategoryTree = $extractDataFromCategoryTree;
     }
@@ -62,11 +71,16 @@ class CategoryTree implements ResolverInterface
             return $value[$field->getName()];
         }
 
-        $rootCategoryId = $this->getCategoryId($args);
+        $rootCategoryParameters = $this->getCategoryId($args);
+        $rootCategoryId = $rootCategoryParameters['id'];
         $categoriesTree = $this->categoryTree->getTree($info, $rootCategoryId);
         if (!empty($categoriesTree)) {
             $result = $this->extractDataFromCategoryTree->execute($categoriesTree);
-            return current($result);
+            $category = current($result);
+
+            $active = $rootCategoryParameters['is_active'];
+            return array_merge($category, ['is_active' => $active]);
+            // return current($result);
         }
 
         return null;
@@ -74,20 +88,32 @@ class CategoryTree implements ResolverInterface
 
     /**
      * @param array $args
-     * @return int
+     * @return array
      * @throws GraphQlInputException
      */
-    private function getCategoryId(array $args): int
+    private function getCategoryParameters(array $args): int
     {
         if (isset($args['id'])) {
-            return (int)$args['id'];
+            $categoryFactory = $this->categoryFactory->create();
+            // $category = $categoryFactory->load((int)$args['id']);
+            // $category = $categoryFactory->load((int)$args['id']);
+            // $category = $this->categoryResourceModel->load($category, $categoryId);
+
+            return [
+                'id' => (int)$args['id'],
+                'is_active' => $category->getIsActive()
+            ];
         }
 
         if (isset($args['url_path'])) {
             $categoryFactory = $this->categoryFactory->create();
+            // $this->categoryResourceModel->load($category, $categoryId);
             $category = $categoryFactory->loadByAttribute('url_path', $args['url_path']);
 
-            return (int)$category->getId();
+            return [
+                'id' => (int)$category->getId(),
+                'is_active' => $category->getIsActive()
+            ];
         }
 
         throw new GraphQlInputException(__('"id or url for category must be specified'));
