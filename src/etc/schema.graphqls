@@ -45,6 +45,10 @@ type Query {
     @resolver(class: "ScandiPWA\\CatalogGraphQl\\Model\\Resolver\\CategoryTree")
 }
 
+type CategoryTree {
+    is_active: Boolean @doc(described: "Category is enabled")
+}
+
 interface ProductInterface {
     attributes: [AttributeWithValue] @resolver(class:"ScandiPWA\\CatalogGraphQl\\Model\\Resolver\\AttributesWithValue")
 }
