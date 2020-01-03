@@ -15,6 +15,7 @@ namespace ScandiPWA\CatalogGraphQl\Model\Resolver;
 use Magento\CatalogGraphQl\Model\Resolver\Products\DataProvider\CategoryTree as DataCategoryTree;
 use Magento\CatalogGraphQl\Model\Resolver\Products\DataProvider\ExtractDataFromCategoryTree;
 use Magento\Catalog\Model\ResourceModel\Category as CategoryResourceModel;
+use Magento\Framework\GraphQl\Exception\GraphQlNoSuchEntityException;
 use Magento\Framework\GraphQl\Schema\Type\ResolveInfo;
 use Magento\Framework\GraphQl\Config\Element\Field;
 use Magento\Framework\GraphQl\Exception\GraphQlInputException;
@@ -88,6 +89,7 @@ class CategoryTree implements ResolverInterface
             $categoryFactory = $this->categoryFactory->create();
             $category = $categoryFactory->load((int)$args['id']);
 
+            if(!$category) throw new GraphQlNoSuchEntityException(__('Category with specified id does not exist.'));
             return [
                 'id' => (int)$args['id'],
                 'is_active' => $category->getIsActive()
@@ -98,13 +100,14 @@ class CategoryTree implements ResolverInterface
             $categoryFactory = $this->categoryFactory->create();
             $category = $categoryFactory->loadByAttribute('url_path', $args['url_path']);
 
+            if(!$category) throw new GraphQlNoSuchEntityException(__('Category with specified url path does not exist.'));
             return [
                 'id' => (int)$category->getId(),
                 'is_active' => $category->getIsActive()
             ];
         }
 
-        throw new GraphQlInputException(__('"id or url for category must be specified'));
+        throw new GraphQlInputException(__('id or url for category must be specified'));
     }
 }
 
