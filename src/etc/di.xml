@@ -117,4 +117,7 @@
             </argument>
         </arguments>
     </type>
+
+    <preference for="Magento\CatalogGraphQl\Model\Resolver\Product"
+                type="ScandiPWA\CatalogGraphQl\Model\Resolver\Product" />
 </config>

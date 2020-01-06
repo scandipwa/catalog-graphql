@@ -10,6 +10,7 @@ declare(strict_types=1);
 
 namespace ScandiPWA\CatalogGraphQl\Model\Resolver\Products\Query;
 
+use GraphQL\Language\AST\FieldNode;
 use Magento\Catalog\Model\Layer\Resolver;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\GraphQl\Schema\Type\ResolveInfo;
@@ -18,7 +19,8 @@ use ScandiPWA\CatalogGraphQl\Model\Resolver\Products\DataProvider\Product;
 use ScandiPWA\CatalogGraphQl\Model\Resolver\Products\SearchResult;
 use ScandiPWA\CatalogGraphQl\Model\Resolver\Products\SearchResultFactory;
 use Magento\Framework\GraphQl\Query\FieldTranslator;
-use ScandiPWA\Performance\Model\Resolver\ProductPostProcessor;
+use ScandiPWA\Performance\Model\Resolver\Products\DataPostProcessor;
+use ScandiPWA\Performance\Model\Resolver\ResolveInfoFieldsTrait;
 
 /**
  * Retrieve filtered product data based off given search criteria in a format that GraphQL can interpret.
@@ -26,6 +28,8 @@ use ScandiPWA\Performance\Model\Resolver\ProductPostProcessor;
  */
 class Filter
 {
+    use ResolveInfoFieldsTrait;
+
     /**
      * @var SearchResultFactory
      */
@@ -47,7 +51,7 @@ class Filter
     protected $layerResolver;
 
     /**
-     * @var ProductPostProcessor
+     * @var DataPostProcessor
      */
     protected $productPostProcessor;
 
@@ -56,13 +60,14 @@ class Filter
      * @param Product $productDataProvider
      * @param Resolver $layerResolver
      * @param FieldTranslator $fieldTranslator
+     * @param DataPostProcessor $productPostProcessor
      */
     public function __construct(
         SearchResultFactory $searchResultFactory,
         Product $productDataProvider,
         Resolver $layerResolver,
         FieldTranslator $fieldTranslator,
-        ProductPostProcessor $productPostProcessor
+        DataPostProcessor $productPostProcessor
     ) {
         $this->searchResultFactory = $searchResultFactory;
         $this->productDataProvider = $productDataProvider;
@@ -85,7 +90,7 @@ class Filter
         ResolveInfo $info,
         bool $isSearch = false
     ): SearchResult {
-        $fields = $this->getProductFields($info);
+        $fields = $this->getFieldsFromProductInfo($info, 'products/items');
         $products = $this->productDataProvider->getList($searchCriteria, $fields, $isSearch);
 
         $productArray = $this->productPostProcessor->process(
@@ -102,47 +107,31 @@ class Filter
         );
     }
 
-    // phpcs:disable
-    // Disabling, logic bellow is taken from original M2 class
-
     /**
-     * Return field names for all requested product fields.
+     * Take the main info about common field
      *
-     * @param ResolveInfo $info
-     * @return string[]
+     * @param FieldNode $node
+     * @return array
      */
-    protected function getProductFields(
-        ResolveInfo $info
-    ): array {
+    protected function getFieldContent($node)
+    {
         $fieldNames = [];
 
-        foreach ($info->fieldNodes as $node) {
-            if ($node->name->value !== 'products') {
+        foreach ($node->selectionSet->selections as $itemSelection) {
+            if ($itemSelection->kind !== 'InlineFragment') {
+                $fieldNames[] = $this->fieldTranslator->translate($itemSelection->name->value);
                 continue;
             }
-            foreach ($node->selectionSet->selections as $selection) {
-                if ($selection->name->value !== 'items') {
+
+            foreach ($itemSelection->selectionSet->selections as $inlineSelection) {
+                if ($inlineSelection->kind === 'InlineFragment') {
                     continue;
                 }
 
-                foreach ($selection->selectionSet->selections as $itemSelection) {
-                    if ($itemSelection->kind === 'InlineFragment') {
-                        foreach ($itemSelection->selectionSet->selections as $inlineSelection) {
-                            if ($inlineSelection->kind === 'InlineFragment') {
-                                continue;
-                            }
-
-                            $fieldNames[] = $this->fieldTranslator->translate($inlineSelection->name->value);
-                        }
-                        continue;
-                    }
-                    $fieldNames[] = $this->fieldTranslator->translate($itemSelection->name->value);
-                }
+                $fieldNames[] = $this->fieldTranslator->translate($inlineSelection->name->value);
             }
         }
 
         return $fieldNames;
     }
-
-    // phpcs:enable
 }

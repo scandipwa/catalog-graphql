@@ -22,8 +22,8 @@ use Magento\Framework\EntityManager\MetadataPool;
 use Magento\Framework\GraphQl\Config\Element\Field;
 use Magento\Framework\GraphQl\Query\Resolver\ValueFactory;
 use Magento\Store\Model\StoreManagerInterface;
-use ScandiPWA\Performance\Model\Resolver\ProductPostProcessor;
-use ScandiPWA\Performance\Model\Resolver\Products\PostProcessorTrait;
+use ScandiPWA\Performance\Model\Resolver\Products\DataPostProcessor;
+use ScandiPWA\Performance\Model\Resolver\ResolveInfoFieldsTrait;
 
 /**
  * Class ConfigurableVariant
@@ -32,9 +32,7 @@ use ScandiPWA\Performance\Model\Resolver\Products\PostProcessorTrait;
  */
 class ConfigurableVariant
 {
-    use PostProcessorTrait;
-
-    const MEDIA_GALLERY_ENTRIES = 'media_gallery_entries';
+    use ResolveInfoFieldsTrait;
 
     /**
      * @var Collection
@@ -77,7 +75,7 @@ class ConfigurableVariant
     protected $attributesVisibleOnFrontend;
 
     /**
-     * @var ProductPostProcessor
+     * @var DataPostProcessor
      */
     protected $productPostProcessor;
 
@@ -90,7 +88,7 @@ class ConfigurableVariant
      * @param MetadataPool $metadataPool
      * @param CollectionFactory $collectionFactory
      * @param StoreManagerInterface $storeManager
-     * @param ProductPostProcessor $productPostProcessor
+     * @param DataPostProcessor $productPostProcessor
      */
     public function __construct(
         Collection $variantCollection,
@@ -100,7 +98,7 @@ class ConfigurableVariant
         MetadataPool $metadataPool,
         CollectionFactory $collectionFactory,
         StoreManagerInterface $storeManager,
-        ProductPostProcessor $productPostProcessor
+        DataPostProcessor $productPostProcessor
     ) {
         $this->variantCollection = $variantCollection;
         $this->optionCollection = $optionCollection;
@@ -134,7 +132,7 @@ class ConfigurableVariant
 
         // Configure variant collection
         $this->variantCollection->addParentProduct($value['model']);
-        $fields = $this->getFieldsFromProductInfo($info, 'variant/product');
+        $fields = $this->getFieldsFromProductInfo($info, 'variants/product');
         $this->variantCollection->addEavAttributes($fields);
 
         $result = function () use ($value, $linkField, $info, $args) {
@@ -144,16 +142,18 @@ class ConfigurableVariant
                 return $product['model'];
             }, $children);
 
-            return array_map(function ($product) {
+            $products = array_map(function ($product) {
                 return [
                     'product' => $product,
                     'sku' => $product['sku']
                 ];
             }, $this->productPostProcessor->process(
                 $products,
-                'variant/product',
+                'variants/product',
                 $info
             ));
+
+            return $products;
         };
 
         return $this->valueFactory->create($result);

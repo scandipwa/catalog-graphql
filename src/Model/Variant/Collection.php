@@ -23,6 +23,7 @@ use Magento\CatalogInventory\Helper\Stock;
 use Magento\CatalogGraphQl\Model\Resolver\Products\DataProvider\Product as DataProvider;
 use Magento\ConfigurableProductGraphQl\Model\Variant\Collection as MagentoCollection;
 use Magento\Review\Model\Review;
+use ScandiPWA\Performance\Model\Resolver\Products\CollectionPostProcessor;
 
 /**
  * Collection for fetching configurable child product data.
@@ -85,6 +86,11 @@ class Collection extends MagentoCollection
     protected $collectionProcessor;
 
     /**
+     * @var CollectionPostProcessor
+     */
+    protected $postProcessor;
+
+    /**
      * @param CollectionFactory $childCollectionFactory
      * @param ProductFactory $productFactory
      * @param SearchCriteriaBuilder $searchCriteriaBuilder
@@ -92,6 +98,8 @@ class Collection extends MagentoCollection
      * @param MetadataPool $metadataPool
      * @param Review $review
      * @param CollectionProcessorInterface $collectionProcessor
+     * @param Stock $stock
+     * @param CollectionPostProcessor $postProcessor
      */
     public function __construct(
         CollectionFactory $childCollectionFactory,
@@ -100,7 +108,9 @@ class Collection extends MagentoCollection
         DataProvider $productDataProvider,
         MetadataPool $metadataPool,
         Review $review,
-        CollectionProcessorInterface $collectionProcessor
+        CollectionProcessorInterface $collectionProcessor,
+        Stock $stock,
+        CollectionPostProcessor $postProcessor
     ) {
         parent::__construct(
             $childCollectionFactory,
@@ -116,6 +126,8 @@ class Collection extends MagentoCollection
         $this->metadataPool = $metadataPool;
         $this->review = $review;
         $this->collectionProcessor = $collectionProcessor;
+        $this->stock = $stock;
+        $this->postProcessor = $postProcessor;
     }
 
     /**
@@ -187,11 +199,15 @@ class Collection extends MagentoCollection
             /** @var ChildCollection $childCollection */
             $childCollection = $this->childCollectionFactory->create();
             $childCollection->setProductFilter($product);
-            $childCollection->addAttributeToSelect($attributes);
 
             $this->collectionProcessor->process(
                 $childCollection,
                 $this->searchCriteriaBuilder->create(),
+                $attributes
+            );
+
+            $this->postProcessor->process(
+                $childCollection,
                 $attributes
             );
 

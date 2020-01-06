@@ -7,6 +7,7 @@ declare(strict_types=1);
 
 namespace ScandiPWA\CatalogGraphQl\Model\Resolver\Products\DataProvider\Product\CollectionProcessor;
 
+use Magento\Catalog\Model\Product\Media\Config as MediaConfig;
 use Magento\Catalog\Model\ResourceModel\Product\Collection;
 use Magento\CatalogGraphQl\Model\Resolver\Products\DataProvider\Product\CollectionProcessorInterface;
 use Magento\Framework\Api\SearchCriteriaInterface;
@@ -18,7 +19,20 @@ use Magento\Framework\Api\SearchCriteriaInterface;
  */
 class ImagesProcessor implements CollectionProcessorInterface
 {
-    const IMAGE_FIELDS = ['thumbnail', 'small_image', 'image'];
+    /**
+     * @var MediaConfig
+     */
+    protected $mediaConfig;
+
+    /**
+     * ImagesProcessor constructor.
+     * @param MediaConfig $mediaConfig
+     */
+    public function __construct(
+        MediaConfig $mediaConfig
+    ) {
+        $this->mediaConfig = $mediaConfig;
+    }
 
     /**
      * @inheritdoc
@@ -28,11 +42,13 @@ class ImagesProcessor implements CollectionProcessorInterface
         SearchCriteriaInterface $searchCriteria,
         array $attributeNames
     ): Collection {
-        if (array_intersect(self::IMAGE_FIELDS, $attributeNames)) {
+        $mediaAttributes = $this->mediaConfig->getMediaAttributeCodes();
+
+        if (array_intersect($mediaAttributes, $attributeNames)) {
             $imagesToBeRequested = [];
 
-            foreach (self::IMAGE_FIELDS as $imageType) {
-                if (isset($attributesFlipped[$imageType])) {
+            foreach ($mediaAttributes as $imageType) {
+                if (isset($attributeNames[$imageType])) {
                     $imagesToBeRequested[] = $imageType;
                     $imagesToBeRequested[] = sprintf('%s_label', $imageType);
                 }
