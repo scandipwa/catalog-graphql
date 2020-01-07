@@ -17,12 +17,18 @@ use Magento\Catalog\Model\Product;
 use Magento\Store\Model\App\Emulation;
 use Magento\Store\Model\StoreManagerInterface;
 
+/**
+ * Class Url
+ * @package ScandiPWA\CatalogGraphQl\Model\Resolver\Product\MediaGallery
+ * @deprecated
+ */
 class Url implements ResolverInterface
 {
     /**
      * @var ImageFactory
      */
     protected $productImageFactory;
+
     /**
      * @var PlaceholderProvider
      */

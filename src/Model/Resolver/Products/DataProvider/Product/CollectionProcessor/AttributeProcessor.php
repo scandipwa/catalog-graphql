@@ -7,11 +7,9 @@ declare(strict_types=1);
 
 namespace ScandiPWA\CatalogGraphQl\Model\Resolver\Products\DataProvider\Product\CollectionProcessor;
 
-use Magento\Catalog\Model\ResourceModel\Product\Attribute\CollectionFactory;
 use Magento\Catalog\Model\ResourceModel\Product\Collection;
 use Magento\CatalogGraphQl\Model\Resolver\Products\DataProvider\Product\CollectionProcessorInterface;
 use Magento\Framework\Api\SearchCriteriaInterface;
-use Magento\Store\Model\StoreManagerInterface;
 
 /**
  * Adds passed in attributes to product collection results
@@ -21,41 +19,6 @@ use Magento\Store\Model\StoreManagerInterface;
 class AttributeProcessor implements CollectionProcessorInterface
 {
     const ATTRIBUTES_FIELD = 'attributes';
-
-    /**
-     * @var CollectionFactory
-     */
-    protected $collectionFactory;
-
-    /**
-     * @var StoreManagerInterface
-     */
-    protected $storeManager;
-
-    /**
-     * FilterableAttributeList constructor
-     *
-     * @param CollectionFactory $collectionFactory
-     * @param StoreManagerInterface $storeManager
-     */
-    public function __construct(
-        CollectionFactory $collectionFactory,
-        StoreManagerInterface $storeManager
-    ) {
-        $this->collectionFactory = $collectionFactory;
-        $this->storeManager = $storeManager;
-    }
-
-    protected function getAttributesVisibleOnFrontend() {
-        $collection = $this->collectionFactory->create();
-        $collection->setItemObjectClass(\Magento\Catalog\Model\ResourceModel\Eav\Attribute::class)
-            ->addStoreLabel($this->storeManager->getStore()->getId())
-            ->setOrder('position', 'ASC');
-
-        // Add filter by storefront visibility
-        $collection->addFieldToFilter('additional_table.is_visible_on_front', ['gt' => 0]);
-        return $collection->load();
-    }
 
     /**
      * {@inheritdoc}
@@ -71,13 +34,7 @@ class AttributeProcessor implements CollectionProcessorInterface
                 continue;
             }
 
-            $attributesVisibleOnFront = $this->getAttributesVisibleOnFrontend();
-
-            $attributeCodes = array_map(function($attr) {
-                return $attr->getAttributeCode();
-            }, $attributesVisibleOnFront->getItems());
-
-            $collection->addAttributeToSelect($attributeCodes);
+            // DO NOTHING, BECAUSE LOADING OF getAttributesVisibleOnFrontend TAKES AGES
         }
 
         return $collection;

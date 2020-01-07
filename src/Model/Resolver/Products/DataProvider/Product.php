@@ -13,62 +13,63 @@ namespace ScandiPWA\CatalogGraphQl\Model\Resolver\Products\DataProvider;
 
 use Magento\Catalog\Model\Product\Visibility;
 use Magento\Catalog\Model\ResourceModel\Product\Collection;
+use Magento\CatalogGraphQl\Model\Resolver\Products\DataProvider\Product as MagentoProduct;
 use Magento\Framework\Api\SearchCriteriaInterface;
 use Magento\Catalog\Model\ResourceModel\Product\CollectionFactory;
 use Magento\Catalog\Api\Data\ProductSearchResultsInterfaceFactory;
 use Magento\Framework\Api\SearchResultsInterface;
 use Magento\CatalogGraphQl\Model\Resolver\Products\DataProvider\Product\CollectionProcessorInterface;
 use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Exception\NoSuchEntityException;
 use ScandiPWA\CatalogGraphQl\Model\Resolver\Products\DataProvider\Product\CriteriaCheck;
 use Magento\Store\Model\StoreManagerInterface;
-use Magento\Review\Model\Review;
-use Magento\Review\Model\ResourceModel\Review\Product\Collection as ProductCollection;
+use ScandiPWA\Performance\Model\Resolver\Products\CollectionPostProcessor;
 
 /**
  * Product field data provider, used for GraphQL resolver processing.
  * Adds support for price min and max values
  */
-class Product extends \Magento\CatalogGraphQl\Model\Resolver\Products\DataProvider\Product
+class Product extends MagentoProduct
 {
     /**
      * @var CollectionFactory
      */
-    private $collectionFactory;
+    protected $collectionFactory;
 
     /**
      * @var ProductSearchResultsInterfaceFactory
      */
-    private $searchResultsFactory;
+    protected $searchResultsFactory;
 
     /**
      * @var CollectionProcessorInterface
      */
-    private $collectionProcessor;
+    protected $collectionProcessor;
 
     /**
      * @var Visibility
      */
-    private $visibility;
+    protected $visibility;
 
     /**
      * @var float
      */
-    private $minPrice;
+    protected $minPrice;
 
     /**
      * @var float
      */
-    private $maxPrice;
+    protected $maxPrice;
 
     /**
      * @var StoreManagerInterface
      */
-    private $storeManager;
+    protected $storeManager;
 
     /**
-     * @var Review
+     * @var CollectionPostProcessor
      */
-    protected $review;
+    protected $postProcessor;
 
     /**
      * Product constructor.
@@ -77,7 +78,7 @@ class Product extends \Magento\CatalogGraphQl\Model\Resolver\Products\DataProvid
      * @param Visibility $visibility
      * @param CollectionProcessorInterface $collectionProcessor
      * @param StoreManagerInterface $storeManager
-     * @param Review $review
+     * @param CollectionPostProcessor $postProcessor
      */
     public function __construct(
         CollectionFactory $collectionFactory,
@@ -85,14 +86,14 @@ class Product extends \Magento\CatalogGraphQl\Model\Resolver\Products\DataProvid
         Visibility $visibility,
         CollectionProcessorInterface $collectionProcessor,
         StoreManagerInterface $storeManager,
-        Review $review
+        CollectionPostProcessor $postProcessor
     ) {
-        $this->review = $review;
         $this->collectionFactory = $collectionFactory;
         $this->searchResultsFactory = $searchResultsFactory;
         $this->visibility = $visibility;
         $this->collectionProcessor = $collectionProcessor;
         $this->storeManager = $storeManager;
+        $this->postProcessor = $postProcessor;
     }
 
     /**
@@ -130,19 +131,7 @@ class Product extends \Magento\CatalogGraphQl\Model\Resolver\Products\DataProvid
 
         $collection->load();
 
-        // Methods that perform extra fetches post-load
-        if (in_array('media_gallery_entries', $attributes)) {
-            $collection->addMediaGalleryData();
-        }
-        if (in_array('options', $attributes)) {
-            $collection->addOptionsToResult();
-        }
-
-        if (in_array('review_summary', $attributes)) {
-            /** @var ProductCollection $collection */
-            // Only getItems is used inside
-            $this->review->appendSummary($collection);
-        }
+        $this->postProcessor->process($collection, $attributes);
 
         $searchResult = $this->searchResultsFactory->create();
         $searchResult->setSearchCriteria($searchCriteria);
@@ -157,6 +146,7 @@ class Product extends \Magento\CatalogGraphQl\Model\Resolver\Products\DataProvid
     /**
      * @param Collection $collection
      * @return array
+     * @throws NoSuchEntityException
      */
     public function getCollectionMinMaxPrice($collection)
     {
