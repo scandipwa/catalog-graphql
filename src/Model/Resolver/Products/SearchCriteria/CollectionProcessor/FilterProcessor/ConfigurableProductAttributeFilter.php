@@ -25,33 +25,42 @@ use Magento\Framework\Registry;
  */
 class ConfigurableProductAttributeFilter implements CustomFilterInterface
 {
+    /**
+     * @var Configurable
+     */
     protected $configurable;
+    /**
+     * @var CollectionFactory
+     */
     protected $collectionFactory;
-    protected $registry;
 
+    /**
+     * ConfigurableProductAttributeFilter constructor.
+     * @param Configurable $configurable
+     * @param CollectionFactory $collectionFactory
+     */
     public function __construct(
         Configurable $configurable,
-        CollectionFactory $collectionFactory,
-        Registry $registry
+        CollectionFactory $collectionFactory
     ) {
-        $this->registry = $registry;
         $this->configurable = $configurable;
         $this->collectionFactory = $collectionFactory;
     }
 
+    /**
+     * @param Filter $filter
+     * @param AbstractDb $collection
+     * @return bool
+     */
     public function apply(Filter $filter, AbstractDb $collection)
     {
         $attributeName = $filter->getField();
         $attributeValue = $filter->getValue();
         $conditionType = $filter->getConditionType();
-        $category = $this->registry->registry('current_category');
 
         $simpleSelect = $this->collectionFactory->create()
             ->addAttributeToFilter($attributeName, [$conditionType => $attributeValue])
             ->addAttributeToFilter('status', Status::STATUS_ENABLED);
-        if ($category) {
-            $simpleSelect->addCategoriesFilter(['in' => (int)$category->getId()]);
-        }
 
 
         $simpleSelect->getSelect()
