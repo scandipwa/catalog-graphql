@@ -20,6 +20,7 @@ use Magento\Framework\Api\Filter;
 use Magento\Framework\Api\SearchCriteria\CollectionProcessor\FilterProcessor\CustomFilterInterface;
 use Magento\Framework\Data\Collection\AbstractDb;
 use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Registry;
 
 /**
  * Category filter allows to filter products collection using custom defined filters from search criteria.
@@ -42,18 +43,27 @@ class CategoryFilter implements CustomFilterInterface
     private $categoryResourceCollection;
 
     /**
+     * @var Registry
+     */
+    private $registry;
+
+    /**
+     * CategoryFilter constructor.
      * @param CategoryFactory $categoryFactory
      * @param CategoryResourceModel $categoryResourceModel
      * @param CategoryResourceCollection $categoryResourceCollection
+     * @param Registry $registry
      */
     public function __construct(
         CategoryFactory $categoryFactory,
         CategoryResourceModel $categoryResourceModel,
-        CategoryResourceCollection $categoryResourceCollection
+        CategoryResourceCollection $categoryResourceCollection,
+        Registry $registry
     ) {
         $this->categoryFactory = $categoryFactory;
         $this->categoryResourceModel = $categoryResourceModel;
         $this->categoryResourceCollection = $categoryResourceCollection;
+        $this->registry = $registry;
     }
 
     /**
@@ -85,6 +95,7 @@ class CategoryFilter implements CustomFilterInterface
             ->addAttributeToSelect(['entity_id'])->getFirstItem()->getEntityId();
 
         $this->categoryResourceModel->load($category, $categoryId);
+        $this->registry->register('current_category', $category);
 
         $collection->addCategoryFilter($category);
 
