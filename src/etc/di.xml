@@ -120,4 +120,7 @@
 
     <preference for="Magento\CatalogGraphQl\Model\Resolver\Product"
                 type="ScandiPWA\CatalogGraphQl\Model\Resolver\Product" />
+
+    <preference for="Magento\GroupedProductGraphQl\Model\Resolver\GroupedItems"
+                type="ScandiPWA\CatalogGraphQl\Model\Resolver\GroupedItems" />
 </config>
