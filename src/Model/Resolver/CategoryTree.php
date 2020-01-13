@@ -14,7 +14,6 @@ namespace ScandiPWA\CatalogGraphQl\Model\Resolver;
 
 use Magento\CatalogGraphQl\Model\Resolver\Products\DataProvider\CategoryTree as DataCategoryTree;
 use Magento\CatalogGraphQl\Model\Resolver\Products\DataProvider\ExtractDataFromCategoryTree;
-use Magento\Catalog\Model\ResourceModel\Category as CategoryResourceModel;
 use Magento\Framework\GraphQl\Exception\GraphQlNoSuchEntityException;
 use Magento\Framework\GraphQl\Schema\Type\ResolveInfo;
 use Magento\Framework\GraphQl\Config\Element\Field;
@@ -64,15 +63,14 @@ class CategoryTree implements ResolverInterface
             return $value[$field->getName()];
         }
 
-        $rootCategoryParameters = $this->getCategoryParameters($args);
-        $rootCategoryId = $rootCategoryParameters['id'];
+        $rootCategoryId = $this->getCategoryId($args);
         $categoriesTree = $this->categoryTree->getTree($info, $rootCategoryId);
         if (!empty($categoriesTree)) {
             $result = $this->extractDataFromCategoryTree->execute($categoriesTree);
             $category = current($result);
 
-            $active = $rootCategoryParameters['is_active'];
-            return array_merge($category, ['is_active' => $active]);
+            if(!$category) throw new GraphQlNoSuchEntityException(__('Category with specified id does not exist.'));
+            return $category;
         }
 
         return null;
@@ -80,20 +78,14 @@ class CategoryTree implements ResolverInterface
 
     /**
      * @param array $args
-     * @return array
+     * @return int
      * @throws GraphQlInputException
+     * @throws GraphQlNoSuchEntityException
      */
-    private function getCategoryParameters(array $args): array
+    private function getCategoryId(array $args): int
     {
         if (isset($args['id'])) {
-            $categoryFactory = $this->categoryFactory->create();
-            $category = $categoryFactory->load((int)$args['id']);
-
-            if(!$category) throw new GraphQlNoSuchEntityException(__('Category with specified id does not exist.'));
-            return [
-                'id' => (int)$args['id'],
-                'is_active' => $category->getIsActive()
-            ];
+            return (int)$args['id'];
         }
 
         if (isset($args['url_path'])) {
@@ -101,10 +93,7 @@ class CategoryTree implements ResolverInterface
             $category = $categoryFactory->loadByAttribute('url_path', $args['url_path']);
 
             if(!$category) throw new GraphQlNoSuchEntityException(__('Category with specified url path does not exist.'));
-            return [
-                'id' => (int)$category->getId(),
-                'is_active' => $category->getIsActive()
-            ];
+            return (int)$category->getId();
         }
 
         throw new GraphQlInputException(__('id or url for category must be specified'));
