@@ -14,6 +14,7 @@ namespace ScandiPWA\CatalogGraphQl\Model\Resolver;
 
 use Magento\CatalogGraphQl\Model\Resolver\Products\DataProvider\CategoryTree as DataCategoryTree;
 use Magento\CatalogGraphQl\Model\Resolver\Products\DataProvider\ExtractDataFromCategoryTree;
+use Magento\Framework\GraphQl\Exception\GraphQlNoSuchEntityException;
 use Magento\Framework\GraphQl\Schema\Type\ResolveInfo;
 use Magento\Framework\GraphQl\Config\Element\Field;
 use Magento\Framework\GraphQl\Exception\GraphQlInputException;
@@ -66,7 +67,10 @@ class CategoryTree implements ResolverInterface
         $categoriesTree = $this->categoryTree->getTree($info, $rootCategoryId);
         if (!empty($categoriesTree)) {
             $result = $this->extractDataFromCategoryTree->execute($categoriesTree);
-            return current($result);
+            $category = current($result);
+
+            if(!$category) throw new GraphQlNoSuchEntityException(__('Category with specified id does not exist.'));
+            return $category;
         }
 
         return null;
@@ -76,6 +80,7 @@ class CategoryTree implements ResolverInterface
      * @param array $args
      * @return int
      * @throws GraphQlInputException
+     * @throws GraphQlNoSuchEntityException
      */
     private function getCategoryId(array $args): int
     {
@@ -87,10 +92,11 @@ class CategoryTree implements ResolverInterface
             $categoryFactory = $this->categoryFactory->create();
             $category = $categoryFactory->loadByAttribute('url_path', $args['url_path']);
 
+            if(!$category) throw new GraphQlNoSuchEntityException(__('Category with specified url path does not exist.'));
             return (int)$category->getId();
         }
 
-        throw new GraphQlInputException(__('"id or url for category must be specified'));
+        throw new GraphQlInputException(__('id or url for category must be specified'));
     }
 }
 
