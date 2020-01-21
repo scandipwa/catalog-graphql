@@ -46,6 +46,20 @@ interface ProductInterface {
     stock_item: ProductStockItem @resolver(class: "ScandiPWA\\CatalogGraphQl\\Model\\Resolver\\Inventory\\StockCount")
 }
 
+type SimpleProduct {
+    tier_prices: [ProductTierPrice] @resolver(class: "ScandiPWA\\CatalogGraphQl\\Model\\Resolver\\Product\\ProductTierPrices")
+}
+
+type VirtualProduct {
+    tier_prices: [ProductTierPrice] @resolver(class: "ScandiPWA\\CatalogGraphQl\\Model\\Resolver\\Product\\ProductTierPrices")
+}
+
+type ProductTierPrice {
+    quantity: Int!
+    value: Float!
+    ratio: Int!
+}
+
 interface CategoryInterface {
     canonical_url: String @doc(description: "Canonical Url") @resolver(class: "ScandiPWA\\CatalogGraphQl\\Model\\Resolver\\Category\\CanonicalUrl")
 }
