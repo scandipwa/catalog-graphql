@@ -13,24 +13,15 @@ namespace ScandiPWA\CatalogGraphQl\Model\Resolver\Product;
 
 use Magento\Catalog\Api\Data\ProductInterface;
 use Magento\Catalog\Api\Data\ProductTierPriceInterface;
-use Magento\Catalog\Api\ProductTierPriceManagementInterface;
 use Magento\Catalog\Api\ScopedProductTierPriceManagementInterface;
-use Magento\Catalog\Model\Product\TierPriceManagement;
-use Magento\Framework\App\Area;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\GraphQl\Exception\GraphQlInputException;
 use Magento\Framework\GraphQl\Query\Resolver\ContextInterface;
 use Magento\Framework\GraphQl\Schema\Type\ResolveInfo;
-use Magento\Catalog\Model\Product;
 use Magento\Framework\GraphQl\Config\Element\Field;
 use Magento\Framework\GraphQl\Query\Resolver\Value;
-use Magento\Framework\GraphQl\Query\Resolver\ValueFactory;
 use Magento\Framework\GraphQl\Query\ResolverInterface;
-use Magento\Store\Model\StoreManagerInterface;
-use Magento\Catalog\Helper\Image as HelperFactory;
-use Magento\Store\Model\App\Emulation;
 
-use Magento\Catalog\Pricing\Price\TierPrice;
 use Magento\Customer\Model\Session;
 
 class ProductTierPrices implements ResolverInterface
