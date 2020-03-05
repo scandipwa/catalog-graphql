@@ -25,6 +25,23 @@ use Magento\Framework\GraphQl\Query\ResolverInterface;
 class CanonicalUrl implements ResolverInterface
 {
     /**
+     * URL Model instance
+     *
+     * @var \Magento\Framework\UrlInterface
+     */
+    protected $_url;
+
+    /**
+     * CanonicalUrl constructor.
+     * @param \Magento\Framework\UrlInterface $url
+     */
+    public function __construct(
+        \Magento\Framework\UrlInterface $url
+    ) {
+        $this->_url = $url;
+    }
+
+    /**
      * @inheritdoc
      */
     public function resolve(
@@ -41,6 +58,6 @@ class CanonicalUrl implements ResolverInterface
 
         /* @var $category Category */
         $category = $value['model'];
-        return $category->getUrl();
+        return $this->_url->getUrl('category/') . $category->getDataByKey('url_path');
     }
 }
