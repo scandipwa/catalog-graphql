@@ -18,6 +18,7 @@ use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\GraphQl\Schema\Type\ResolveInfo;
 use Magento\Framework\GraphQl\Config\Element\Field;
 use Magento\Framework\GraphQl\Query\ResolverInterface;
+use Magento\Framework\UrlInterface;
 
 /**
  * Retrieves category canonical url
@@ -27,16 +28,16 @@ class CanonicalUrl implements ResolverInterface
     /**
      * URL Model instance
      *
-     * @var \Magento\Framework\UrlInterface
+     * @var UrlInterface
      */
     protected $_url;
 
     /**
      * CanonicalUrl constructor.
-     * @param \Magento\Framework\UrlInterface $url
+     * @param UrlInterface $url
      */
     public function __construct(
-        \Magento\Framework\UrlInterface $url
+        UrlInterface $url
     ) {
         $this->_url = $url;
     }
