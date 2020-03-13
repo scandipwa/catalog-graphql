@@ -76,6 +76,9 @@
     <preference for="Magento\CatalogGraphQl\Model\Resolver\Products"
                 type="ScandiPWA\CatalogGraphQl\Model\Resolver\Products"/>
 
+    <preference for="Magento\CatalogGraphQl\Model\Resolver\Product\CanonicalUrl"
+                type="ScandiPWA\CatalogGraphQl\Model\Resolver\Product\CanonicalUrl"/>
+
     <preference for="Magento\CatalogGraphQl\Model\Resolver\Category\Products"
                 type="ScandiPWA\CatalogGraphQl\Model\Resolver\Category\Products"/>
 
