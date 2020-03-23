@@ -14,14 +14,10 @@ type MediaGalleryImageOfType @doc(description: "Products thumbnail image") {
     url: String @doc(description: "Product image url")
 }
 
-input ProductFilterInput {
-    category_url_key: FilterTypeInput @doc(description: "Category url_key the product belongs to")
-    category_url_path: FilterTypeInput @doc(description: "Category url_path the product belongs to")
-    conditions: FilterTypeInput @doc(description: "Searches products by JSON formatted conditions")
-}
-
-input ProductSortInput {
-    position: SortEnum @doc(description: "A number assigned to a product")
+input ProductAttributeFilterInput {
+    category_url_key: FilterEqualTypeInput @doc(description: "Category url_key the product belongs to")
+    category_url_path: FilterEqualTypeInput @doc(description: "Category url_path the product belongs to")
+    conditions: FilterEqualTypeInput @doc(description: "Searches products by JSON formatted conditions")
 }
 
 type MediaGalleryEntry  @doc(description: "MediaGalleryEntry defines characteristics about images and videos associated with a specific product") {
@@ -86,7 +82,7 @@ type CategoryProducts {
 }
 
 type ProductStockItem {
-    qty: Int @doc(description: "Product quantity available in stock")
+    qty: Float @doc(description: "Product quantity available in stock")
     min_sale_qty: Int @doc(description: "Minimal amount of item that can be bought")
     max_sale_qty: Int @doc(description: "Maximal amount of item that can be bought")
 }

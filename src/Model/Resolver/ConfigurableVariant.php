@@ -12,6 +12,7 @@ namespace ScandiPWA\CatalogGraphQl\Model\Resolver;
 
 use Magento\Catalog\Model\ResourceModel\Product\Attribute\CollectionFactory;
 use Magento\Framework\DataObject;
+use Magento\Framework\GraphQl\Query\ResolverInterface;
 use Magento\Framework\GraphQl\Schema\Type\ResolveInfo;
 use Magento\Catalog\Api\Data\ProductInterface;
 use Magento\CatalogGraphQl\Model\Resolver\Products\Attributes\Collection as AttributeCollection;
@@ -30,7 +31,7 @@ use ScandiPWA\Performance\Model\Resolver\ResolveInfoFieldsTrait;
  *
  * @package ScandiPWA\CatalogGraphQl\Model\Resolver
  */
-class ConfigurableVariant
+class ConfigurableVariant implements ResolverInterface
 {
     use ResolveInfoFieldsTrait;
 
