@@ -15,6 +15,7 @@ type MediaGalleryImageOfType @doc(description: "Products thumbnail image") {
 }
 
 input ProductFilterInput {
+    id: FilterTypeInput @doc(description: "Product id")
     category_url_key: FilterTypeInput @doc(description: "Category url_key the product belongs to")
     category_url_path: FilterTypeInput @doc(description: "Category url_path the product belongs to")
     conditions: FilterTypeInput @doc(description: "Searches products by JSON formatted conditions")

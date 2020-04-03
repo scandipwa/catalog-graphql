@@ -91,12 +91,19 @@ class CategoryFilter implements CustomFilterInterface
         /** @var Collection $collection */
         $category = $this->categoryFactory->create();
 
-        $categoryId = $this->categoryResourceCollection->addAttributeToFilter($filterField, $filterValue)
-            ->addAttributeToSelect(['entity_id'])->getFirstItem()->getEntityId();
+        if ($filterField !== 'id') {
+            $categoryId = $this->categoryResourceCollection
+                ->addAttributeToFilter($filterField, $filterValue)
+                ->addAttributeToSelect(['entity_id'])
+                ->getFirstItem()
+                ->getEntityId();
 
-        $this->categoryResourceModel->load($category, $categoryId);
+            $this->categoryResourceModel->load($category, $categoryId);
+        } else {
+            $this->categoryResourceModel->load($category, $filterValue);
+        }
+
         $this->registry->register('current_category', $category);
-
         $collection->addCategoryFilter($category);
 
         return true;

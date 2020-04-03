@@ -62,7 +62,6 @@ class ConfigurableProductAttributeFilter implements CustomFilterInterface
             ->addAttributeToFilter($attributeName, [$conditionType => $attributeValue])
             ->addAttributeToFilter('status', Status::STATUS_ENABLED);
 
-
         $simpleSelect->getSelect()
             ->reset(\Zend_Db_Select::COLUMNS)
             ->columns(['e.entity_id']);
