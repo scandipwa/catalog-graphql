@@ -43,7 +43,7 @@ type Query {
 }
 
 type CategoryTree {
-    is_active: Boolean @doc(described: "Category is enabled")
+    is_active: Boolean @doc(description: "Category is enabled")
 }
 
 interface ProductInterface {
