@@ -33,6 +33,14 @@
         </arguments>
     </virtualType>
 
+    <type name="Magento\GraphQl\Model\Query\ContextFactory">
+        <arguments>
+            <argument name="contextParametersProcessors" xsi:type="array">
+                <item name="add_search_criteria_to_context" xsi:type="object">ScandiPWA\CatalogGraphQl\Model\Context\AddSearchCriteriaToContext</item>
+            </argument>
+        </arguments>
+    </type>
+
     <preference for="Magento\Catalog\Model\Api\SearchCriteria\CollectionProcessor\ProductFilterProcessor"
                 type="ScandiPWA\CatalogGraphQl\Model\Resolver\Products\SearchCriteria\CollectionProcessor\ProductFilterProcessor" />
 </config>

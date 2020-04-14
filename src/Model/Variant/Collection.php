@@ -17,6 +17,7 @@ use Magento\Catalog\Model\ProductFactory;
 use Magento\CatalogGraphQl\Model\Resolver\Products\DataProvider\Product\CollectionProcessorInterface;
 use Magento\ConfigurableProduct\Model\ResourceModel\Product\Type\Configurable\Product\Collection as ChildCollection;
 use Magento\ConfigurableProduct\Model\ResourceModel\Product\Type\Configurable\Product\CollectionFactory;
+use Magento\Framework\Api\SearchCriteriaInterface;
 use Magento\Framework\EntityManager\MetadataPool;
 use Magento\Framework\Api\SearchCriteriaBuilder;
 use Magento\CatalogInventory\Helper\Stock;
@@ -91,6 +92,11 @@ class Collection extends MagentoCollection
     protected $postProcessor;
 
     /**
+     * @var SearchCriteriaInterface
+     */
+    protected $searchCriteria;
+
+    /**
      * @param CollectionFactory $childCollectionFactory
      * @param ProductFactory $productFactory
      * @param SearchCriteriaBuilder $searchCriteriaBuilder
@@ -128,6 +134,8 @@ class Collection extends MagentoCollection
         $this->collectionProcessor = $collectionProcessor;
         $this->stock = $stock;
         $this->postProcessor = $postProcessor;
+
+        $this->searchCriteria = $this->searchCriteriaBuilder->create();
     }
 
     /**
@@ -182,6 +190,14 @@ class Collection extends MagentoCollection
     }
 
     /**
+     * @param SearchCriteriaInterface $searchCriteria
+     */
+    public function setSearchCriteria(SearchCriteriaInterface $searchCriteria)
+    {
+        $this->searchCriteria = $searchCriteria;
+    }
+
+    /**
      * Fetch all children products from parent id's.
      *
      * @return array
@@ -202,7 +218,7 @@ class Collection extends MagentoCollection
 
             $this->collectionProcessor->process(
                 $childCollection,
-                $this->searchCriteriaBuilder->create(),
+                $this->searchCriteria,
                 $attributes
             );
 

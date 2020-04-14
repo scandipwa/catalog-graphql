@@ -12,6 +12,7 @@ declare(strict_types=1);
 namespace ScandiPWA\CatalogGraphQl\Model\Resolver;
 
 use Magento\Framework\GraphQl\Schema\Type\ResolveInfo;
+use ScandiPWA\CatalogGraphQl\Model\Resolver\Products\DataProvider\Product\CriteriaCheck;
 use ScandiPWA\CatalogGraphQl\Model\Resolver\Products\Query\Filter;
 use ScandiPWA\CatalogGraphQl\Model\Resolver\Products\Query\Search;
 use Magento\Framework\GraphQl\Config\Element\Field;
@@ -80,6 +81,7 @@ class Products implements ResolverInterface
         $searchCriteria = $this->searchCriteriaBuilder->build($field->getName(), $args);
         $searchCriteria->setCurrentPage($args['currentPage']);
         $searchCriteria->setPageSize($args['pageSize']);
+
         if (!isset($args['search']) && !isset($args['filter'])) {
             throw new GraphQlInputException(
                 __("'search' or 'filter' input argument is required.")
@@ -92,6 +94,11 @@ class Products implements ResolverInterface
             $layerType = Resolver::CATALOG_LAYER_CATEGORY;
             $searchResult = $this->filterQuery->getResult($searchCriteria, $info);
         }
+
+        $context->getExtensionAttributes()->setSearchCriteria(
+            $searchCriteria
+        );
+
         //possible division by 0
         $maxPages = 0;
         if ($searchCriteria->getPageSize()) {
@@ -107,7 +114,6 @@ class Products implements ResolverInterface
                 )
             );
         }
-
 
         $data = [
             'total_count' => $searchResult->getTotalCount(),

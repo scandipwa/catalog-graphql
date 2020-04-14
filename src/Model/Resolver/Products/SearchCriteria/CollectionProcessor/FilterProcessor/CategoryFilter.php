@@ -78,6 +78,10 @@ class CategoryFilter implements CustomFilterInterface
      */
     public function apply(Filter $filter, AbstractDb $collection)
     {
+        if ($this->registry->registry('current_category')) {
+            return true;
+        }
+
         $conditionType = $filter->getConditionType();
         $rawFilterField = $filter->getField();
 

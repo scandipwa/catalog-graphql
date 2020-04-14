@@ -119,6 +119,7 @@ class Product extends MagentoProduct
 
         if (!$isChildSearch) {
             $singleProduct = CriteriaCheck::isSingleProductFilter($searchCriteria);
+
             if ($singleProduct) {
                 $visibilityIds = $this->visibility->getVisibleInSiteIds();
             } else {
@@ -126,6 +127,7 @@ class Product extends MagentoProduct
                     ? $this->visibility->getVisibleInSearchIds()
                     : $this->visibility->getVisibleInCatalogIds();
             }
+
             $collection->setVisibility($visibilityIds);
         }
 
