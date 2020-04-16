@@ -11,8 +11,10 @@ declare (strict_types=1);
 
 namespace ScandiPWA\CatalogGraphQl\Model\Resolver\Layer\DataProvider;
 
+use Magento\Catalog\Model\Layer\Filter\Item;
 use Magento\CatalogGraphQl\Model\Resolver\Layer\FiltersProvider;
 use Magento\Catalog\Model\Layer\Filter\AbstractFilter;
+use Magento\Framework\Exception\LocalizedException;
 
 /**
  * Layered navigation filters data provider.
@@ -47,7 +49,7 @@ class Filters extends \Magento\CatalogGraphQl\Model\Resolver\Layer\DataProvider\
      */
     public function setRequiredAttributesFromItems(array $items)
     {
-        $attributes = [];
+        $attributes = ['cat'];
 
         foreach ($items as $item) {
             $model = $item['model'];
@@ -70,10 +72,12 @@ class Filters extends \Magento\CatalogGraphQl\Model\Resolver\Layer\DataProvider\
      *
      * @param string $layerType
      * @return array
+     * @throws LocalizedException
      */
     public function getData(string $layerType): array
     {
         $filtersData = [];
+
         /** @var AbstractFilter $filter */
         foreach ($this->filtersProvider->getFilters($layerType) as $filter) {
             if ($filter->getItemsCount() && $this->hasFilterContents($filter)) {
@@ -82,14 +86,16 @@ class Filters extends \Magento\CatalogGraphQl\Model\Resolver\Layer\DataProvider\
                     'filter_items_count' => $filter->getItemsCount(),
                     'request_var' => $filter->getRequestVar(),
                 ];
-                /** @var \Magento\Catalog\Model\Layer\Filter\Item $filterItem */
-                foreach ($filter->getItems() as $filterItem) {
+
+                /** @var Item $filterItem */
+                foreach ($filter->getItems() ?? [] as $filterItem) {
                     $filterGroup['filter_items'][] = [
                         'label' => (string) $filterItem->getLabel(),
                         'value_string' => $filterItem->getValueString(),
                         'items_count' => $filterItem->getCount(),
                     ];
                 }
+
                 $filtersData[] = $filterGroup;
             }
         }

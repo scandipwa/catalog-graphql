@@ -14,6 +14,7 @@ namespace ScandiPWA\CatalogGraphQl\Model\Resolver;
 use Magento\Framework\GraphQl\Config\Element\Field;
 use Magento\Framework\GraphQl\Query\ResolverInterface;
 use Magento\Framework\GraphQl\Schema\Type\ResolveInfo;
+use ScandiPWA\CatalogGraphQl\Model\Resolver\Layer\DataProvider\Filters;
 
 /**
  * Layered navigation filters resolver, used for GraphQL request processing.
@@ -26,10 +27,10 @@ class LayerFilters extends \Magento\CatalogGraphQl\Model\Resolver\LayerFilters i
     private $filtersDataProvider;
 
     /**
-     * @param \ScandiPWA\CatalogGraphQl\Model\Resolver\Layer\DataProvider\Filters $filtersDataProvider
+     * @param Filters $filtersDataProvider
      */
     public function __construct(
-        \ScandiPWA\CatalogGraphQl\Model\Resolver\Layer\DataProvider\Filters $filtersDataProvider
+        Filters $filtersDataProvider
     ) {
         $this->filtersDataProvider = $filtersDataProvider;
     }

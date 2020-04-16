@@ -41,8 +41,7 @@ class Attribute extends CoreAttribute
         Registry $registry,
         Context $context,
         $connectionName = null
-    )
-    {
+    ) {
         $this->registry = $registry;
         parent::__construct($context, $connectionName);
     }

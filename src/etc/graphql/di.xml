@@ -43,4 +43,10 @@
 
     <preference for="Magento\Catalog\Model\Api\SearchCriteria\CollectionProcessor\ProductFilterProcessor"
                 type="ScandiPWA\CatalogGraphQl\Model\Resolver\Products\SearchCriteria\CollectionProcessor\ProductFilterProcessor" />
+
+    <preference for="Magento\Catalog\Model\Layer\Filter\Price"
+                type="ScandiPWA\CatalogGraphQl\Model\Layer\Filter\Price" />
+
+    <preference for="Magento\Catalog\Model\Layer\Filter\Category"
+                type="ScandiPWA\CatalogGraphQl\Model\Layer\Filter\Category" />
 </config>
