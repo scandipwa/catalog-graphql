@@ -134,9 +134,13 @@ class ConfigurableVariant
 
         /** @var $searchCriteria SearchCriteriaInterface */
         $searchCriteria = $context->getExtensionAttributes()->getSearchCriteria('search_criteria');
-        $isSingleProduct = CriteriaCheck::isSingleProductFilter($searchCriteria);
+        $ignoreSearchCriteria = true;
 
-        if (!$isSingleProduct) {
+        if ($searchCriteria) {
+            $ignoreSearchCriteria = CriteriaCheck::isSingleProductFilter($searchCriteria);
+        }
+
+        if (!$ignoreSearchCriteria) {
             // get only one product if it is a category request
             $searchCriteria->setPageSize(1);
             $this->variantCollection->setSearchCriteria($searchCriteria);
