@@ -85,7 +85,7 @@ class Attribute extends CoreAttribute
         ];
 
         $select->join(
-            [$tableAlias => $this->getTable('catalog_category_product')],
+            [$tableAlias => $this->getTable('catalog_category_product_index')],
             implode(' AND ', $queryConditions),
             null
         );

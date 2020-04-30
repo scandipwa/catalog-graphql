@@ -53,6 +53,11 @@
     <preference for="Magento\Elasticsearch\Model\ResourceModel\Fulltext\Collection\DefaultFilterStrategyApplyChecker"
                 type="ScandiPWA\CatalogGraphQl\Model\ResourceModel\Fulltext\Collection\DefaultFilterStrategyApplyChecker" />
 
+    <type name="Magento\Framework\App\ResourceConnection">
+        <plugin name="get_catalog_category_product_index_table_name" type="Magento\Catalog\Model\Indexer\Category\Product\Plugin\TableResolver"/>
+        <plugin name="get_catalog_product_price_index_table_name" type="Magento\Catalog\Model\Indexer\Product\Price\Plugin\TableResolver"/>
+    </type>
+
     <virtualType name="ScandiPWA\CatalogGraphQl\Model\Search\PageSizeProvider" type="Magento\Search\Model\Search\PageSizeProvider">
         <arguments>
             <argument name="pageSizeBySearchEngine" xsi:type="array">
