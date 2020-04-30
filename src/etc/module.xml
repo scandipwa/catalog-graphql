@@ -16,6 +16,7 @@
         <sequence>
             <module name="Magento_CatalogGraphQl"/>
             <module name="Magento_CatalogInventoryGraphQl"/>
+            <module name="Magento_Elasticsearch"/>
         </sequence>
     </module>
 </config>

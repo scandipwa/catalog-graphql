@@ -91,16 +91,20 @@ class Search
         $idField = $this->metadataPool->getMetadata(
             \Magento\Catalog\Api\Data\ProductInterface::class
         )->getIdentifierField();
+
         $realPageSize = $searchCriteria->getPageSize();
         $realCurrentPage = $searchCriteria->getCurrentPage();
+
         // Current page must be set to 0 and page size to max for search to grab all ID's as temporary workaround
         $pageSize = $this->pageSizeProvider->getMaxPageSize();
         $searchCriteria->setPageSize($pageSize);
         $searchCriteria->setCurrentPage(0);
+
         $itemsResults = $this->search->search($searchCriteria);
 
         $ids = [];
         $searchIds = [];
+
         foreach ($itemsResults->getItems() as $item) {
             $ids[$item->getId()] = null;
             $searchIds[] = $item->getId();
