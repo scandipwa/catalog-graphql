@@ -26,13 +26,14 @@ use Magento\Store\Model\StoreManagerInterface;
 use ScandiPWA\CatalogGraphQl\Model\Resolver\Products\DataProvider\Product\CriteriaCheck;
 use ScandiPWA\Performance\Model\Resolver\Products\DataPostProcessor;
 use ScandiPWA\Performance\Model\Resolver\ResolveInfoFieldsTrait;
+use Magento\Framework\GraphQl\Query\ResolverInterface;
 
 /**
  * Class ConfigurableVariant
  *
  * @package ScandiPWA\CatalogGraphQl\Model\Resolver
  */
-class ConfigurableVariant
+class ConfigurableVariant implements ResolverInterface
 {
     use ResolveInfoFieldsTrait;
 
