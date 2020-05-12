@@ -52,6 +52,7 @@ interface ProductInterface {
 }
 
 interface CategoryInterface {
+    cms_html: String @doc(description: "CMS block from category") @resolver(class: "ScandiPWA\\CatalogGraphQl\\Model\\Resolver\\Category\\CmsHtml")
     canonical_url: String @doc(description: "Canonical Url") @resolver(class: "ScandiPWA\\CatalogGraphQl\\Model\\Resolver\\Category\\CanonicalUrl")
 }
 
