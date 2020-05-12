@@ -68,6 +68,16 @@
         </arguments>
     </virtualType>
 
+    <type name="Magento\Catalog\Model\ResourceModel\Category">
+        <plugin name="category_resource_get_items_use_index"
+                type="ScandiPWA\CatalogGraphQl\Plugin\ResourceModel\Category"/>
+    </type>
+
+    <type name="Magento\Catalog\Model\Category">
+        <plugin name="category_get_items_use_index"
+                type="ScandiPWA\CatalogGraphQl\Plugin\Category"/>
+    </type>
+
     <type name="Magento\GraphQl\Controller\GraphQl">
         <plugin name="graphql_init_translations"
                 type="ScandiPWA\CatalogGraphQl\Plugin\InitGraphQlTranslations"/>

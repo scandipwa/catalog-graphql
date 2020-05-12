@@ -163,10 +163,6 @@ class Category extends AbstractFilter
             ->addAttributeToSelect('is_active')
             ->addNameToResult();
 
-        $this->getLayer()
-            ->getProductCollection()
-            ->addCountToCategories($categories);
-
         if ($category->getIsActive()) {
             foreach ($categories as $category) {
                 if ($category->getIsActive() && $category->getProductCount()) {
