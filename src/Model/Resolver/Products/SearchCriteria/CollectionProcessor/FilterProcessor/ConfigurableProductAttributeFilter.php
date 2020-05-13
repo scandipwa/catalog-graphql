@@ -14,7 +14,6 @@ namespace ScandiPWA\CatalogGraphQl\Model\Resolver\Products\SearchCriteria\Collec
 
 use Magento\Catalog\Model\Product\Attribute\Source\Status;
 use Magento\Framework\Api\SearchCriteria\CollectionProcessor\FilterProcessor\CustomFilterInterface;
-use Magento\Framework\App\ResourceConnection;
 use Magento\Framework\Data\Collection\AbstractDb;
 use Magento\Framework\Api\Filter;
 use Magento\Catalog\Model\ResourceModel\Product\CollectionFactory;
