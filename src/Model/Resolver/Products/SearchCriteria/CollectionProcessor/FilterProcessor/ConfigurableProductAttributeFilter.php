@@ -14,11 +14,12 @@ namespace ScandiPWA\CatalogGraphQl\Model\Resolver\Products\SearchCriteria\Collec
 
 use Magento\Catalog\Model\Product\Attribute\Source\Status;
 use Magento\Framework\Api\SearchCriteria\CollectionProcessor\FilterProcessor\CustomFilterInterface;
+use Magento\Framework\App\ResourceConnection;
 use Magento\Framework\Data\Collection\AbstractDb;
 use Magento\Framework\Api\Filter;
 use Magento\Catalog\Model\ResourceModel\Product\CollectionFactory;
 use Magento\ConfigurableProduct\Model\ResourceModel\Product\Type\Configurable;
-use Magento\Framework\Registry;
+use ScandiPWA\CatalogGraphQl\Model\Resolver\Products\DataProvider\Product\CriteriaCheck;
 
 /**
  * Category filter allows to filter products collection using custom defined filters from search criteria.
@@ -51,12 +52,20 @@ class ConfigurableProductAttributeFilter implements CustomFilterInterface
      * @param Filter $filter
      * @param AbstractDb $collection
      * @return bool
+     * @throws \Zend_Db_Select_Exception
      */
     public function apply(Filter $filter, AbstractDb $collection)
     {
         $attributeName = $filter->getField();
         $attributeValue = $filter->getValue();
         $conditionType = $filter->getConditionType();
+
+        $isSingleProduct = CriteriaCheck::isSingleProductFilterType($filter);
+
+        if ($isSingleProduct) {
+            $collection->addFieldToFilter($attributeName, [$conditionType => $attributeValue]);
+            return true;
+        }
 
         $simpleSelect = $this->collectionFactory->create()
             ->addAttributeToFilter($attributeName, [$conditionType => $attributeValue])

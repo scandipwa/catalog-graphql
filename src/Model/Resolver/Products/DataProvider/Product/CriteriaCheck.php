@@ -14,17 +14,25 @@ class CriteriaCheck
      */
     static public function isSingleProductFilter(SearchCriteriaInterface$searchCriteria)
     {
-        $singleProduct = false;
         foreach ($searchCriteria->getFilterGroups() as $filterGroup) {
             $filters = $filterGroup->getFilters();
-            $type = $filters[0]->getConditionType();
-            $field = $filters[0]->getField();
-            if ($type === 'eq' && $field === 'url_key') {
-                $singleProduct = true;
-                break;
+
+            if (self::isSingleProductFilterType($filters[0])) {
+                return true;
             }
         }
         
-        return $singleProduct;
+        return false;
+    }
+
+    /**
+     * @param \Magento\Framework\Api\Filter $filter
+     * @return bool
+     */
+    static public function isSingleProductFilterType($filter) {
+        $type = $filter->getConditionType();
+        $field = $filter->getField();
+
+        return $type === 'eq' && in_array($field, ['url_key', 'id', 'entity_id']);
     }
 }

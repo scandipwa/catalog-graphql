@@ -81,26 +81,45 @@ class Filter
      *
      * @param SearchCriteriaInterface $searchCriteria
      * @param ResolveInfo $info
-     * @param bool $isSearch
+     * @param array $fields
      * @return SearchResult
      * @throws LocalizedException
+     * @throws \Magento\Framework\Exception\NoSuchEntityException
      */
     public function getResult(
         SearchCriteriaInterface $searchCriteria,
         ResolveInfo $info,
-        bool $isSearch = false
+        array $fields
     ): SearchResult {
-        $fields = $this->getFieldsFromProductInfo($info, 'products/items');
-        $products = $this->productDataProvider->getList($searchCriteria, $fields, $isSearch);
+        $isReturnCount = in_array('total_count', $fields, true);
+        $isReturnItems = in_array('total_count', $fields, true);
+        $isReturnMinMax = count(array_intersect($fields, ['max_price', 'min_price'])) > 0;
 
-        $productArray = $this->productPostProcessor->process(
-            $products->getItems(),
-            'products/items',
-            $info
+        $productFields = $this->getFieldsFromProductInfo($info, 'products/items');
+
+        $products = $this->productDataProvider->getList(
+            $searchCriteria,
+            $productFields,
+            false,
+            false,
+            $isReturnMinMax,
+            $isReturnCount
         );
 
+        if ($isReturnItems) {
+            $productArray = $this->productPostProcessor->process(
+                $products->getItems(),
+                'products/items',
+                $info
+            );
+        } else {
+            $productArray = array_map(function ($product) {
+                return $product->getData() + ['model' => $product];
+            }, $products->getItems());
+        }
+
         return $this->searchResultFactory->create(
-            $products->getTotalCount(),
+            $isReturnCount ? $products->getTotalCount() : 0,
             $this->productDataProvider->getMinPrice(),
             $this->productDataProvider->getMaxPrice(),
             $productArray

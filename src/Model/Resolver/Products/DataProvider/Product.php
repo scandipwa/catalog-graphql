@@ -54,12 +54,12 @@ class Product extends MagentoProduct
     /**
      * @var float
      */
-    protected $minPrice;
+    protected $minPrice = 0;
 
     /**
      * @var float
      */
-    protected $maxPrice;
+    protected $maxPrice = 0;
 
     /**
      * @var StoreManagerInterface
@@ -103,14 +103,18 @@ class Product extends MagentoProduct
      * @param string[] $attributes
      * @param bool $isSearch
      * @param bool $isChildSearch
+     * @param bool $isMinMaxRequested
+     * @param bool $isReturnCount
      * @return SearchResultsInterface
-     * @throws LocalizedException
+     * @throws NoSuchEntityException
      */
     public function getList(
         SearchCriteriaInterface $searchCriteria,
         array $attributes = [],
         bool $isSearch = false,
-        bool $isChildSearch = false
+        bool $isChildSearch = false,
+        bool $isMinMaxRequested = true,
+        bool $isReturnCount = true
     ): SearchResultsInterface {
         /** @var Collection $collection */
         $collection = $this->collectionFactory->create();
@@ -138,9 +142,18 @@ class Product extends MagentoProduct
         $searchResult = $this->searchResultsFactory->create();
         $searchResult->setSearchCriteria($searchCriteria);
         $searchResult->setItems($collection->getItems());
-        $searchResult->setTotalCount($collection->getSize());
 
-        list($this->minPrice,$this->maxPrice) = $this->getCollectionMinMaxPrice($collection);
+        if ($isReturnCount) {
+            $searchResult->setTotalCount($collection->getSize());
+        }
+
+        if ($isMinMaxRequested) {
+            [
+                $this->minPrice,
+                $this->maxPrice
+            ] = $this->getCollectionMinMaxPrice($collection);
+        }
+
         return $searchResult;
     }
 
@@ -165,8 +178,8 @@ class Product extends MagentoProduct
         $row = $connection->fetchRow($query);
 
         return [
-            floatval($row['min_price']) * $currencyRate,
-            floatval($row['max_price']) * $currencyRate
+            (float) $row['min_price'] * $currencyRate,
+            (float) $row['max_price'] * $currencyRate
         ];
     }
 

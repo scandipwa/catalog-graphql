@@ -14,6 +14,7 @@ namespace ScandiPWA\CatalogGraphQl\Model\Resolver\Products\Query;
 use Magento\Framework\GraphQl\Schema\Type\ResolveInfo;
 use Magento\Framework\Api\Search\SearchCriteriaInterface;
 use Magento\CatalogGraphQl\Model\Resolver\Products\SearchCriteria\Helper\Filter as FilterHelper;
+use phpDocumentor\Reflection\Types\Boolean;
 use ScandiPWA\CatalogGraphQl\Model\Resolver\Products\SearchResult;
 use ScandiPWA\CatalogGraphQl\Model\Resolver\Products\SearchResultFactory;
 use Magento\Search\Api\SearchInterface;
@@ -86,8 +87,15 @@ class Search
      * @return SearchResult
      * @throws \Exception
      */
-    public function getResult(SearchCriteriaInterface $searchCriteria, ResolveInfo $info) : SearchResult
-    {
+    public function getResult(
+        SearchCriteriaInterface $searchCriteria,
+        ResolveInfo $info,
+        array $fields
+    ) : SearchResult {
+        $isReturnCount = in_array('total_count', $fields, true);
+        $isReturnItems = in_array('total_count', $fields, true);
+        $isReturnMinMax = count(array_intersect($fields, ['max_price', 'min_price'])) > 0;
+
         $idField = $this->metadataPool->getMetadata(
             \Magento\Catalog\Api\Data\ProductInterface::class
         )->getIdentifierField();
@@ -122,32 +130,33 @@ class Search
         $products = [];
         if (!isset($searchCriteria->getSortOrders()[0])) {
             foreach ($paginatedProducts as $product) {
-                if (in_array($product[$idField], $searchIds)) {
+                if (in_array($product[$idField], $searchIds, true)) {
                     $ids[$product[$idField]] = $product;
                 }
             }
+
             $products = array_filter($ids);
 
             return $this->searchResultFactory->create(
-                $searchResult->getTotalCount(),
-                $searchResult->getMinPrice(),
-                $searchResult->getMaxPrice(),
-                $products
+                $isReturnCount ? $searchResult->getTotalCount() : 0,
+                $isReturnMinMax ? $searchResult->getMinPrice() : 0,
+                $isReturnMinMax ? $searchResult->getMaxPrice() : 0,
+                $isReturnItems ? $products : []
             );
         }
 
         foreach ($paginatedProducts as $product) {
-            $productId = isset($product['entity_id']) ? $product['entity_id'] : $product[$idField];
-            if (in_array($productId, $searchIds)) {
+            $productId = $product['entity_id'] ?? $product[$idField];
+            if (in_array($productId, $searchIds, true)) {
                 $products[] = $product;
             }
         }
 
         return $this->searchResultFactory->create(
-            $searchResult->getTotalCount(),
-            $searchResult->getMinPrice(),
-            $searchResult->getMaxPrice(),
-            $products
+            $isReturnCount ? $searchResult->getTotalCount() : 0,
+            $isReturnMinMax ? $searchResult->getMinPrice() : 0,
+            $isReturnMinMax ? $searchResult->getMaxPrice() : 0,
+            $isReturnItems ? $products : []
         );
     }
 

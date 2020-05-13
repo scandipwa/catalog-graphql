@@ -21,6 +21,7 @@ use Magento\Framework\GraphQl\Query\Resolver\Argument\SearchCriteria\Builder;
 use Magento\Framework\GraphQl\Query\Resolver\Argument\SearchCriteria\SearchFilter;
 use Magento\Framework\GraphQl\Query\ResolverInterface;
 use Magento\Catalog\Model\Layer\Resolver;
+use ScandiPWA\Performance\Model\Resolver\ResolveInfoFieldsTrait;
 
 /**
  * Products field resolver, used for GraphQL request processing.
@@ -30,6 +31,8 @@ use Magento\Catalog\Model\Layer\Resolver;
  */
 class Products implements ResolverInterface
 {
+    use ResolveInfoFieldsTrait;
+
     /**
      * @var Builder
      */
@@ -82,6 +85,8 @@ class Products implements ResolverInterface
         $searchCriteria->setCurrentPage($args['currentPage']);
         $searchCriteria->setPageSize($args['pageSize']);
 
+        $fields = $this->getFieldsFromProductInfo($info, 'products');
+
         if (!isset($args['search']) && !isset($args['filter'])) {
             throw new GraphQlInputException(
                 __("'search' or 'filter' input argument is required.")
@@ -89,10 +94,10 @@ class Products implements ResolverInterface
         } elseif (isset($args['search'])) {
             $layerType = Resolver::CATALOG_LAYER_SEARCH;
             $this->searchFilter->add($args['search'], $searchCriteria);
-            $searchResult = $this->searchQuery->getResult($searchCriteria, $info);
+            $searchResult = $this->searchQuery->getResult($searchCriteria, $info, $fields);
         } else {
             $layerType = Resolver::CATALOG_LAYER_CATEGORY;
-            $searchResult = $this->filterQuery->getResult($searchCriteria, $info);
+            $searchResult = $this->filterQuery->getResult($searchCriteria, $info, $fields);
         }
 
         $context->getExtensionAttributes()->setSearchCriteria(
