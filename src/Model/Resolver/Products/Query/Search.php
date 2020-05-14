@@ -118,10 +118,11 @@ class Search
             $searchIds[] = $item->getId();
         }
 
+        // TODO: investigate reason of this being here
         $filter = $this->filterHelper->generate($idField, 'in', $searchIds);
         $searchCriteria = $this->filterHelper->remove($searchCriteria, 'search_term');
         $searchCriteria = $this->filterHelper->add($searchCriteria, $filter);
-        $searchResult = $this->filterQuery->getResult($searchCriteria, $info, true);
+        $searchResult = $this->filterQuery->getResult($searchCriteria, $info, $fields, true);
 
         $searchCriteria->setPageSize($realPageSize);
         $searchCriteria->setCurrentPage($realCurrentPage);

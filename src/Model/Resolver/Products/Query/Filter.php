@@ -82,6 +82,7 @@ class Filter
      * @param SearchCriteriaInterface $searchCriteria
      * @param ResolveInfo $info
      * @param array $fields
+     * @param bool $isSearch
      * @return SearchResult
      * @throws LocalizedException
      * @throws \Magento\Framework\Exception\NoSuchEntityException
@@ -89,7 +90,8 @@ class Filter
     public function getResult(
         SearchCriteriaInterface $searchCriteria,
         ResolveInfo $info,
-        array $fields
+        array $fields,
+        bool $isSearch = false
     ): SearchResult {
         $isReturnCount = in_array('total_count', $fields, true);
         $isReturnItems = in_array('total_count', $fields, true);
@@ -100,7 +102,7 @@ class Filter
         $products = $this->productDataProvider->getList(
             $searchCriteria,
             $productFields,
-            false,
+            $isSearch,
             false,
             $isReturnMinMax,
             $isReturnCount
