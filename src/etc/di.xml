@@ -41,20 +41,6 @@
         </arguments>
     </type>
 
-    <!-- Prevent Magento to dynamically build product and category attributes -->
-    <virtualType name="ScandiPWA\CatalogGraphQl\GraphQlSchemaStitching\Reader" type="Magento\Framework\GraphQlSchemaStitching\Common\Reader">
-        <arguments>
-            <argument name="readers" xsi:type="array">
-                <item name="graphql_reader" xsi:type="object">Magento\Framework\GraphQlSchemaStitching\GraphQlReader</item>
-                <item name="productFiltersDynamicAttributeReader" xsi:type="object">ScandiPWA\CatalogGraphQl\Model\Config\ProductAttributeReader</item>
-                <item name="categoryDynamicAttributeReader" xsi:type="object">Magento\CatalogGraphQl\Model\Config\CategoryAttributeReader</item>
-            </argument>
-        </arguments>
-    </virtualType>
-    <preference for="Magento\Framework\GraphQlSchemaStitching\Reader"
-                type="ScandiPWA\CatalogGraphQl\GraphQlSchemaStitching\Reader"/>
-    <!-- Prevent Magento to dynamically build product and category attributes -->
-
     <type name="Magento\CatalogGraphQl\Model\Resolver\Products\Query\Search">
         <arguments>
             <argument name="pageSize" xsi:type="object">ScandiPWA\CatalogGraphQl\Model\Search\PageSizeProvider</argument>
@@ -109,12 +95,6 @@
     <!-- Performance related changes -->
     <preference for="Magento\ConfigurableProductGraphQl\Model\Resolver\ConfigurableVariant"
                 type="ScandiPWA\CatalogGraphQl\Model\Resolver\ConfigurableVariant" />
-
-    <type name="ScandiPWA\CatalogGraphQl\Model\Resolver\ConfigurableVariant">
-        <arguments>
-            <argument name="variantCollection" xsi:type="object">ScandiPWA\CatalogGraphQl\Model\Variant\Collection</argument>
-        </arguments>
-    </type>
 
     <type name="Magento\CatalogGraphQl\Model\Resolver\Products\DataProvider\Product\CompositeCollectionProcessor">
         <arguments>
