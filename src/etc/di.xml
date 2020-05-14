@@ -129,4 +129,7 @@
 
     <preference for="Magento\GroupedProductGraphQl\Model\Resolver\GroupedItems"
                 type="ScandiPWA\CatalogGraphQl\Model\Resolver\GroupedItems" />
+
+    <preference for="Magento\Elasticsearch\SearchAdapter\Query\Builder\Match"
+                type="ScandiPWA\CatalogGraphQl\SearchAdapter\Query\Builder\Match"/>
 </config>
