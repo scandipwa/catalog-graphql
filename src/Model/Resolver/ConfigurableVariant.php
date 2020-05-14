@@ -11,8 +11,6 @@ declare(strict_types=1);
 namespace ScandiPWA\CatalogGraphQl\Model\Resolver;
 
 use Magento\Catalog\Model\ResourceModel\Product\Attribute\CollectionFactory;
-use Magento\Framework\Api\SearchCriteriaInterface;
-use Magento\Framework\DataObject;
 use Magento\Framework\GraphQl\Schema\Type\ResolveInfo;
 use Magento\Catalog\Api\Data\ProductInterface;
 use Magento\CatalogGraphQl\Model\Resolver\Products\Attributes\Collection as AttributeCollection;
@@ -23,7 +21,6 @@ use Magento\Framework\EntityManager\MetadataPool;
 use Magento\Framework\GraphQl\Config\Element\Field;
 use Magento\Framework\GraphQl\Query\Resolver\ValueFactory;
 use Magento\Store\Model\StoreManagerInterface;
-use ScandiPWA\CatalogGraphQl\Model\Resolver\Products\DataProvider\Product\CriteriaCheck;
 use ScandiPWA\Performance\Model\Resolver\Products\DataPostProcessor;
 use ScandiPWA\Performance\Model\Resolver\ResolveInfoFieldsTrait;
 use Magento\Framework\GraphQl\Query\ResolverInterface;
@@ -73,17 +70,13 @@ class ConfigurableVariant implements ResolverInterface
     protected $storeManager;
 
     /**
-     * @var DataObject[]
-     */
-    protected $attributesVisibleOnFrontend;
-
-    /**
      * @var DataPostProcessor
      */
     protected $productPostProcessor;
 
     /**
      * ConfigurableVariant constructor.
+     *
      * @param Collection $variantCollection
      * @param OptionCollection $optionCollection
      * @param ValueFactory $valueFactory
@@ -131,20 +124,6 @@ class ConfigurableVariant implements ResolverInterface
             };
 
             return $this->valueFactory->create($result);
-        }
-
-        /** @var $searchCriteria SearchCriteriaInterface */
-        $searchCriteria = $context->getExtensionAttributes()->getSearchCriteria('search_criteria');
-        $ignoreSearchCriteria = true;
-
-        if ($searchCriteria) {
-            $ignoreSearchCriteria = CriteriaCheck::isSingleProductFilter($searchCriteria);
-        }
-
-        if (!$ignoreSearchCriteria) {
-            // get only one product if it is a category request
-            $searchCriteria->setPageSize(1);
-            $this->variantCollection->setSearchCriteria($searchCriteria);
         }
 
         // Configure variant collection
