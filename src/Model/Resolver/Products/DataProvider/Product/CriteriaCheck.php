@@ -33,6 +33,6 @@ class CriteriaCheck
         $type = $filter->getConditionType();
         $field = $filter->getField();
 
-        return $type === 'eq' && in_array($field, ['url_key', 'id', 'entity_id']);
+        return $type === 'eq' && in_array($field, ['url_key', 'id', 'entity_id', 'sku']);
     }
 }

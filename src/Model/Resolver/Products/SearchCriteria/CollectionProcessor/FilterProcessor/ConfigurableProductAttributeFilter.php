@@ -47,6 +47,16 @@ class ConfigurableProductAttributeFilter implements CustomFilterInterface
         $this->collectionFactory = $collectionFactory;
     }
 
+    protected function isJoinNeeded($filter): bool {
+        $type = $filter->getConditionType();
+        $field = $filter->getField();
+
+        return (
+            ($type === 'in' && in_array($field, ['id', 'entity_id', 'sku']))
+            || ($type === 'eq' && in_array($field, ['url_key', 'id', 'entity_id', 'sku']))
+        );
+    }
+
     /**
      * @param Filter $filter
      * @param AbstractDb $collection
@@ -59,9 +69,7 @@ class ConfigurableProductAttributeFilter implements CustomFilterInterface
         $attributeValue = $filter->getValue();
         $conditionType = $filter->getConditionType();
 
-        $isSingleProduct = CriteriaCheck::isSingleProductFilterType($filter);
-
-        if ($isSingleProduct) {
+        if ($this->isJoinNeeded($filter)) {
             $collection->addFieldToFilter($attributeName, [$conditionType => $attributeValue]);
             return true;
         }
