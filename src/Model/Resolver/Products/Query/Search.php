@@ -11,10 +11,11 @@ declare(strict_types=1);
 
 namespace ScandiPWA\CatalogGraphQl\Model\Resolver\Products\Query;
 
+use Magento\Framework\EntityManager\MetadataPool;
 use Magento\Framework\GraphQl\Schema\Type\ResolveInfo;
 use Magento\Framework\Api\Search\SearchCriteriaInterface;
 use Magento\CatalogGraphQl\Model\Resolver\Products\SearchCriteria\Helper\Filter as FilterHelper;
-use phpDocumentor\Reflection\Types\Boolean;
+use Magento\Search\Model\Search\PageSizeProvider;
 use ScandiPWA\CatalogGraphQl\Model\Resolver\Products\SearchResult;
 use ScandiPWA\CatalogGraphQl\Model\Resolver\Products\SearchResultFactory;
 use Magento\Search\Api\SearchInterface;
@@ -46,12 +47,12 @@ class Search
     private $searchResultFactory;
 
     /**
-     * @var \Magento\Framework\EntityManager\MetadataPool
+     * @var MetadataPool
      */
     private $metadataPool;
 
     /**
-     * @var \Magento\Search\Model\Search\PageSizeProvider
+     * @var PageSizeProvider
      */
     private $pageSizeProvider;
 
@@ -60,16 +61,16 @@ class Search
      * @param FilterHelper $filterHelper
      * @param Filter $filterQuery
      * @param SearchResultFactory $searchResultFactory
-     * @param \Magento\Framework\EntityManager\MetadataPool $metadataPool
-     * @param \Magento\Search\Model\Search\PageSizeProvider $pageSize
+     * @param MetadataPool $metadataPool
+     * @param PageSizeProvider $pageSize
      */
     public function __construct(
         SearchInterface $search,
         FilterHelper $filterHelper,
         Filter $filterQuery,
         SearchResultFactory $searchResultFactory,
-        \Magento\Framework\EntityManager\MetadataPool $metadataPool,
-        \Magento\Search\Model\Search\PageSizeProvider $pageSize
+        MetadataPool $metadataPool,
+        PageSizeProvider $pageSize
     ) {
         $this->search = $search;
         $this->filterHelper = $filterHelper;
@@ -118,7 +119,7 @@ class Search
             $searchIds[] = $item->getId();
         }
 
-        // TODO: investigate reason of this being here
+        // TODO: this is reported to cause wrong sorting of items
         $filter = $this->filterHelper->generate($idField, 'in', $searchIds);
         $searchCriteria = $this->filterHelper->remove($searchCriteria, 'search_term');
         $searchCriteria = $this->filterHelper->add($searchCriteria, $filter);
@@ -137,19 +138,12 @@ class Search
             }
 
             $products = array_filter($ids);
-
-            return $this->searchResultFactory->create(
-                $isReturnCount ? $searchResult->getTotalCount() : 0,
-                $isReturnMinMax ? $searchResult->getMinPrice() : 0,
-                $isReturnMinMax ? $searchResult->getMaxPrice() : 0,
-                $isReturnItems ? $products : []
-            );
-        }
-
-        foreach ($paginatedProducts as $product) {
-            $productId = $product['entity_id'] ?? $product[$idField];
-            if (in_array($productId, $searchIds, true)) {
-                $products[] = $product;
+        } else {
+            foreach ($paginatedProducts as $product) {
+                $productId = $product['entity_id'] ?? $product[$idField];
+                if (in_array($productId, $searchIds, true)) {
+                    $products[] = $product;
+                }
             }
         }
 
