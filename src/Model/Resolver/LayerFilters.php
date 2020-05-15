@@ -12,15 +12,15 @@ declare (strict_types=1);
 
 namespace ScandiPWA\CatalogGraphQl\Model\Resolver;
 
+use Magento\CatalogGraphQl\Model\Resolver\LayerFilters as CoreLayerFilters;
 use Magento\Framework\GraphQl\Config\Element\Field;
-use Magento\Framework\GraphQl\Query\ResolverInterface;
 use Magento\Framework\GraphQl\Schema\Type\ResolveInfo;
 use ScandiPWA\CatalogGraphQl\Model\Resolver\Layer\DataProvider\Filters;
 
 /**
  * Layered navigation filters resolver, used for GraphQL request processing.
  */
-class LayerFilters implements ResolverInterface
+class LayerFilters extends CoreLayerFilters
 {
     /**
      * @var Layer\DataProvider\Filters
