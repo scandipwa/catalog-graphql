@@ -96,6 +96,12 @@
     <preference for="Magento\ConfigurableProductGraphQl\Model\Resolver\ConfigurableVariant"
                 type="ScandiPWA\CatalogGraphQl\Model\Resolver\ConfigurableVariant" />
 
+    <type name="ScandiPWA\CatalogGraphQl\Model\Resolver\ConfigurableVariant">
+        <arguments>
+            <argument name="variantCollection" xsi:type="object">ScandiPWA\CatalogGraphQl\Model\Variant\Collection</argument>
+        </arguments>
+    </type>
+
     <type name="Magento\CatalogGraphQl\Model\Resolver\Products\DataProvider\Product\CompositeCollectionProcessor">
         <arguments>
             <argument name="collectionProcessors" xsi:type="array">
