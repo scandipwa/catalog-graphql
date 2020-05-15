@@ -47,9 +47,6 @@
         </arguments>
     </type>
 
-    <preference for="Magento\Catalog\Model\ResourceModel\Layer\Filter\Attribute"
-                type="ScandiPWA\CatalogGraphQl\Model\ResourceModel\Layer\Filter\Attribute" />
-
     <preference for="Magento\CatalogGraphQl\Model\Resolver\Product\MediaGallery\Url"
                 type="ScandiPWA\CatalogGraphQl\Model\Resolver\Product\MediaGallery\Url" />
 
