@@ -105,7 +105,8 @@ class Filter
             $isSearch,
             false,
             $isReturnMinMax,
-            $isReturnCount
+            $isReturnCount,
+            $isReturnItems
         );
 
         if ($isReturnItems) {
