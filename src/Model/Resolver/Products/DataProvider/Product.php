@@ -140,10 +140,11 @@ class Product extends MagentoProduct
         $searchResult = $this->searchResultsFactory->create();
         $searchResult->setSearchCriteria($searchCriteria);
 
+        $collection->load();
+        $searchResult->setItems($collection->getItems());
+
         if ($isReturnItems) {
-            $collection->load();
             $this->postProcessor->process($collection, $attributes);
-            $searchResult->setItems($collection->getItems());
         }
 
         if ($isReturnCount) {
