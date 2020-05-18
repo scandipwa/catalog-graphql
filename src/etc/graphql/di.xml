@@ -47,6 +47,9 @@
     <preference for="Magento\Catalog\Model\Layer\Filter\Price"
                 type="ScandiPWA\CatalogGraphQl\Model\Layer\Filter\Price" />
 
+    <preference for="Magento\CatalogGraphQl\Model\Resolver\Category\Image"
+                type="ScandiPWA\CatalogGraphQl\Model\Resolver\Category\Image" />
+
     <preference for="Magento\Catalog\Model\Layer\Filter\Category"
                 type="ScandiPWA\CatalogGraphQl\Model\Layer\Filter\Category" />
 
