@@ -105,6 +105,7 @@ class Product extends MagentoProduct
      * @param bool $isChildSearch
      * @param bool $isMinMaxRequested
      * @param bool $isReturnCount
+     * @param bool $isReturnItems
      * @return SearchResultsInterface
      * @throws NoSuchEntityException
      */
@@ -114,7 +115,8 @@ class Product extends MagentoProduct
         bool $isSearch = false,
         bool $isChildSearch = false,
         bool $isMinMaxRequested = true,
-        bool $isReturnCount = true
+        bool $isReturnCount = true,
+        bool $isReturnItems = true
     ): SearchResultsInterface {
         /** @var Collection $collection */
         $collection = $this->collectionFactory->create();
@@ -135,13 +137,15 @@ class Product extends MagentoProduct
             $collection->setVisibility($visibilityIds);
         }
 
-        $collection->load();
-
-        $this->postProcessor->process($collection, $attributes);
-
         $searchResult = $this->searchResultsFactory->create();
         $searchResult->setSearchCriteria($searchCriteria);
+
+        $collection->load();
         $searchResult->setItems($collection->getItems());
+
+        if ($isReturnItems) {
+            $this->postProcessor->process($collection, $attributes);
+        }
 
         if ($isReturnCount) {
             $searchResult->setTotalCount($collection->getSize());
