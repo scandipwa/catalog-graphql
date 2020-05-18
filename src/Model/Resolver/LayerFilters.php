@@ -5,21 +5,22 @@
  * @category    ScandiPWA
  * @package     ScandiPWA_CatalogGraphQl
  * @author      Artjoms Travkovs <info@scandiweb.com>
+ * @author      Aivars Arbidans <info@scandiweb.com>
  * @copyright   Copyright (c) 2019 Scandiweb, Ltd (https://scandiweb.com)
  */
 declare (strict_types=1);
 
 namespace ScandiPWA\CatalogGraphQl\Model\Resolver;
 
+use Magento\CatalogGraphQl\Model\Resolver\LayerFilters as CoreLayerFilters;
 use Magento\Framework\GraphQl\Config\Element\Field;
-use Magento\Framework\GraphQl\Query\ResolverInterface;
 use Magento\Framework\GraphQl\Schema\Type\ResolveInfo;
 use ScandiPWA\CatalogGraphQl\Model\Resolver\Layer\DataProvider\Filters;
 
 /**
  * Layered navigation filters resolver, used for GraphQL request processing.
  */
-class LayerFilters extends \Magento\CatalogGraphQl\Model\Resolver\LayerFilters implements ResolverInterface
+class LayerFilters extends CoreLayerFilters
 {
     /**
      * @var Layer\DataProvider\Filters
@@ -49,8 +50,32 @@ class LayerFilters extends \Magento\CatalogGraphQl\Model\Resolver\LayerFilters i
             return null;
         }
 
-        $this->filtersDataProvider->setRequiredAttributesFromItems($value['items'] ?? []);
+        $attributes = $this->prepareAttributesResults($value);
 
-        return $this->filtersDataProvider->getData($value['layer_type']);
+        return $this->filtersDataProvider->getData($value['layer_type'], $attributes);
+    }
+
+    /**
+     * Get attributes available to filtering from the search result
+     *
+     * @param array $value
+     * @return array|null
+     */
+    private function prepareAttributesResults(array $value): ?array
+    {
+        $attributes = [];
+
+        if (!empty($value['search_result'])) {
+            $buckets = $value['search_result']->getSearchAggregation()->getBuckets();
+            foreach ($buckets as $bucket) {
+                if (!empty($bucket->getValues())) {
+                    $attributes[] = str_replace('_bucket', '', $bucket->getName());
+                }
+            }
+        } else {
+            $attributes = null;
+        }
+
+        return $attributes;
     }
 }

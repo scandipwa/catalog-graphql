@@ -10,21 +10,17 @@ declare(strict_types=1);
 
 namespace ScandiPWA\CatalogGraphQl\Model\Variant;
 
-use Exception;
 use Magento\Catalog\Api\Data\ProductInterface;
 use Magento\Catalog\Model\Product;
-use Magento\Catalog\Model\ProductFactory;
-use Magento\CatalogGraphQl\Model\Resolver\Products\DataProvider\Product\CollectionProcessorInterface;
 use Magento\ConfigurableProduct\Model\ResourceModel\Product\Type\Configurable\Product\Collection as ChildCollection;
 use Magento\ConfigurableProduct\Model\ResourceModel\Product\Type\Configurable\Product\CollectionFactory;
-use Magento\Framework\Api\SearchCriteriaInterface;
 use Magento\Framework\EntityManager\MetadataPool;
 use Magento\Framework\Api\SearchCriteriaBuilder;
-use Magento\CatalogInventory\Helper\Stock;
-use Magento\CatalogGraphQl\Model\Resolver\Products\DataProvider\Product as DataProvider;
+use Magento\Framework\Api\SearchCriteriaInterface;
 use Magento\ConfigurableProductGraphQl\Model\Variant\Collection as MagentoCollection;
-use Magento\Review\Model\Review;
-use ScandiPWA\Performance\Model\Resolver\Products\CollectionPostProcessor;
+use Magento\CatalogGraphQl\Model\Resolver\Products\DataProvider\Product\CollectionProcessorInterface;
+use Magento\CatalogGraphQl\Model\Resolver\Products\DataProvider\Product\CollectionPostProcessor;
+use function in_array;
 
 /**
  * Collection for fetching configurable child product data.
@@ -37,29 +33,14 @@ class Collection extends MagentoCollection
     private $childCollectionFactory;
 
     /**
-     * @var ProductFactory
-     */
-    private $productFactory;
-
-    /**
      * @var SearchCriteriaBuilder
      */
     private $searchCriteriaBuilder;
 
     /**
-     * @var DataProvider
-     */
-    private $productDataProvider;
-
-    /**
      * @var MetadataPool
      */
     private $metadataPool;
-
-    /**
-     * @var Stock
-     */
-    private $stock;
 
     /**
      * @var Product[]
@@ -77,19 +58,14 @@ class Collection extends MagentoCollection
     private $attributeCodes = [];
 
     /**
-     * @var Review
-     */
-    protected $review;
-
-    /**
      * @var CollectionProcessorInterface
      */
-    protected $collectionProcessor;
+    private $collectionProcessor;
 
     /**
      * @var CollectionPostProcessor
      */
-    protected $postProcessor;
+    private $collectionPostProcessor;
 
     /**
      * @var SearchCriteriaInterface
@@ -97,43 +73,34 @@ class Collection extends MagentoCollection
     protected $searchCriteria;
 
     /**
+     * Collection constructor.
+     *
      * @param CollectionFactory $childCollectionFactory
-     * @param ProductFactory $productFactory
      * @param SearchCriteriaBuilder $searchCriteriaBuilder
-     * @param DataProvider $productDataProvider
      * @param MetadataPool $metadataPool
-     * @param Review $review
      * @param CollectionProcessorInterface $collectionProcessor
-     * @param Stock $stock
-     * @param CollectionPostProcessor $postProcessor
+     * @param CollectionPostProcessor $collectionPostProcessor
      */
     public function __construct(
         CollectionFactory $childCollectionFactory,
-        ProductFactory $productFactory,
         SearchCriteriaBuilder $searchCriteriaBuilder,
-        DataProvider $productDataProvider,
         MetadataPool $metadataPool,
-        Review $review,
         CollectionProcessorInterface $collectionProcessor,
-        Stock $stock,
-        CollectionPostProcessor $postProcessor
+        CollectionPostProcessor $collectionPostProcessor
     ) {
         parent::__construct(
             $childCollectionFactory,
             $searchCriteriaBuilder,
             $metadataPool,
-            $collectionProcessor
+            $collectionProcessor,
+            $collectionPostProcessor
         );
 
         $this->childCollectionFactory = $childCollectionFactory;
-        $this->productFactory = $productFactory;
         $this->searchCriteriaBuilder = $searchCriteriaBuilder;
-        $this->productDataProvider = $productDataProvider;
         $this->metadataPool = $metadataPool;
-        $this->review = $review;
         $this->collectionProcessor = $collectionProcessor;
-        $this->stock = $stock;
-        $this->postProcessor = $postProcessor;
+        $this->collectionPostProcessor = $collectionPostProcessor;
 
         $this->searchCriteria = $this->searchCriteriaBuilder->create();
     }
@@ -143,7 +110,6 @@ class Collection extends MagentoCollection
      *
      * @param Product $product
      * @return void
-     * @throws Exception
      */
     public function addParentProduct(Product $product) : void
     {
@@ -176,7 +142,6 @@ class Collection extends MagentoCollection
      *
      * @param int $id
      * @return array
-     * @throws Exception
      */
     public function getChildProductsByParentId(int $id) : array
     {
@@ -201,7 +166,6 @@ class Collection extends MagentoCollection
      * Fetch all children products from parent id's.
      *
      * @return array
-     * @throws Exception
      */
     private function fetch() : array
     {
@@ -210,32 +174,22 @@ class Collection extends MagentoCollection
         }
 
         foreach ($this->parentProducts as $product) {
-            $attributes = $this->attributeCodes;
-
+            $attributeData = $this->getAttributesCodes($product);
             /** @var ChildCollection $childCollection */
             $childCollection = $this->childCollectionFactory->create();
             $childCollection->setProductFilter($product);
-
             $this->collectionProcessor->process(
                 $childCollection,
                 $this->searchCriteria,
-                $attributes
+                $attributeData
             );
-
-            $this->postProcessor->process(
-                $childCollection,
-                $attributes
-            );
+            $childCollection->load();
+            $this->collectionPostProcessor->process($childCollection, $attributeData);
 
             /** @var Product $childProduct */
-            foreach ($childCollection->getItems() as $childProduct) {
-                $formattedChild = [
-                    'model' => $childProduct,
-                    'sku' => $childProduct->getSku()
-                ];
-
-                $parentId = (int) $childProduct->getParentId();
-
+            foreach ($childCollection as $childProduct) {
+                $formattedChild = ['model' => $childProduct, 'sku' => $childProduct->getSku()];
+                $parentId = (int)$childProduct->getParentId();
                 if (!isset($this->childrenMap[$parentId])) {
                     $this->childrenMap[$parentId] = [];
                 }
@@ -245,5 +199,25 @@ class Collection extends MagentoCollection
         }
 
         return $this->childrenMap;
+    }
+
+    /**
+     * Get attributes code
+     *
+     * @param Product $currentProduct
+     * @return array
+     */
+    private function getAttributesCodes(Product $currentProduct): array
+    {
+        $attributeCodes = $this->attributeCodes;
+        $allowAttributes = $currentProduct->getTypeInstance()->getConfigurableAttributes($currentProduct);
+        foreach ($allowAttributes as $attribute) {
+            $productAttribute = $attribute->getProductAttribute();
+            if (!in_array($productAttribute->getAttributeCode(), $attributeCodes)) {
+                $attributeCodes[] = $productAttribute->getAttributeCode();
+            }
+        }
+
+        return $attributeCodes;
     }
 }

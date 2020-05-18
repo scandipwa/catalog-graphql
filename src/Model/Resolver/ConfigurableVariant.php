@@ -12,7 +12,6 @@ namespace ScandiPWA\CatalogGraphQl\Model\Resolver;
 
 use Magento\Catalog\Model\ResourceModel\Product\Attribute\CollectionFactory;
 use Magento\Framework\Api\SearchCriteriaInterface;
-use Magento\Framework\DataObject;
 use Magento\Framework\GraphQl\Schema\Type\ResolveInfo;
 use Magento\Catalog\Api\Data\ProductInterface;
 use Magento\CatalogGraphQl\Model\Resolver\Products\Attributes\Collection as AttributeCollection;
@@ -73,17 +72,13 @@ class ConfigurableVariant implements ResolverInterface
     protected $storeManager;
 
     /**
-     * @var DataObject[]
-     */
-    protected $attributesVisibleOnFrontend;
-
-    /**
      * @var DataPostProcessor
      */
     protected $productPostProcessor;
 
     /**
      * ConfigurableVariant constructor.
+     *
      * @param Collection $variantCollection
      * @param OptionCollection $optionCollection
      * @param ValueFactory $valueFactory
