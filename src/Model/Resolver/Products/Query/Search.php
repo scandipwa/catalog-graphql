@@ -94,7 +94,7 @@ class Search
         array $fields
     ) : SearchResult {
         $isReturnCount = in_array('total_count', $fields, true);
-        $isReturnItems = in_array('total_count', $fields, true);
+        $isReturnItems = in_array('items', $fields, true);
         $isReturnMinMax = count(array_intersect($fields, ['max_price', 'min_price'])) > 0;
 
         $idField = $this->metadataPool->getMetadata(

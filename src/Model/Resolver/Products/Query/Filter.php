@@ -94,7 +94,7 @@ class Filter
         bool $isSearch = false
     ): SearchResult {
         $isReturnCount = in_array('total_count', $fields, true);
-        $isReturnItems = in_array('total_count', $fields, true);
+        $isReturnItems = in_array('items', $fields, true);
         $isReturnMinMax = count(array_intersect($fields, ['max_price', 'min_price'])) > 0;
 
         $productFields = $this->getFieldsFromProductInfo($info, 'products/items');
@@ -105,7 +105,8 @@ class Filter
             $isSearch,
             false,
             $isReturnMinMax,
-            $isReturnCount
+            $isReturnCount,
+            $isReturnItems
         );
 
         if ($isReturnItems) {
