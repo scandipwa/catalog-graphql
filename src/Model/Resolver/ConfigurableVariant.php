@@ -124,15 +124,6 @@ class ConfigurableVariant implements ResolverInterface
         $this->variantCollection->addEavAttributes($fields);
 
         $result = function () use ($value, $linkField, $info) {
-            $objectManager = \Magento\Framework\App\ObjectManager::getInstance(); // Instance of object manager
-            $resource = $objectManager->get('Magento\Framework\App\ResourceConnection');
-            $connection = $resource->getConnection();
-            $select = $connection->select()->from(
-                ['alfred' => 'catalog_product_super_link'],
-                ['product_id', 'parent_id']
-            )->where('alfred.parent_id IN (?)', [130]);
-            $connection->fetchAll($select);
-
             $products = $this->variantCollection->getChildProductsByParentId(
                 (int) $value[$linkField],
                 $info
