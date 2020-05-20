@@ -64,9 +64,9 @@
     <virtualType name="ScandiPWA\CatalogGraphQl\Model\Search\PageSizeProvider" type="Magento\Search\Model\Search\PageSizeProvider">
         <arguments>
             <argument name="pageSizeBySearchEngine" xsi:type="array">
-                <item name="elasticsearch" xsi:type="number">10</item>
-                <item name="elasticsearch5" xsi:type="number">10</item>
-                <item name="elasticsearch6" xsi:type="number">10</item>
+                <item name="elasticsearch" xsi:type="number">100</item>
+                <item name="elasticsearch5" xsi:type="number">100</item>
+                <item name="elasticsearch6" xsi:type="number">100</item>
             </argument>
         </arguments>
     </virtualType>

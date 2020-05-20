@@ -22,7 +22,6 @@ use Magento\Framework\EntityManager\MetadataPool;
 use Magento\Framework\GraphQl\Config\Element\Field;
 use Magento\Framework\GraphQl\Query\Resolver\ValueFactory;
 use Magento\Store\Model\StoreManagerInterface;
-use ScandiPWA\CatalogGraphQl\Model\Resolver\Products\DataProvider\Product\CriteriaCheck;
 use ScandiPWA\Performance\Model\Resolver\Products\DataPostProcessor;
 use ScandiPWA\Performance\Model\Resolver\ResolveInfoFieldsTrait;
 use Magento\Framework\GraphQl\Query\ResolverInterface;
@@ -36,44 +35,28 @@ class ConfigurableVariant implements ResolverInterface
 {
     use ResolveInfoFieldsTrait;
 
-    /**
-     * @var Collection
-     */
+    /** @var Collection */
     protected $variantCollection;
 
-    /**
-     * @var OptionCollection
-     */
+    /** @var OptionCollection */
     protected $optionCollection;
 
-    /**
-     * @var ValueFactory
-     */
+    /** @var ValueFactory */
     protected $valueFactory;
 
-    /**
-     * @var AttributeCollection
-     */
+    /** @var AttributeCollection */
     protected $attributeCollection;
 
-    /**
-     * @var MetadataPool
-     */
+    /** @var MetadataPool */
     protected $metadataPool;
 
-    /**
-     * @var CollectionFactory
-     */
+    /** @var CollectionFactory */
     protected $collectionFactory;
 
-    /**
-     * @var StoreManagerInterface
-     */
+    /** @var StoreManagerInterface */
     protected $storeManager;
 
-    /**
-     * @var DataPostProcessor
-     */
+    /** @var DataPostProcessor */
     protected $productPostProcessor;
 
     /**
@@ -130,15 +113,8 @@ class ConfigurableVariant implements ResolverInterface
 
         /** @var $searchCriteria SearchCriteriaInterface */
         $searchCriteria = $context->getExtensionAttributes()->getSearchCriteria('search_criteria');
-        $ignoreSearchCriteria = true;
 
         if ($searchCriteria) {
-            $ignoreSearchCriteria = CriteriaCheck::isSingleProductFilter($searchCriteria);
-        }
-
-        if (!$ignoreSearchCriteria) {
-            // get only one product if it is a category request
-            $searchCriteria->setPageSize(1);
             $this->variantCollection->setSearchCriteria($searchCriteria);
         }
 
@@ -147,23 +123,20 @@ class ConfigurableVariant implements ResolverInterface
         $fields = $this->getFieldsFromProductInfo($info, 'variants/product');
         $this->variantCollection->addEavAttributes($fields);
 
-        $result = function () use ($value, $linkField, $info, $args) {
-            $children = $this->variantCollection->getChildProductsByParentId((int) $value[$linkField]);
+        $result = function () use ($value, $linkField, $info) {
+            $objectManager = \Magento\Framework\App\ObjectManager::getInstance(); // Instance of object manager
+            $resource = $objectManager->get('Magento\Framework\App\ResourceConnection');
+            $connection = $resource->getConnection();
+            $select = $connection->select()->from(
+                ['alfred' => 'catalog_product_super_link'],
+                ['product_id', 'parent_id']
+            )->where('alfred.parent_id IN (?)', [130]);
+            $connection->fetchAll($select);
 
-            $products = array_map(function ($product) {
-                return $product['model'];
-            }, $children);
-
-            $products = array_map(function ($product) {
-                return [
-                    'product' => $product,
-                    'sku' => $product['sku']
-                ];
-            }, $this->productPostProcessor->process(
-                $products,
-                'variants/product',
+            $products = $this->variantCollection->getChildProductsByParentId(
+                (int) $value[$linkField],
                 $info
-            ));
+            );
 
             return $products;
         };

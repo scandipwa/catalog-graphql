@@ -14,93 +14,88 @@ use Magento\Catalog\Api\Data\ProductInterface;
 use Magento\Catalog\Model\Product;
 use Magento\ConfigurableProduct\Model\ResourceModel\Product\Type\Configurable\Product\Collection as ChildCollection;
 use Magento\ConfigurableProduct\Model\ResourceModel\Product\Type\Configurable\Product\CollectionFactory;
+use Magento\Catalog\Model\ResourceModel\Product\CollectionFactory as ProductCollectionFactory;
+use Magento\Framework\Api\SearchCriteria;
+use Magento\Framework\App\ResourceConnection;
 use Magento\Framework\EntityManager\MetadataPool;
 use Magento\Framework\Api\SearchCriteriaBuilder;
 use Magento\Framework\Api\SearchCriteriaInterface;
-use Magento\ConfigurableProductGraphQl\Model\Variant\Collection as MagentoCollection;
 use Magento\CatalogGraphQl\Model\Resolver\Products\DataProvider\Product\CollectionProcessorInterface;
-use Magento\CatalogGraphQl\Model\Resolver\Products\DataProvider\Product\CollectionPostProcessor;
-use function in_array;
+use ScandiPWA\CatalogGraphQl\Model\Resolver\Products\DataProvider\Product\CriteriaCheck;
+use ScandiPWA\Performance\Model\Resolver\Products\CollectionPostProcessor;
+use ScandiPWA\Performance\Model\Resolver\Products\DataPostProcessor;
 
 /**
  * Collection for fetching configurable child product data.
  */
-class Collection extends MagentoCollection
+class Collection
 {
-    /**
-     * @var CollectionFactory
-     */
-    private $childCollectionFactory;
+    /** @var CollectionFactory */
+    protected $childCollectionFactory;
 
-    /**
-     * @var SearchCriteriaBuilder
-     */
-    private $searchCriteriaBuilder;
+    /** @var SearchCriteriaBuilder */
+    protected $searchCriteriaBuilder;
 
-    /**
-     * @var MetadataPool
-     */
-    private $metadataPool;
+    /** @var MetadataPool */
+    protected $metadataPool;
 
-    /**
-     * @var Product[]
-     */
-    private $parentProducts = [];
+    /** @var Product[] */
+    protected $parentProducts = [];
 
-    /**
-     * @var array
-     */
-    private $childrenMap = [];
+    /** @var array */
+    protected $childrenMap = [];
 
-    /**
-     * @var string[]
-     */
-    private $attributeCodes = [];
+    /** @var string[] */
+    protected $attributeCodes = [];
 
-    /**
-     * @var CollectionProcessorInterface
-     */
-    private $collectionProcessor;
+    /** @var CollectionProcessorInterface  */
+    protected $collectionProcessor;
 
-    /**
-     * @var CollectionPostProcessor
-     */
-    private $collectionPostProcessor;
+    /** @var CollectionPostProcessor  */
+    protected $collectionPostProcessor;
 
-    /**
-     * @var SearchCriteriaInterface
-     */
+    /** @var SearchCriteria  */
     protected $searchCriteria;
+
+    /** @var DataPostProcessor  */
+    protected $dataPostProcessor;
+
+    /** @var ProductCollectionFactory  */
+    protected $collectionFactory;
+
+    /** @var ResourceConnection  */
+    protected $connection;
 
     /**
      * Collection constructor.
      *
      * @param CollectionFactory $childCollectionFactory
+     * @param ProductCollectionFactory $collectionFactory
      * @param SearchCriteriaBuilder $searchCriteriaBuilder
      * @param MetadataPool $metadataPool
      * @param CollectionProcessorInterface $collectionProcessor
      * @param CollectionPostProcessor $collectionPostProcessor
+     * @param DataPostProcessor $dataPostProcessor
+     * @param ResourceConnection $connection
      */
     public function __construct(
         CollectionFactory $childCollectionFactory,
+        ProductCollectionFactory $collectionFactory,
         SearchCriteriaBuilder $searchCriteriaBuilder,
         MetadataPool $metadataPool,
         CollectionProcessorInterface $collectionProcessor,
-        CollectionPostProcessor $collectionPostProcessor
+        CollectionPostProcessor $collectionPostProcessor,
+        DataPostProcessor $dataPostProcessor,
+        ResourceConnection $connection
     ) {
-        parent::__construct(
-            $childCollectionFactory,
-            $searchCriteriaBuilder,
-            $metadataPool,
-            $collectionProcessor,
-            $collectionPostProcessor
-        );
-
         $this->childCollectionFactory = $childCollectionFactory;
         $this->searchCriteriaBuilder = $searchCriteriaBuilder;
         $this->metadataPool = $metadataPool;
         $this->collectionProcessor = $collectionProcessor;
         $this->collectionPostProcessor = $collectionPostProcessor;
+        $this->dataPostProcessor = $dataPostProcessor;
+        $this->collectionFactory = $collectionFactory;
+        $this->connection = $connection;
 
         $this->searchCriteria = $this->searchCriteriaBuilder->create();
     }
@@ -110,6 +105,7 @@ class Collection extends MagentoCollection
      *
      * @param Product $product
      * @return void
+     * @throws \Exception
      */
     public function addParentProduct(Product $product) : void
     {
@@ -123,6 +119,7 @@ class Collection extends MagentoCollection
         if (!empty($this->childrenMap)) {
             $this->childrenMap = [];
         }
+
         $this->parentProducts[$productId] = $product;
     }
 
@@ -142,10 +139,11 @@ class Collection extends MagentoCollection
      *
      * @param int $id
      * @return array
+     * @throws \Exception
      */
-    public function getChildProductsByParentId(int $id) : array
+    public function getChildProductsByParentId(int $id, $info) : array
     {
-        $childrenMap = $this->fetch();
+        $childrenMap = $this->fetch($info);
 
         if (!isset($childrenMap[$id])) {
             return [];
@@ -163,61 +161,161 @@ class Collection extends MagentoCollection
     }
 
     /**
+     * Get if we should return only one product, or we need to process them all
+     *
+     * @return bool
+     */
+    protected function getIsReturnSingleChild() {
+        $isSingleProduct = CriteriaCheck::isSingleProductFilter($this->searchCriteria);
+
+        if ($isSingleProduct) {
+            return false;
+        }
+
+        $filters = $this->searchCriteria->getFilterGroups();
+
+        if (count($filters) <= 0) {
+            return false;
+        }
+
+        foreach ($this->searchCriteria->getFilterGroups() as $filterGroup) {
+            foreach ($filterGroup->getFilters() as $filter) {
+                switch ($filter->getField()) {
+                    case 'category_url_path':
+                        break;
+                    default:
+                        return false;
+                        break;
+                }
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Get list of child and map of them to parent products
+     *
+     * @return array
+     */
+    protected function getChildCollectionMapAndList(): array {
+        $isReturnSingleChild = $this->getIsReturnSingleChild();
+
+        $childCollectionMap = [];
+        $childProductsList = [];
+
+        $parentIds = array_map(function ($product) {
+            return $product->getId();
+        }, $this->parentProducts);
+
+        $conn = $this->connection->getConnection();
+        $select = $conn->select()
+            ->from(
+                ['s' => 'catalog_product_super_link'],
+                ['product_id', 'parent_id']
+            )
+            ->where('s.parent_id IN (?)', $parentIds);
+
+        $childrenPairs = $conn->fetchAll($select);
+
+        foreach ($childrenPairs as $childrenPair) {
+            $childId = $childrenPair['product_id'];
+            $parentId = $childrenPair['parent_id'];
+
+            if (!isset($childCollectionMap[$parentId])) {
+                $childCollectionMap[$parentId] = [];
+            } else if ($isReturnSingleChild) {
+                // if child collection is already array => has one item, and we should return one child - skip
+                continue;
+            }
+
+            $childCollectionMap[$parentId][] = $childId;
+            $childProductsList[] = $childId;
+        }
+
+        return [
+            $childProductsList,
+            $childCollectionMap
+        ];
+    }
+
+
+    /**
      * Fetch all children products from parent id's.
      *
      * @return array
      */
-    private function fetch() : array
-    {
+    protected function fetch($info) : array {
         if (empty($this->parentProducts) || !empty($this->childrenMap)) {
             return $this->childrenMap;
         }
 
-        foreach ($this->parentProducts as $product) {
-            $attributeData = $this->getAttributesCodes($product);
-            /** @var ChildCollection $childCollection */
-            $childCollection = $this->childCollectionFactory->create();
-            $childCollection->setProductFilter($product);
-            $this->collectionProcessor->process(
-                $childCollection,
-                $this->searchCriteria,
-                $attributeData
-            );
-            $childCollection->load();
-            $this->collectionPostProcessor->process($childCollection, $attributeData);
+        [
+            $childProductsList,
+            $childCollectionMap
+        ] = $this->getChildCollectionMapAndList();
 
-            /** @var Product $childProduct */
-            foreach ($childCollection as $childProduct) {
-                $formattedChild = ['model' => $childProduct, 'sku' => $childProduct->getSku()];
-                $parentId = (int)$childProduct->getParentId();
-                if (!isset($this->childrenMap[$parentId])) {
-                    $this->childrenMap[$parentId] = [];
+        $collection = $this->collectionFactory->create();
+
+        // build a search criteria based on original one and filter of product ids
+        $searchCriteria = $this->searchCriteriaBuilder
+            ->addFilter('entity_id', $childProductsList, 'in')
+            ->create();
+
+        $isSingleProduct = CriteriaCheck::isSingleProductFilter($this->searchCriteria);
+
+        if (!$isSingleProduct) {
+            $customFilterGroups = $searchCriteria->getFilterGroups();
+            $originalFilterGroups = $this->searchCriteria->getFilterGroups();
+            $filterGroups = array_merge($customFilterGroups, $originalFilterGroups);
+            $searchCriteria->setFilterGroups($filterGroups);
+        }
+
+        $attributeData = $this->attributeCodes;
+
+        $this->collectionProcessor->process(
+            $collection,
+            $searchCriteria,
+            $attributeData
+        );
+
+        $collection->load();
+
+        $this->collectionPostProcessor->process(
+            $collection,
+            $attributeData
+        );
+
+        $products = $collection->getItems();
+
+        $productsData = $this->dataPostProcessor->process(
+            $products,
+            'variants/product',
+            $info
+        );
+
+        foreach ($this->parentProducts as $product) {
+            $parentId = $product->getId();
+            $childIds = $childCollectionMap[$parentId];
+
+            $this->childrenMap[$parentId] = [];
+
+            foreach ($childIds as $childId) {
+                if (!isset($productsData[$childId])) {
+                    continue;
                 }
+
+                $productData = $productsData[$childId];
+
+                $formattedChild = [
+                    'product' => $productData,
+                    'sku' => $productData['sku']
+                ];
 
                 $this->childrenMap[$parentId][] = $formattedChild;
             }
         }
 
         return $this->childrenMap;
-    }
-
-    /**
-     * Get attributes code
-     *
-     * @param Product $currentProduct
-     * @return array
-     */
-    private function getAttributesCodes(Product $currentProduct): array
-    {
-        $attributeCodes = $this->attributeCodes;
-        $allowAttributes = $currentProduct->getTypeInstance()->getConfigurableAttributes($currentProduct);
-        foreach ($allowAttributes as $attribute) {
-            $productAttribute = $attribute->getProductAttribute();
-            if (!in_array($productAttribute->getAttributeCode(), $attributeCodes)) {
-                $attributeCodes[] = $productAttribute->getAttributeCode();
-            }
-        }
-
-        return $attributeCodes;
     }
 }

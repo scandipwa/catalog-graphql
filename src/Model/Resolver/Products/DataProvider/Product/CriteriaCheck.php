@@ -12,13 +12,15 @@ class CriteriaCheck
      * @param SearchCriteriaInterface $searchCriteria
      * @return bool
      */
-    static public function isSingleProductFilter(SearchCriteriaInterface$searchCriteria)
+    static public function isSingleProductFilter(SearchCriteriaInterface $searchCriteria)
     {
         foreach ($searchCriteria->getFilterGroups() as $filterGroup) {
             $filters = $filterGroup->getFilters();
 
-            if (self::isSingleProductFilterType($filters[0])) {
-                return true;
+            foreach ($filters as $filter) {
+                if (self::isSingleProductFilterType($filter)) {
+                    return true;
+                }
             }
         }
         
