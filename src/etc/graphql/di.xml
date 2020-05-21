@@ -91,4 +91,10 @@
             <argument name="isAvailable" xsi:type="boolean">true</argument>
         </arguments>
     </type>
+
+    <type name="Magento\Catalog\Model\Product">
+        <plugin name="product_identities_extender" disabled="true" />
+        <plugin name="bundle" disabled="true" />
+        <plugin name="cms" disabled="true" />
+    </type>
 </config>
