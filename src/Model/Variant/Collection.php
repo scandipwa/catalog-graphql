@@ -163,9 +163,10 @@ class Collection
     /**
      * Get if we should return only one product, or we need to process them all
      *
+     * @param bool $includeFilters
      * @return bool
      */
-    protected function getIsReturnSingleChild() {
+    protected function getIsReturnSingleChild($includeFilters = false) {
         $isSingleProduct = CriteriaCheck::isSingleProductFilter($this->searchCriteria);
 
         if ($isSingleProduct) {
@@ -181,13 +182,26 @@ class Collection
         foreach ($this->searchCriteria->getFilterGroups() as $filterGroup) {
             foreach ($filterGroup->getFilters() as $filter) {
                 switch ($filter->getField()) {
+                    // if this is a category filter, continue, or if we ignore filters, return true
                     case 'category_url_path':
+                    case 'category_id':
+                    case 'price':
+                        if ($includeFilters) {
+                            return true;
+                        }
+
                         break;
                     default:
-                        return false;
+                        if (!$includeFilters) {
+                            return false;
+                        }
                         break;
                 }
             }
+        }
+
+        if ($includeFilters) {
+            return false;
         }
 
         return true;
@@ -287,9 +301,28 @@ class Collection
         );
 
         $products = $collection->getItems();
+        $productsToProcess = [];
+
+        $isReturnSingleChild = $this->getIsReturnSingleChild(true);
+
+        if ($isReturnSingleChild) {
+            foreach ($this->parentProducts as $parentProduct) {
+                $parentId = $parentProduct->getId();
+                $childIds = $childCollectionMap[$parentId];
+
+                foreach ($products as $childProduct) {
+                    if (in_array($childProduct->getId(), $childIds, true)) {
+                        $productsToProcess[] = $childProduct;
+                        break;
+                    }
+                }
+            }
+        } else {
+            $productsToProcess = $products;
+        }
 
         $productsData = $this->dataPostProcessor->process(
-            $products,
+            $productsToProcess,
             'variants/product',
             $info
         );
