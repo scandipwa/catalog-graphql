@@ -13,15 +13,11 @@ declare(strict_types=1);
 namespace ScandiPWA\CatalogGraphQl\Model\Resolver\Product;
 
 use Magento\Catalog\Model\Product;
-use Magento\Catalog\Pricing\Price\FinalPrice;
-use Magento\Catalog\Pricing\Price\RegularPrice;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\GraphQl\Config\Element\Field;
 use Magento\Framework\GraphQl\Query\Resolver\ContextInterface;
 use Magento\Framework\GraphQl\Query\ResolverInterface;
 use Magento\Framework\GraphQl\Schema\Type\ResolveInfo;
-use Magento\Framework\Pricing\Adjustment\AdjustmentInterface;
-use Magento\Framework\Pricing\Amount\AmountInterface;
 use Magento\Store\Api\Data\StoreInterface;
 use Magento\CatalogGraphQl\Model\Resolver\Product\Price\ProviderPool as PriceProviderPool;
 use Magento\CatalogGraphQl\Model\Resolver\Product\PriceRange as CorePrice;
