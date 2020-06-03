@@ -106,6 +106,7 @@ class Product extends MagentoProduct
      * @param bool $isMinMaxRequested
      * @param bool $isReturnCount
      * @param bool $isReturnItems
+     * @param array $productIds
      * @return SearchResultsInterface
      * @throws NoSuchEntityException
      */
@@ -116,12 +117,19 @@ class Product extends MagentoProduct
         bool $isChildSearch = false,
         bool $isMinMaxRequested = true,
         bool $isReturnCount = true,
-        bool $isReturnItems = true
+        bool $isReturnItems = true,
+        array $productIds = []
     ): SearchResultsInterface {
         /** @var Collection $collection */
         $collection = $this->collectionFactory->create();
 
-        $this->collectionProcessor->process($collection, $searchCriteria, $attributes);
+        // To fix issue when disabled products are not returned in order view page
+        if ($productIds) {
+            $collection->addAttributeToSelect('*')
+                ->addAttributeToFilter('entity_id', array('in' => $productIds));
+        } else {
+            $this->collectionProcessor->process($collection, $searchCriteria, $attributes);
+        }
 
         if (!$isChildSearch) {
             $singleProduct = CriteriaCheck::isSingleProductFilter($searchCriteria);
