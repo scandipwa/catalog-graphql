@@ -19,11 +19,11 @@ use Magento\Catalog\Model\ResourceModel\Product\CollectionFactory;
 use Magento\Catalog\Api\Data\ProductSearchResultsInterfaceFactory;
 use Magento\Framework\Api\SearchResultsInterface;
 use Magento\CatalogGraphQl\Model\Resolver\Products\DataProvider\Product\CollectionProcessorInterface;
-use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
 use ScandiPWA\CatalogGraphQl\Model\Resolver\Products\DataProvider\Product\CriteriaCheck;
 use Magento\Store\Model\StoreManagerInterface;
 use ScandiPWA\Performance\Model\Resolver\Products\CollectionPostProcessor;
+use Magento\Framework\Api\SearchCriteria\CollectionProcessorInterface as SearchCriteriaApplier;
 
 /**
  * Product field data provider, used for GraphQL resolver processing.
@@ -97,6 +97,29 @@ class Product extends MagentoProduct
     }
 
     /**
+     * Check if the criteria is only filtering by ids
+     *
+     * @param SearchCriteriaInterface $searchCriteria
+     * @return array|bool
+     */
+    protected function getIsIdsOnly(
+        SearchCriteriaInterface $searchCriteria
+    ) {
+        foreach ($searchCriteria->getFilterGroups() as $filterGroup) {
+            foreach ($filterGroup->getFilters() as $filter) {
+                if ($filter->getField() !== 'entity_id') {
+                    return false;
+                }
+            }
+        }
+
+        $result = [];
+        $result[$filter->getConditionType()] = $filter->getValue();
+
+        return $result;
+    }
+
+    /**
      * Gets list of product data with full data set. Adds eav attributes to result set from passed in array
      *
      * @param SearchCriteriaInterface $searchCriteria
@@ -121,7 +144,15 @@ class Product extends MagentoProduct
         /** @var Collection $collection */
         $collection = $this->collectionFactory->create();
 
-        $this->collectionProcessor->process($collection, $searchCriteria, $attributes);
+        $isIdsOnly = $this->getIsIdsOnly($searchCriteria);
+
+        if (!$isIdsOnly) {
+            $this->collectionProcessor->process($collection, $searchCriteria, $attributes);
+        } else {
+            $collection
+                ->addAttributeToSelect('*')
+                ->addAttributeToFilter('entity_id', $isIdsOnly);
+        }
 
         if (!$isChildSearch) {
             $singleProduct = CriteriaCheck::isSingleProductFilter($searchCriteria);

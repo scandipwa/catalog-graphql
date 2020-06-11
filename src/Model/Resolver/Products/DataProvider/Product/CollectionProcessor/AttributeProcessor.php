@@ -28,14 +28,8 @@ class AttributeProcessor implements CollectionProcessorInterface
         SearchCriteriaInterface $searchCriteria,
         array $attributeNames
     ): Collection {
-        foreach ($attributeNames as $name) {
-            if ($name !== self::ATTRIBUTES_FIELD) {
-                $collection->addAttributeToSelect($name);
-                continue;
-            }
-
-            // DO NOTHING, BECAUSE LOADING OF getAttributesVisibleOnFrontend TAKES AGES
-        }
+        // this simply works faster then adding one-by-one as each addAttributeToSelect makes a request to MYSQL
+        // $collection->addAttributeToSelect('*');
 
         return $collection;
     }
