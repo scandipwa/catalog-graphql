@@ -18,10 +18,13 @@ use Magento\Framework\Data\Collection\AbstractDb;
 use Magento\Framework\Exception\LocalizedException;
 
 /**
- * Category filter allows to filter products collection using custom defined filters from search criteria.
+ * Class CustomerGroupFilter
+ * @package ScandiPWA\CatalogGraphQl\Model\Resolver\Products\SearchCriteria\CollectionProcessor\FilterProcessor
  */
 class CustomerGroupFilter implements CustomFilterInterface
 {
+    const FLAG_CUSTOMER_GROUP_PRICE_ADDED = 'customer_group_price_data_added';
+
     /**
      * Apply filter by custom field to product collection.
      *
@@ -40,6 +43,7 @@ class CustomerGroupFilter implements CustomFilterInterface
         }
 
         $collection->addPriceData($filter->getValue());
+        $collection->setFlag(self::FLAG_CUSTOMER_GROUP_PRICE_ADDED, true);
 
         return true;
     }
