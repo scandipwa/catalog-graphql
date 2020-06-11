@@ -10,15 +10,15 @@ namespace ScandiPWA\CatalogGraphQl\Model\Resolver\Products\DataProvider\Product\
 use Magento\Catalog\Model\ResourceModel\Product\Collection;
 use Magento\CatalogGraphQl\Model\Resolver\Products\DataProvider\Product\CollectionProcessorInterface;
 use Magento\Framework\Api\SearchCriteriaInterface;
-
+use ScandiPWA\CatalogGraphQl\Model\Resolver\Products\SearchCriteria\CollectionProcessor\FilterProcessor\CustomerGroupFilter;
 /**
- * Adds passed in attributes to product collection results
+ * Adds price data to product collection
  *
  * {@inheritdoc}
  */
-class AttributeProcessor implements CollectionProcessorInterface
+class PriceProcessor implements CollectionProcessorInterface
 {
-    const ATTRIBUTES_FIELD = 'attributes';
+    const PRICE_FIELD = 'price_range';
 
     /**
      * {@inheritdoc}
@@ -28,11 +28,14 @@ class AttributeProcessor implements CollectionProcessorInterface
         SearchCriteriaInterface $searchCriteria,
         array $attributeNames
     ): Collection {
-        foreach ($attributeNames as $name) {
-            if ($name !== self::ATTRIBUTES_FIELD) {
-                $collection->addAttributeToSelect($name);
-            }
-            // DO NOTHING, BECAUSE LOADING OF getAttributesVisibleOnFrontend TAKES AGES
+        $isPriceDataAdded = $collection->getFlag(CustomerGroupFilter::FLAG_CUSTOMER_GROUP_PRICE_ADDED);
+
+        if ($isPriceDataAdded) {
+            return $collection;
+        }
+
+        if (in_array(self::PRICE_FIELD, $attributeNames, true)) {
+            $collection->addPriceData();
         }
 
         return $collection;

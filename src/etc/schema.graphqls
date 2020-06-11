@@ -47,7 +47,6 @@ interface ProductInterface {
     qty: Float @doc(description: "Qty field for checkout order view")
     attributes: [AttributeWithValue] @resolver(class:"ScandiPWA\\CatalogGraphQl\\Model\\Resolver\\AttributesWithValue")
     stock_item: ProductStockItem @resolver(class: "ScandiPWA\\CatalogGraphQl\\Model\\Resolver\\Inventory\\StockCount")
-    price_range: PriceRange! @doc(description: "A PriceRange object, indicating the range of prices for the product") @resolver(class: "ScandiPWA\\CatalogGraphQl\\Model\\Resolver\\Product\\PriceRange")
 }
 
 interface CategoryInterface {
