@@ -29,7 +29,7 @@ class AttributeProcessor implements CollectionProcessorInterface
         array $attributeNames
     ): Collection {
         // this simply works faster then adding one-by-one as each addAttributeToSelect makes a request to MYSQL
-        // $collection->addAttributeToSelect('*');
+        $collection->addAttributeToSelect('*');
 
         return $collection;
     }
