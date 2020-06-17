@@ -19,6 +19,7 @@ input ProductAttributeFilterInput {
     category_url_key: FilterTypeInput @doc(description: "Category url_key the product belongs to")
     category_url_path: FilterTypeInput @doc(description: "Category url_path the product belongs to")
     conditions: FilterTypeInput @doc(description: "Searches products by JSON formatted conditions")
+    customer_group_id: FilterTypeInput @doc(description: "Modifies product prices based on customer group")
 }
 
 type MediaGalleryEntry  @doc(description: "MediaGalleryEntry defines characteristics about images and videos associated with a specific product") {

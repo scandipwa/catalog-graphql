@@ -103,6 +103,7 @@
         <arguments>
             <argument name="collectionProcessors" xsi:type="array">
                 <item name="images" xsi:type="object">ScandiPWA\CatalogGraphQl\Model\Resolver\Products\DataProvider\Product\CollectionProcessor\ImagesProcessor</item>
+                <item name="price" xsi:type="object">ScandiPWA\CatalogGraphQl\Model\Resolver\Products\DataProvider\Product\CollectionProcessor\PriceProcessor</item>
             </argument>
         </arguments>
     </type>
