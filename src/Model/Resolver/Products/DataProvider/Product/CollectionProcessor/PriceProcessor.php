@@ -30,11 +30,15 @@ class PriceProcessor implements CollectionProcessorInterface
     ): Collection {
         $isPriceDataAdded = $collection->getFlag(CustomerGroupFilter::FLAG_CUSTOMER_GROUP_PRICE_ADDED);
 
+        // add tax percent, no-matter what
+        $collection->addTaxPercents();
+
         if ($isPriceDataAdded) {
             return $collection;
         }
 
         if (in_array(self::PRICE_FIELD, $attributeNames, true)) {
+            /** @var $collection Collection */
             $collection->addPriceData();
         }
 

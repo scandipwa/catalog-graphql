@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace ScandiPWA\CatalogGraphQl\Model\Resolver\Products\SearchCriteria\CollectionProcessor\FilterProcessor;
 
+use Magento\Catalog\Model\ResourceModel\Product\Collection;
 use Magento\Framework\Api\Filter;
 use Magento\Framework\Api\SearchCriteria\CollectionProcessor\FilterProcessor\CustomFilterInterface;
 use Magento\Framework\Data\Collection\AbstractDb;
@@ -42,8 +43,10 @@ class CustomerGroupFilter implements CustomFilterInterface
             throw new LocalizedException(__($rawFilterField . " only supports 'eq' condition type."));
         }
 
-        $collection->addPriceData($filter->getValue());
-        $collection->setFlag(self::FLAG_CUSTOMER_GROUP_PRICE_ADDED, true);
+        /** @var $collection Collection */
+        $collection
+            ->addPriceData($filter->getValue())
+            ->setFlag(self::FLAG_CUSTOMER_GROUP_PRICE_ADDED, true);
 
         return true;
     }
