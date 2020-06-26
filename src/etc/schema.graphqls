@@ -47,9 +47,11 @@ interface ProductInterface {
     qty: Float @doc(description: "Qty field for checkout order view")
     attributes: [AttributeWithValue] @resolver(class:"ScandiPWA\\CatalogGraphQl\\Model\\Resolver\\AttributesWithValue")
     stock_item: ProductStockItem @resolver(class: "ScandiPWA\\CatalogGraphQl\\Model\\Resolver\\Inventory\\StockCount")
+    url: String @resolver(class: "ScandiPWA\\CatalogGraphQl\\Model\\Resolver\\Product\\Url")
 }
 
 interface CategoryInterface {
+    url: String  @resolver(class: "ScandiPWA\\CatalogGraphQl\\Model\\Resolver\\Category\\Url")
     canonical_url: String @doc(description: "Canonical Url") @resolver(class: "ScandiPWA\\CatalogGraphQl\\Model\\Resolver\\Category\\CanonicalUrl")
 }
 

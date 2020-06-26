@@ -159,7 +159,7 @@ class Category extends AbstractFilter
         $categories = $this->categoryCollectionFactory->create()
             ->addPathsFilter($category->getPath().'/')
             ->addLevelFilter($category->getLevel() + 1)
-            ->addAttributeToSelect('url_path')
+            ->addAttributeToSelect('*')
             ->addAttributeToSelect('is_active')
             ->addNameToResult();
 
@@ -168,7 +168,7 @@ class Category extends AbstractFilter
                 if ($category->getIsActive() && $category->getProductCount()) {
                     $this->itemDataBuilder->addItemData(
                         $this->_escaper->escapeHtml($category->getName()),
-                        $category->getData('url_path'),
+                        parse_url($category->getUrl(), PHP_URL_PATH),
                         $category->getProductCount()
                     );
                 }
