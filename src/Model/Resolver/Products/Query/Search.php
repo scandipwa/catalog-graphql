@@ -1,30 +1,30 @@
 <?php
 /**
- * ScandiPWA_CatalogGraphQl
- *
- * @category    ScandiPWA
- * @package     ScandiPWA_CatalogGraphQl
- * @author      Raivis Dejus <info@scandiweb.com>
- * @copyright   Copyright (c) 2019 Scandiweb, Ltd (https://scandiweb.com)
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
  */
 declare(strict_types=1);
 
 namespace ScandiPWA\CatalogGraphQl\Model\Resolver\Products\Query;
 
-use Magento\Framework\EntityManager\MetadataPool;
+use Magento\CatalogGraphQl\DataProvider\Product\SearchCriteriaBuilder;
+use Magento\CatalogGraphQl\Model\Resolver\Products\DataProvider\ProductSearch;
 use Magento\Framework\GraphQl\Schema\Type\ResolveInfo;
 use Magento\Framework\Api\Search\SearchCriteriaInterface;
-use Magento\CatalogGraphQl\Model\Resolver\Products\SearchCriteria\Helper\Filter as FilterHelper;
-use Magento\Search\Model\Search\PageSizeProvider;
-use ScandiPWA\CatalogGraphQl\Model\Resolver\Products\SearchResult;
-use ScandiPWA\CatalogGraphQl\Model\Resolver\Products\SearchResultFactory;
+use Magento\CatalogGraphQl\Model\Resolver\Products\SearchResult;
+use Magento\CatalogGraphQl\Model\Resolver\Products\SearchResultFactory;
 use Magento\Search\Api\SearchInterface;
+use Magento\Framework\Api\Search\SearchCriteriaInterfaceFactory;
+use Magento\Search\Model\Search\PageSizeProvider;
+
+use Magento\CatalogGraphQl\Model\Resolver\Products\Query\FieldSelection;
+use Magento\CatalogGraphQl\Model\Resolver\Products\Query\Search as CoreSearch;
+use ScandiPWA\Performance\Model\Resolver\Products\DataPostProcessor;
 
 /**
  * Full text search for catalog using given search criteria.
- * Adds support for min and manx price values
  */
-class Search
+class Search extends CoreSearch
 {
     /**
      * @var SearchInterface
@@ -32,24 +32,9 @@ class Search
     private $search;
 
     /**
-     * @var FilterHelper
-     */
-    private $filterHelper;
-
-    /**
-     * @var Filter
-     */
-    private $filterQuery;
-
-    /**
      * @var SearchResultFactory
      */
     private $searchResultFactory;
-
-    /**
-     * @var MetadataPool
-     */
-    private $metadataPool;
 
     /**
      * @var PageSizeProvider
@@ -57,49 +42,83 @@ class Search
     private $pageSizeProvider;
 
     /**
+     * @var SearchCriteriaInterfaceFactory
+     */
+    private $searchCriteriaFactory;
+
+    /**
+     * @var FieldSelection
+     */
+    private $fieldSelection;
+
+    /**
+     * @var ProductSearch
+     */
+    private $productsProvider;
+
+    /**
+     * @var SearchCriteriaBuilder
+     */
+    private $searchCriteriaBuilder;
+
+    /**
+     * @var DataPostProcessor
+     */
+    protected $productPostProcessor;
+
+    /**
      * @param SearchInterface $search
-     * @param FilterHelper $filterHelper
-     * @param Filter $filterQuery
      * @param SearchResultFactory $searchResultFactory
-     * @param MetadataPool $metadataPool
      * @param PageSizeProvider $pageSize
+     * @param SearchCriteriaInterfaceFactory $searchCriteriaFactory
+     * @param FieldSelection $fieldSelection
+     * @param ProductSearch $productsProvider
+     * @param SearchCriteriaBuilder $searchCriteriaBuilder
      */
     public function __construct(
         SearchInterface $search,
-        FilterHelper $filterHelper,
-        Filter $filterQuery,
         SearchResultFactory $searchResultFactory,
-        MetadataPool $metadataPool,
-        PageSizeProvider $pageSize
+        PageSizeProvider $pageSize,
+        SearchCriteriaInterfaceFactory $searchCriteriaFactory,
+        FieldSelection $fieldSelection,
+        ProductSearch $productsProvider,
+        SearchCriteriaBuilder $searchCriteriaBuilder,
+        DataPostProcessor $productPostProcessor
     ) {
+        parent::__construct(
+            $search,
+            $searchResultFactory,
+            $pageSize,
+            $searchCriteriaFactory,
+            $fieldSelection,
+            $productsProvider,
+            $searchCriteriaBuilder
+        );
+
         $this->search = $search;
-        $this->filterHelper = $filterHelper;
-        $this->filterQuery = $filterQuery;
         $this->searchResultFactory = $searchResultFactory;
-        $this->metadataPool = $metadataPool;
         $this->pageSizeProvider = $pageSize;
+        $this->searchCriteriaFactory = $searchCriteriaFactory;
+        $this->fieldSelection = $fieldSelection;
+        $this->productsProvider = $productsProvider;
+        $this->searchCriteriaBuilder = $searchCriteriaBuilder;
+        $this->productPostProcessor = $productPostProcessor;
     }
 
     /**
-     * Return results of full text catalog search of given term, and will return filtered results if filter is specified
+     * Return product search results using Search API
      *
-     * @param SearchCriteriaInterface $searchCriteria
+     * @param array $args
      * @param ResolveInfo $info
      * @return SearchResult
      * @throws \Exception
      */
     public function getResult(
-        SearchCriteriaInterface $searchCriteria,
-        ResolveInfo $info,
-        array $fields
-    ) : SearchResult {
-        $isReturnCount = in_array('total_count', $fields, true);
-        $isReturnItems = in_array('items', $fields, true);
-        $isReturnMinMax = count(array_intersect($fields, ['max_price', 'min_price'])) > 0;
-
-        $idField = $this->metadataPool->getMetadata(
-            \Magento\Catalog\Api\Data\ProductInterface::class
-        )->getIdentifierField();
+        array $args,
+        ResolveInfo $info
+    ): SearchResult {
+        $queryFields = $this->fieldSelection->getProductsFieldSelection($info);
+        $searchCriteria = $this->buildSearchCriteria($args, $info);
 
         $realPageSize = $searchCriteria->getPageSize();
         $realCurrentPage = $searchCriteria->getCurrentPage();
@@ -108,75 +127,64 @@ class Search
         $pageSize = $this->pageSizeProvider->getMaxPageSize();
         $searchCriteria->setPageSize($pageSize);
         $searchCriteria->setCurrentPage(0);
-
         $itemsResults = $this->search->search($searchCriteria);
 
-        $ids = [];
-        $searchIds = [];
+        //Create copy of search criteria without conditions (conditions will be applied by joining search result)
+        $searchCriteriaCopy = $this->searchCriteriaFactory->create()
+            ->setSortOrders($searchCriteria->getSortOrders())
+            ->setPageSize($realPageSize)
+            ->setCurrentPage($realCurrentPage);
 
-        foreach ($itemsResults->getItems() as $item) {
-            $ids[$item->getId()] = null;
-            $searchIds[] = $item->getId();
+        $searchResults = $this->productsProvider->getList($searchCriteriaCopy, $itemsResults, $queryFields);
+
+        //possible division by 0
+        if ($realPageSize) {
+            $maxPages = (int)ceil($searchResults->getTotalCount() / $realPageSize);
+        } else {
+            $maxPages = 0;
         }
-
-        // TODO: this is reported to cause wrong sorting of items
-        $filter = $this->filterHelper->generate($idField, 'in', $searchIds);
-        $searchCriteria = $this->filterHelper->remove($searchCriteria, 'search_term');
-        $searchCriteria = $this->filterHelper->add($searchCriteria, $filter);
-        $searchResult = $this->filterQuery->getResult($searchCriteria, $info, $fields, true);
 
         $searchCriteria->setPageSize($realPageSize);
         $searchCriteria->setCurrentPage($realCurrentPage);
-        $paginatedProducts = $this->paginateList($searchResult, $searchCriteria);
 
-        $products = [];
-        if (!isset($searchCriteria->getSortOrders()[0])) {
-            foreach ($paginatedProducts as $product) {
-                if (in_array($product[$idField], $searchIds, true)) {
-                    $ids[$product[$idField]] = $product;
-                }
-            }
-
-            $products = array_filter($ids);
+        // Following lines are changed
+        if (count($queryFields) > 0) {
+            $productArray = $this->productPostProcessor->process(
+                $searchResults->getItems(),
+                'products/items',
+                $info
+            );
         } else {
-            foreach ($paginatedProducts as $product) {
-                $productId = $product['entity_id'] ?? $product[$idField];
-                if (in_array($productId, $searchIds, true)) {
-                    $products[] = $product;
-                }
-            }
+            $productArray = array_map(function ($product) {
+                return $product->getData() + ['model' => $product];
+            }, $searchResults->getItems());
         }
 
         return $this->searchResultFactory->create(
-            $isReturnCount ? $searchResult->getTotalCount() : 0,
-            $isReturnMinMax ? $searchResult->getMinPrice() : 0,
-            $isReturnMinMax ? $searchResult->getMaxPrice() : 0,
-            $isReturnItems ? $products : []
+            [
+                'totalCount' => $searchResults->getTotalCount(),
+                'productsSearchResult' => $productArray,
+                'searchAggregation' => $itemsResults->getAggregations(),
+                'pageSize' => $realPageSize,
+                'currentPage' => $realCurrentPage,
+                'totalPages' => $maxPages,
+            ]
         );
     }
 
-
     /**
-     * Paginate an array of Ids that get pulled back in search based off search criteria and total count.
+     * Build search criteria from query input args
      *
-     * @param SearchResult $searchResult
-     * @param SearchCriteriaInterface $searchCriteria
-     * @return int[]
+     * @param array $args
+     * @param ResolveInfo $info
+     * @return SearchCriteriaInterface
      */
-    private function paginateList(SearchResult $searchResult, SearchCriteriaInterface $searchCriteria) : array
+    private function buildSearchCriteria(array $args, ResolveInfo $info): SearchCriteriaInterface
     {
-        $length = $searchCriteria->getPageSize();
-        // Search starts pages from 0
-        $offset = $length * ($searchCriteria->getCurrentPage() - 1);
+        $productFields = (array)$info->getFieldSelection(1);
+        $includeAggregations = isset($productFields['filters']) || isset($productFields['aggregations']);
+        $searchCriteria = $this->searchCriteriaBuilder->build($args, $includeAggregations);
 
-        $maxPages = 0;
-        if ($searchCriteria->getPageSize()) {
-            $maxPages = ceil($searchResult->getTotalCount() / $searchCriteria->getPageSize()) - 1;
-        }
-
-        if ($searchCriteria->getCurrentPage() > $maxPages && $searchResult->getTotalCount() > 0) {
-            $offset = (int)$maxPages;
-        }
-        return array_slice($searchResult->getProductsSearchResult(), $offset, $length);
+        return $searchCriteria;
     }
 }

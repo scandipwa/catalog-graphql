@@ -16,8 +16,8 @@ use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\GraphQl\Schema\Type\ResolveInfo;
 use Magento\Framework\Api\SearchCriteriaInterface;
 use ScandiPWA\CatalogGraphQl\Model\Resolver\Products\DataProvider\Product;
-use ScandiPWA\CatalogGraphQl\Model\Resolver\Products\SearchResult;
-use ScandiPWA\CatalogGraphQl\Model\Resolver\Products\SearchResultFactory;
+use Magento\CatalogGraphQl\Model\Resolver\Products\SearchResult;
+use Magento\CatalogGraphQl\Model\Resolver\Products\SearchResultFactory;
 use Magento\Framework\GraphQl\Query\FieldTranslator;
 use ScandiPWA\Performance\Model\Resolver\Products\DataPostProcessor;
 use ScandiPWA\Performance\Model\Resolver\ResolveInfoFieldsTrait;
@@ -122,10 +122,12 @@ class Filter
         }
 
         return $this->searchResultFactory->create(
-            $isReturnCount ? $products->getTotalCount() : 0,
-            $this->productDataProvider->getMinPrice(),
-            $this->productDataProvider->getMaxPrice(),
-            $productArray
+            [
+                'totalCount' => $isReturnCount ? $products->getTotalCount() : 0,
+                'productsSearchResult' => $productArray,
+                'pageSize' => $searchCriteria->getPageSize(),
+                'currentPage' => $searchCriteria->getCurrentPage()
+            ]
         );
     }
 

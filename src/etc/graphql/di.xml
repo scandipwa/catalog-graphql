@@ -56,6 +56,12 @@
     <preference for="Magento\Elasticsearch\Model\ResourceModel\Fulltext\Collection\DefaultFilterStrategyApplyChecker"
                 type="ScandiPWA\CatalogGraphQl\Model\ResourceModel\Fulltext\Collection\DefaultFilterStrategyApplyChecker" />
 
+    <preference for="Magento\CatalogGraphQl\Model\Resolver\Products\Query\Search"
+                type="ScandiPWA\CatalogGraphQl\Model\Resolver\Products\Query\Search"/>
+
+    <preference for="Magento\CatalogGraphQl\Model\Resolver\Products\Query\Filter"
+                type="ScandiPWA\CatalogGraphQl\Model\Resolver\Products\Query\Filter"/>
+
     <type name="Magento\Framework\App\ResourceConnection">
         <plugin name="get_catalog_category_product_index_table_name" type="Magento\Catalog\Model\Indexer\Category\Product\Plugin\TableResolver"/>
         <plugin name="get_catalog_product_price_index_table_name" type="Magento\Catalog\Model\Indexer\Product\Price\Plugin\TableResolver"/>

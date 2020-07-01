@@ -5,7 +5,7 @@
  *
  * @category    Scandiweb
  * @package     ScandiPWA_CatalogGraphQl
- * @author      Viktors Pliska <info@scandiweb.com>
+ * @author      Alfreds Genkins <info@scandiweb.com>
  * @copyright   Copyright (c) 2018 Scandiweb, Ltd (https://scandiweb.com)
  */
 -->
@@ -41,26 +41,11 @@
         </arguments>
     </type>
 
-    <type name="Magento\CatalogGraphQl\Model\Resolver\Products\Query\Search">
-        <arguments>
-            <argument name="pageSize" xsi:type="object">ScandiPWA\CatalogGraphQl\Model\Search\PageSizeProvider</argument>
-        </arguments>
-    </type>
-
     <preference for="Magento\CatalogGraphQl\Model\Resolver\Product\MediaGallery\Url"
                 type="ScandiPWA\CatalogGraphQl\Model\Resolver\Product\MediaGallery\Url" />
 
     <preference for="Magento\CatalogGraphQl\Model\Resolver\Product\MediaGalleryEntries"
                 type="ScandiPWA\CatalogGraphQl\Model\Resolver\Product\MediaGalleryEntries"/>
-
-    <preference for="Magento\CatalogGraphQl\Model\Resolver\Products\SearchResult"
-                type="ScandiPWA\CatalogGraphQl\Model\Resolver\Products\SearchResult"/>
-
-    <preference for="Magento\CatalogGraphQl\Model\Resolver\Products\SearchResultFactory"
-                type="ScandiPWA\CatalogGraphQl\Model\Resolver\Products\SearchResultFactory"/>
-
-    <preference for="Magento\CatalogGraphQl\Model\Resolver\Products"
-                type="ScandiPWA\CatalogGraphQl\Model\Resolver\Products"/>
 
     <preference for="Magento\CatalogGraphQl\Model\Resolver\Product\CanonicalUrl"
                 type="ScandiPWA\CatalogGraphQl\Model\Resolver\Product\CanonicalUrl"/>
@@ -70,12 +55,6 @@
 
     <preference for="Magento\CatalogGraphQl\Model\Resolver\Products\DataProvider\Product"
                 type="ScandiPWA\CatalogGraphQl\Model\Resolver\Products\DataProvider\Product"/>
-
-    <preference for="Magento\CatalogGraphQl\Model\Resolver\Products\Query\Filter"
-                type="ScandiPWA\CatalogGraphQl\Model\Resolver\Products\Query\Filter"/>
-
-    <preference for="Magento\CatalogGraphQl\Model\Resolver\Products\Query\Search"
-                type="ScandiPWA\CatalogGraphQl\Model\Resolver\Products\Query\Search"/>
 
     <preference for="Magento\CatalogWidget\Model\Rule\Condition\Product"
                 type="ScandiPWA\CatalogGraphQl\Model\Rule\Condition\Product" />

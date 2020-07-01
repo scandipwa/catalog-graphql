@@ -23,7 +23,6 @@ use Magento\Framework\Exception\NoSuchEntityException;
 use ScandiPWA\CatalogGraphQl\Model\Resolver\Products\DataProvider\Product\CriteriaCheck;
 use Magento\Store\Model\StoreManagerInterface;
 use ScandiPWA\Performance\Model\Resolver\Products\CollectionPostProcessor;
-use Magento\Framework\Api\SearchCriteria\CollectionProcessorInterface as SearchCriteriaApplier;
 
 /**
  * Product field data provider, used for GraphQL resolver processing.
@@ -168,26 +167,27 @@ class Product extends MagentoProduct
             $collection->setVisibility($visibilityIds);
         }
 
-        $searchResult = $this->searchResultsFactory->create();
-        $searchResult->setSearchCriteria($searchCriteria);
-
         $collection->load();
-        $searchResult->setItems($collection->getItems());
 
         if ($isReturnItems) {
             $this->postProcessor->process($collection, $attributes);
         }
 
+        $searchResult = $this->searchResultsFactory->create();
+        $searchResult->setSearchCriteria($searchCriteria);
+        $searchResult->setItems($collection->getItems());
+
         if ($isReturnCount) {
             $searchResult->setTotalCount($collection->getSize());
         }
 
-        if ($isMinMaxRequested) {
-            [
-                $this->minPrice,
-                $this->maxPrice
-            ] = $this->getCollectionMinMaxPrice($collection);
-        }
+        // Disabling for now
+//        if ($isMinMaxRequested) {
+//            [
+//                $this->minPrice,
+//                $this->maxPrice
+//            ] = $this->getCollectionMinMaxPrice($collection);
+//        }
 
         return $searchResult;
     }
