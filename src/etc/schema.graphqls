@@ -19,6 +19,8 @@ input ProductAttributeFilterInput {
     category_url_path: FilterTypeInput @doc(description: "Category url_path the product belongs to")
     conditions: FilterTypeInput @doc(description: "Searches products by JSON formatted conditions")
     customer_group_id: FilterTypeInput @doc(description: "Modifies product prices based on customer group")
+    news_from_date: FilterTypeInput @doc(description: "The beginning date for new product listings, and determines if the product is featured as a new product.")
+    news_to_date: FilterTypeInput @doc(description: "The end date for new product listings.")
 }
 
 type MediaGalleryEntry  @doc(description: "MediaGalleryEntry defines characteristics about images and videos associated with a specific product") {
