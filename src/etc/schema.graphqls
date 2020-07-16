@@ -91,3 +91,7 @@ type ProductStockItem {
     min_sale_qty: Int @doc(description: "Minimal amount of item that can be bought")
     max_sale_qty: Int @doc(description: "Maximal amount of item that can be bought")
 }
+
+extends type Breadcrumb {
+    category_url: String  @doc(description: "Trimmed URL rewrite")
+}

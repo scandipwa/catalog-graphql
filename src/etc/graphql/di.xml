@@ -103,4 +103,7 @@
         <plugin name="bundle" disabled="true" />
         <plugin name="cms" disabled="true" />
     </type>
+
+    <preference for="Magento\CatalogGraphQl\Model\Resolver\Category\DataProvider\Breadcrumbs"
+                type="ScandiPWA\CatalogGraphQl\Model\Resolver\Category\DataProvider\Breadcrumbs" />
 </config>
