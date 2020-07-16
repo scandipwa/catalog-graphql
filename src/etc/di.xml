@@ -78,6 +78,15 @@
         </arguments>
     </type>
 
+    <preference for="Magento\BundleGraphQl\Model\Resolver\BundleItemLinks"
+                type="ScandiPWA\CatalogGraphQl\Model\Resolver\BundleItemLinks" />
+
+    <type name="ScandiPWA\CatalogGraphQl\Model\Resolver\BundleItemLinks">
+        <arguments>
+            <argument name="linkCollection" xsi:type="object">ScandiPWA\CatalogGraphQl\Model\Resolver\Links\Collection</argument>
+        </arguments>
+    </type>
+
     <type name="Magento\CatalogGraphQl\Model\Resolver\Products\DataProvider\Product\CompositeCollectionProcessor">
         <arguments>
             <argument name="collectionProcessors" xsi:type="array">
