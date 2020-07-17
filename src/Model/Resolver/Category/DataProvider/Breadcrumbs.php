@@ -47,7 +47,7 @@ class Breadcrumbs extends CoreBreadcrumbs
 
         if (count($parentCategoryIds)) {
             $collection = $this->collectionFactory->create();
-            $collection->addAttributeToSelect(['name', 'url_key', 'url_path']);
+            $collection->addAttributeToSelect(['name', 'url_key', 'url_path', 'is_active']);
             $collection->addAttributeToFilter('entity_id', $parentCategoryIds);
 
             foreach ($collection as $category) {
@@ -58,7 +58,8 @@ class Breadcrumbs extends CoreBreadcrumbs
                     'category_url_key' => $category->getUrlKey(),
                     'category_url_path' => $category->getUrlPath(),
                     // the only change to fix breadcrumbs
-                    'category_url' => parse_url($category->getUrl(), PHP_URL_PATH)
+                    'category_url' => parse_url($category->getUrl(), PHP_URL_PATH),
+                    'category_is_active' => (bool) $category->getIsActive()
                 ];
             }
         }
