@@ -111,4 +111,9 @@
             <argument name="queryComplexity" xsi:type="number">600</argument>
         </arguments>
     </type>
+
+    <!-- Item (Magento\Catalog\Model\Product\Interceptor) with the same ID “XXX” already exists patch -->
+    <type name="Magento\Eav\Model\Entity\Collection\AbstractCollection">
+        <plugin name="find_duplicate_entry" type="ScandiPWA\CatalogGraphQl\Plugin\Collection" sortOrder="20"/>
+    </type>
 </config>
