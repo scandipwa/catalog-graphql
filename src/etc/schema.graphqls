@@ -81,11 +81,6 @@ type Products {
     max_price: Float @doc(description: "Maximal price among all selected items")
 }
 
-type CategoryProducts {
-    min_price: Float @doc(description: "Minimal price among all selected items")
-    max_price: Float @doc(description: "Maximal price among all selected items")
-}
-
 type ProductStockItem {
     qty: Float @doc(description: "Product quantity available in stock")
     min_sale_qty: Int @doc(description: "Minimal amount of item that can be bought")
@@ -93,6 +88,10 @@ type ProductStockItem {
 }
 
 extends type Breadcrumb {
-    category_url: String  @doc(description: "Trimmed URL rewrite")
-    category_is_active: Boolean  @doc(description: "Is category active")
+    category_url: String @doc(description: "Trimmed URL rewrite")
+    category_is_active: Boolean @doc(description: "Is category active")
+}
+
+interface AggregationOptionInterface {
+    swatch_data: SwatchData @doc(description: "Swatch data") @resolver(class: "ScandiPWA\\CatalogGraphQl\\Model\\Resolver\\Aggregations\\SwatchData")
 }

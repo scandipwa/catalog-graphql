@@ -59,8 +59,8 @@
     <preference for="Magento\CatalogWidget\Model\Rule\Condition\Product"
                 type="ScandiPWA\CatalogGraphQl\Model\Rule\Condition\Product" />
 
-    <preference for="Magento\CatalogGraphQl\Model\Resolver\LayerFilters"
-                type="ScandiPWA\CatalogGraphQl\Model\Resolver\LayerFilters" />
+<!--    <preference for="Magento\CatalogGraphQl\Model\Resolver\LayerFilters"-->
+<!--                type="ScandiPWA\CatalogGraphQl\Model\Resolver\LayerFilters" />-->
 
     <type name="ScandiPWA\CatalogGraphQl\Model\Resolver\Products\Query\Search">
         <arguments>
