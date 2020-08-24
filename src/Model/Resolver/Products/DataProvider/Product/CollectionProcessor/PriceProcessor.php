@@ -10,7 +10,7 @@ namespace ScandiPWA\CatalogGraphQl\Model\Resolver\Products\DataProvider\Product\
 use Magento\Catalog\Model\ResourceModel\Product\Collection;
 use Magento\CatalogGraphQl\Model\Resolver\Products\DataProvider\Product\CollectionProcessorInterface;
 use Magento\Framework\Api\SearchCriteriaInterface;
-use ScandiPWA\CatalogGraphQl\Model\Resolver\Products\SearchCriteria\CollectionProcessor\FilterProcessor\CustomerGroupFilter;
+
 /**
  * Adds price data to product collection
  *
@@ -19,6 +19,7 @@ use ScandiPWA\CatalogGraphQl\Model\Resolver\Products\SearchCriteria\CollectionPr
 class PriceProcessor implements CollectionProcessorInterface
 {
     const PRICE_FIELD = 'price_range';
+    const FLAG_CUSTOMER_GROUP_PRICE_ADDED = 'customer_group_price_data_added';
 
     /**
      * {@inheritdoc}
@@ -28,7 +29,7 @@ class PriceProcessor implements CollectionProcessorInterface
         SearchCriteriaInterface $searchCriteria,
         array $attributeNames
     ): Collection {
-        $isPriceDataAdded = $collection->getFlag(CustomerGroupFilter::FLAG_CUSTOMER_GROUP_PRICE_ADDED);
+        $isPriceDataAdded = $collection->getFlag(self::FLAG_CUSTOMER_GROUP_PRICE_ADDED);
 
         // add tax percent, no-matter what
         $collection->addTaxPercents();
