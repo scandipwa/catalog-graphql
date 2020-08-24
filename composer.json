@@ -1,29 +1,29 @@
 {
-  "name": "scandipwa/catalog-graphql",
-  "description": "ScandiPWA GraphQl extend for Catalog",
-  "keywords": [
-    "magento2",
-    "module",
-    "scandipwa",
-    "pwa"
-  ],
-  "support": {
-    "email": "info@scandiweb.com"
-  },
-  "require": {
-    "magento/magento2-base": "^2.3.5",
-    "scandipwa/performance": "^1.0.3"
-  },
-  "type": "magento2-module",
-  "license": [
-    "OSL-3.0"
-  ],
-  "autoload": {
-    "files": [
-      "src/registration.php"
+    "name": "scandipwa/catalog-graphql",
+    "description": "ScandiPWA GraphQl extend for Catalog",
+    "keywords": [
+        "magento2",
+        "module",
+        "scandipwa",
+        "pwa"
     ],
-    "psr-4": {
-      "ScandiPWA\\CatalogGraphQl\\": "src/"
+    "support": {
+        "email": "info@scandiweb.com"
+    },
+    "require": {
+        "magento/magento2-base": "^2.3.5",
+        "scandipwa/performance": "^1.1.0"
+    },
+    "type": "magento2-module",
+    "license": [
+        "OSL-3.0"
+    ],
+    "autoload": {
+        "files": [
+            "src/registration.php"
+        ],
+        "psr-4": {
+            "ScandiPWA\\CatalogGraphQl\\": "src/"
+        }
     }
-  }
 }
