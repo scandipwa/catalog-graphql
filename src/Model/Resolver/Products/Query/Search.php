@@ -19,6 +19,7 @@ use Magento\Search\Model\Search\PageSizeProvider;
 
 use Magento\CatalogGraphQl\Model\Resolver\Products\Query\FieldSelection;
 use Magento\CatalogGraphQl\Model\Resolver\Products\Query\Search as CoreSearch;
+use ScandiPWA\CatalogGraphQl\Model\Resolver\Products\DataProvider\Product\CriteriaCheck;
 use ScandiPWA\Performance\Model\Resolver\Products\DataPostProcessor;
 
 /**
@@ -152,7 +153,8 @@ class Search extends CoreSearch
             $productArray = $this->productPostProcessor->process(
                 $searchResults->getItems(),
                 'products/items',
-                $info
+                $info,
+                ['isSingleProduct' => CriteriaCheck::isSingleProductFilter($searchCriteria)]
             );
         } else {
             $productArray = array_map(function ($product) {

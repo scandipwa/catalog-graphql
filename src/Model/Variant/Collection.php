@@ -339,7 +339,8 @@ class Collection
         $productsData = $this->dataPostProcessor->process(
             $productsToProcess,
             'variants/product',
-            $info
+            $info,
+            ['isSingleProduct' => CriteriaCheck::isSingleProductFilter($this->searchCriteria)]
         );
 
         foreach ($this->parentProducts as $product) {
