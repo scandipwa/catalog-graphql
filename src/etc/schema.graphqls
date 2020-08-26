@@ -52,7 +52,6 @@ interface ProductInterface {
 
 interface CategoryInterface {
     url: String  @resolver(class: "ScandiPWA\\CatalogGraphQl\\Model\\Resolver\\Category\\Url")
-    canonical_url: String @doc(description: "Canonical Url") @resolver(class: "ScandiPWA\\CatalogGraphQl\\Model\\Resolver\\Category\\CanonicalUrl")
 }
 
 type AttributeWithValue {
