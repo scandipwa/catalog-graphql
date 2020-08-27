@@ -25,9 +25,7 @@ class AddSearchCriteriaToContext implements ContextParametersProcessorInterface
     public function execute(
         ContextParametersInterface $contextParameters
     ) : ContextParametersInterface {
-
         $contextParameters->addExtensionAttribute('search_criteria', null);
-
         return $contextParameters;
     }
 }

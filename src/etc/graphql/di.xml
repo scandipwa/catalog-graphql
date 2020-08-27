@@ -20,6 +20,15 @@
         />
     </type>
 
+    <type name="Magento\CatalogGraphQl\Model\Resolver\Products">
+        <plugin
+            name="add_search_criteria_to_context"
+            type="ScandiPWA\CatalogGraphQl\Plugin\Resolver\Products"
+            sortOrder="1"
+            disabled="false"
+        />
+    </type>
+
     <type name="Magento\GraphQl\Model\Query\ContextFactory">
         <arguments>
             <argument name="contextParametersProcessors" xsi:type="array">

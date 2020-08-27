@@ -254,31 +254,9 @@ class Collection
 
     protected function getSearchCriteria(array $childrenIds): SearchCriteriaInterface {
         // build a search criteria based on original one and filter of product ids
-        $searchCriteria = $this->searchCriteriaBuilder
+        return $this->searchCriteriaBuilder
             ->addFilter('entity_id', $childrenIds, 'in')
             ->create();
-
-        $isSingleProduct = CriteriaCheck::isSingleProductFilter($this->searchCriteria);
-
-        $customFilterGroups = $searchCriteria->getFilterGroups();
-        $originalFilterGroups = $this->searchCriteria->getFilterGroups();
-
-        if (!$isSingleProduct) {
-            $filterGroups = array_merge($customFilterGroups, $originalFilterGroups);
-        } else {
-            // special case for customer group price - it is needed to be added to filter
-            foreach ($originalFilterGroups as $filterGroup) {
-                foreach ($filterGroup->getFilters() as $filter) {
-                    if ($filter->getField() === 'customer_group_id') {
-                        $filterGroups = array_merge($customFilterGroups, [$filterGroup]);
-                    }
-                }
-            }
-        }
-
-        $searchCriteria->setFilterGroups($filterGroups ?? $customFilterGroups);
-
-        return $searchCriteria;
     }
 
     /**

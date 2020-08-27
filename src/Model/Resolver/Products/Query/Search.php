@@ -7,6 +7,7 @@ declare(strict_types=1);
 
 namespace ScandiPWA\CatalogGraphQl\Model\Resolver\Products\Query;
 
+use Exception;
 use Magento\CatalogGraphQl\DataProvider\Product\SearchCriteriaBuilder;
 use Magento\CatalogGraphQl\Model\Resolver\Products\DataProvider\ProductSearch;
 use Magento\Framework\GraphQl\Schema\Type\ResolveInfo;
@@ -112,7 +113,7 @@ class Search extends CoreSearch
      * @param array $args
      * @param ResolveInfo $info
      * @return SearchResult
-     * @throws \Exception
+     * @throws Exception
      */
     public function getResult(
         array $args,

@@ -9,6 +9,7 @@ namespace ScandiPWA\CatalogGraphQl\Model\Resolver\Product;
 
 use Magento\CatalogGraphQl\Model\Resolver\Product\Price\Discount;
 use Magento\CatalogGraphQl\Model\Resolver\Product\Price\ProviderPool as PriceProviderPool;
+use Magento\Framework\Api\SearchCriteriaInterface;
 use Magento\Framework\GraphQl\Config\Element\Field;
 use Magento\Framework\GraphQl\Schema\Type\ResolveInfo;
 use Magento\Catalog\Model\Product;
@@ -68,7 +69,6 @@ class PriceRange extends CorePriceRange
 
         /** @var Product $product */
         $product = $value['model'];
-        // literally single line got removed here
 
         $requestedFields = $info->getFieldSelection(10);
         $returnArray = [];
