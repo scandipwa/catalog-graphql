@@ -1,23 +1,33 @@
 <?xml version="1.0"?>
 <!--
 /**
- * Scandiweb_CatalogGraphQl
+ * ScandiPWA - Progressive Web App for Magento
  *
- * @category    Scandiweb
- * @package     ScandiPWA_CatalogGraphQl
- * @author      Valerijs Sceglovs <info@scandiweb.com>
- * @author      Viktors Pliska <info@scandiweb.com>
- * @copyright   Copyright (c) 2018 Scandiweb, Ltd (https://scandiweb.com)
+ * Copyright © Scandiweb, Inc. All rights reserved.
+ * See LICENSE for license details.
+ *
+ * @license OSL-3.0 (Open Software License ("OSL") v. 3.0)
+ * @link https://github.com/scandipwa/quote-graphql
  */
 -->
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:noNamespaceSchemaLocation="urn:magento:framework:Module/etc/module.xsd">
-    <module name="ScandiPWA_CatalogGraphQl" setup_version="1.0.0">
+    <module name="ScandiPWA_CatalogGraphQl">
         <sequence>
+            <module name="ScandiPWA_Performance"/>
+            <module name="Magento_Eav"/>
+            <module name="Magento_Catalog"/>
+            <module name="Magento_Widget"/>
+            <module name="Magento_Rule"/>
+            <module name="Magento_GraphQl"/>
+            <module name="Magento_Store"/>
             <module name="Magento_CatalogGraphQl"/>
-            <module name="Magento_CatalogInventoryGraphQl"/>
             <module name="Magento_Elasticsearch"/>
+            <module name="Magento_ConfigurableProductGraphQl"/>
             <module name="Magento_BundleGraphQl"/>
+            <module name="Magento_Swatches"/>
+            <module name="Magento_CatalogInventory"/>
+            <module name="Magento_CatalogWidget"/>
         </sequence>
     </module>
 </config>
