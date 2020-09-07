@@ -12,10 +12,10 @@ namespace ScandiPWA\CatalogGraphQl\SearchAdapter\Query\Builder;
 
 use Magento\Elasticsearch\Model\Adapter\FieldMapper\Product\AttributeProvider;
 use Magento\Elasticsearch\Model\Adapter\FieldMapper\Product\FieldProvider\FieldType\ResolverInterface as TypeResolver;
+use Magento\Elasticsearch\Model\Config;
 use Magento\Elasticsearch\SearchAdapter\Query\ValueTransformerPool;
 use Magento\Elasticsearch\Model\Adapter\FieldMapperInterface;
 use Magento\Elasticsearch\SearchAdapter\Query\Builder\Match as CoreMatch;
-use Magento\Framework\App\ObjectManager;
 
 /**
  * Class Match
@@ -47,40 +47,55 @@ class Match extends CoreMatch
      * @var ValueTransformerPool
      */
     private $valueTransformerPool;
+    /**
+     * @var Config
+     */
+    private $config;
 
     /**
-     * Match constructor.
-     *
      * @param FieldMapperInterface $fieldMapper
-     * @param array $preprocessorContainer
-     * @param AttributeProvider|null $attributeProvider
-     * @param TypeResolver|null $fieldTypeResolver
-     * @param ValueTransformerPool|null $valueTransformerPool
+     * @param AttributeProvider $attributeProvider
+     * @param TypeResolver $fieldTypeResolver
+     * @param ValueTransformerPool $valueTransformerPool
+     * @param Config $config
      */
     public function __construct(
         FieldMapperInterface $fieldMapper,
-        array $preprocessorContainer,
-        AttributeProvider $attributeProvider = null,
-        TypeResolver $fieldTypeResolver = null,
-        ValueTransformerPool $valueTransformerPool = null
+        AttributeProvider $attributeProvider,
+        TypeResolver $fieldTypeResolver,
+        ValueTransformerPool $valueTransformerPool,
+        Config $config
     ) {
         $this->fieldMapper = $fieldMapper;
+        $this->attributeProvider = $attributeProvider;
+        $this->fieldTypeResolver = $fieldTypeResolver;
+        $this->valueTransformerPool = $valueTransformerPool;
+        $this->config = $config;
 
-        $this->attributeProvider = $attributeProvider ?? ObjectManager::getInstance()
-                ->get(AttributeProvider::class);
-        $this->fieldTypeResolver = $fieldTypeResolver ?? ObjectManager::getInstance()
-                ->get(TypeResolver::class);
-        $this->valueTransformerPool = $valueTransformerPool ?? ObjectManager::getInstance()
-                ->get(ValueTransformerPool::class);
-
-        parent::__construct($fieldMapper, $preprocessorContainer, $attributeProvider, $fieldTypeResolver,
-            $valueTransformerPool);
+        parent::__construct(
+            $fieldMapper,
+            $attributeProvider,
+            $fieldTypeResolver,
+            $valueTransformerPool,
+            $config
+        );
     }
 
     /**
-     * {@inheritDoc}
+     * Creates valid ElasticSearch search conditions from Match queries.
+     *
+     * The purpose of this method is to create a structure which represents valid search query
+     * for a full-text search.
+     * It sets search query condition, the search query itself, and sets the search query boost.
+     *
+     * The search query boost is an optional in the search query and therefore it will be set to 1 by default
+     * if none passed with a match query.
+     *
+     * @param array $matches
+     * @param array $queryValue
+     * @return array
      */
-    protected function buildQueries(array $matches, array $queryValue): array
+    protected function buildQueries(array $matches, array $queryValue)
     {
         $conditions = [];
 
@@ -91,29 +106,28 @@ class Match extends CoreMatch
 
         $transformedTypes = [];
         foreach ($matches as $match) {
-            $attributeAdapter = $this->attributeProvider->getByAttributeCode($match['field']);
+            $resolvedField = $this->fieldMapper->getFieldName(
+                $match['field'],
+                ['type' => FieldMapperInterface::TYPE_QUERY]
+            );
+
+            $attributeAdapter = $this->attributeProvider->getByAttributeCode($resolvedField);
             $fieldType = $this->fieldTypeResolver->getFieldType($attributeAdapter);
             $valueTransformer = $this->valueTransformerPool->get($fieldType ?? 'text');
             $valueTransformerHash = \spl_object_hash($valueTransformer);
             if (!isset($transformedTypes[$valueTransformerHash])) {
                 $transformedTypes[$valueTransformerHash] = $valueTransformer->transform($value);
             }
-
             $transformedValue = $transformedTypes[$valueTransformerHash];
             if (null === $transformedValue) {
                 //Value is incompatible with this field type.
                 continue;
             }
-
-            $resolvedField = $this->fieldMapper->getFieldName(
-                $match['field'],
-                ['type' => FieldMapperInterface::TYPE_QUERY]
-            );
-
+            $matchCondition = $match['matchCondition'] ?? $condition;
             $conditions[] = [
                 'condition' => $queryValue['condition'],
                 'body' => [
-                    $condition => [
+                    $matchCondition => [
                         $resolvedField => [
                             'query' => $transformedValue,
                             'boost' => $match['boost'] ?? 1,

@@ -15,7 +15,6 @@ use Magento\Framework\Api\Search\SearchCriteriaInterface;
 use Magento\CatalogGraphQl\Model\Resolver\Products\SearchResult;
 use Magento\CatalogGraphQl\Model\Resolver\Products\SearchResultFactory;
 use Magento\Search\Api\SearchInterface;
-use Magento\Framework\Api\Search\SearchCriteriaInterfaceFactory;
 use Magento\Search\Model\Search\PageSizeProvider;
 
 use Magento\CatalogGraphQl\Model\Resolver\Products\Query\FieldSelection;
@@ -44,11 +43,6 @@ class Search extends CoreSearch
     private $pageSizeProvider;
 
     /**
-     * @var SearchCriteriaInterfaceFactory
-     */
-    private $searchCriteriaFactory;
-
-    /**
      * @var FieldSelection
      */
     private $fieldSelection;
@@ -72,16 +66,15 @@ class Search extends CoreSearch
      * @param SearchInterface $search
      * @param SearchResultFactory $searchResultFactory
      * @param PageSizeProvider $pageSize
-     * @param SearchCriteriaInterfaceFactory $searchCriteriaFactory
      * @param FieldSelection $fieldSelection
      * @param ProductSearch $productsProvider
      * @param SearchCriteriaBuilder $searchCriteriaBuilder
+     * @param DataPostProcessor $productPostProcessor
      */
     public function __construct(
         SearchInterface $search,
         SearchResultFactory $searchResultFactory,
         PageSizeProvider $pageSize,
-        SearchCriteriaInterfaceFactory $searchCriteriaFactory,
         FieldSelection $fieldSelection,
         ProductSearch $productsProvider,
         SearchCriteriaBuilder $searchCriteriaBuilder,
@@ -91,7 +84,6 @@ class Search extends CoreSearch
             $search,
             $searchResultFactory,
             $pageSize,
-            $searchCriteriaFactory,
             $fieldSelection,
             $productsProvider,
             $searchCriteriaBuilder
@@ -100,7 +92,6 @@ class Search extends CoreSearch
         $this->search = $search;
         $this->searchResultFactory = $searchResultFactory;
         $this->pageSizeProvider = $pageSize;
-        $this->searchCriteriaFactory = $searchCriteriaFactory;
         $this->fieldSelection = $fieldSelection;
         $this->productsProvider = $productsProvider;
         $this->searchCriteriaBuilder = $searchCriteriaBuilder;
@@ -124,27 +115,18 @@ class Search extends CoreSearch
 
         $realPageSize = $searchCriteria->getPageSize();
         $realCurrentPage = $searchCriteria->getCurrentPage();
-
-        // Current page must be set to 0 and page size to max for search to grab all ID's as temporary workaround
+        //Because of limitations of sort and pagination on search API we will query all IDS
         $pageSize = $this->pageSizeProvider->getMaxPageSize();
         $searchCriteria->setPageSize($pageSize);
         $searchCriteria->setCurrentPage(0);
         $itemsResults = $this->search->search($searchCriteria);
 
-        //Create copy of search criteria without conditions (conditions will be applied by joining search result)
-        $searchCriteriaCopy = $this->searchCriteriaFactory->create()
-            ->setSortOrders($searchCriteria->getSortOrders())
-            ->setPageSize($realPageSize)
-            ->setCurrentPage($realCurrentPage);
+        //Address limitations of sort and pagination on search API apply original pagination from GQL query
+        $searchCriteria->setPageSize($realPageSize);
+        $searchCriteria->setCurrentPage($realCurrentPage);
+        $searchResults = $this->productsProvider->getList($searchCriteria, $itemsResults, $queryFields);
 
-        $searchResults = $this->productsProvider->getList($searchCriteriaCopy, $itemsResults, $queryFields);
-
-        //possible division by 0
-        if ($realPageSize) {
-            $maxPages = (int)ceil($searchResults->getTotalCount() / $realPageSize);
-        } else {
-            $maxPages = 0;
-        }
+        $totalPages = $realPageSize ? ((int)ceil($searchResults->getTotalCount() / $realPageSize)) : 0;
 
         $searchCriteria->setPageSize($realPageSize);
         $searchCriteria->setCurrentPage($realCurrentPage);
@@ -170,7 +152,7 @@ class Search extends CoreSearch
                 'searchAggregation' => $itemsResults->getAggregations(),
                 'pageSize' => $realPageSize,
                 'currentPage' => $realCurrentPage,
-                'totalPages' => $maxPages,
+                'totalPages' => $totalPages,
             ]
         );
     }
