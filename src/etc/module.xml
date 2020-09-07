@@ -14,7 +14,6 @@
         xsi:noNamespaceSchemaLocation="urn:magento:framework:Module/etc/module.xsd">
     <module name="ScandiPWA_CatalogGraphQl">
         <sequence>
-            <module name="ScandiPWA_Performance"/>
             <module name="Magento_Eav"/>
             <module name="Magento_Catalog"/>
             <module name="Magento_Widget"/>
