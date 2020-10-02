@@ -10,6 +10,8 @@ declare(strict_types=1);
 
 namespace ScandiPWA\CatalogGraphQl\Model\Resolver\Aggregations;
 
+use Magento\Catalog\Api\CategoryRepositoryInterface;
+use Magento\Catalog\Model\ResourceModel\Category\Collection;
 use Magento\Framework\GraphQl\Schema\Type\ResolveInfo;
 use Magento\Framework\GraphQl\Config\Element\Field;
 use Magento\Framework\GraphQl\Query\FieldTranslator;
@@ -32,19 +34,34 @@ class SwatchData implements ResolverInterface
     /** @var Swatches  */
     protected $swatches;
 
+    /** @var CategoryRepositoryInterface */
+    protected $categoryRepository;
+
     /**
+     * @var Collection
+     */
+    protected $categoryCollection;
+
+    /**
+     * SwatchData constructor.
      * @param Swatches $swatches
      * @param ValueFactory $valueFactory
      * @param FieldTranslator $fieldTranslator
+     * @param Collection $categoryCollection
+     * @param CategoryRepositoryInterface $categoryRepository
      */
     public function __construct(
         Swatches $swatches,
         ValueFactory $valueFactory,
-        FieldTranslator $fieldTranslator
+        FieldTranslator $fieldTranslator,
+        Collection $categoryCollection,
+        CategoryRepositoryInterface $categoryRepository
     ) {
         $this->swatches = $swatches;
         $this->valueFactory = $valueFactory;
         $this->fieldTranslator = $fieldTranslator;
+        $this->categoryRepository = $categoryRepository;
+        $this->categoryCollection = $categoryCollection;
     }
 
     /**
@@ -58,6 +75,23 @@ class SwatchData implements ResolverInterface
         array $args = null
     ) {
         $optionId = $value['value'];
+
+        $categoryName = '';
+
+        $categories = $this->categoryCollection->getData();
+
+        $categoryIds = array_map(function($category) {
+            return $category['entity_id'];
+        }, $categories);
+
+        if (in_array($optionId, $categoryIds)) {
+            $categoryName = $this->categoryRepository
+                ->get($optionId)->getData()['name'];
+        }
+
+        if (isset($categoryName) && $categoryName === $value['label']) {
+            return;
+        }
 
         if (is_int($optionId)) {
             $this->swatches->addAttributeOptionId($optionId);
