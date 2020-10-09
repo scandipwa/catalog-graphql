@@ -224,7 +224,7 @@ class Collection
         $conn = $this->connection->getConnection();
         $select = $conn->select()
             ->from(
-                ['s' => 'catalog_product_super_link'],
+                ['s' => $this->connection->getTableName('catalog_product_super_link')],
                 ['product_id', 'parent_id']
             )
             ->where('s.parent_id IN (?)', $parentIds);

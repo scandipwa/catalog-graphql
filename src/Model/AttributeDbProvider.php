@@ -62,13 +62,15 @@ class AttributeDbProvider
         $fieldsUsedInQuery = $this->queryFields->getFieldsUsedInQuery();
         $connection = $this->connection->getConnection();
         $placeHolders = str_repeat('?,', count($fieldsUsedInQuery) - 1) . '?';
-        $sql = "SELECT eav_attribute.attribute_code
-FROM eav_attribute
-WHERE eav_attribute.attribute_id IN (
-    SELECT catalog_eav_attribute.attribute_id
-    FROM catalog_eav_attribute
-    WHERE catalog_eav_attribute.is_filterable = 1
-) AND eav_attribute.attribute_code IN ($placeHolders)";
+        $eavAttribute = $this->connection->getTableName('eav_attribute');
+        $catalogEavAttribute = $this->connection->getTableName('catalog_eav_attribute');
+        $sql = "SELECT {$eavAttribute}.attribute_code
+        FROM {$eavAttribute}
+        WHERE {$eavAttribute}.attribute_id IN (
+            SELECT {$catalogEavAttribute}.attribute_id
+            FROM {$catalogEavAttribute}
+            WHERE {$catalogEavAttribute}.is_filterable = 1
+        ) AND {$eavAttribute}.attribute_code IN ($placeHolders)";
         $query = $connection->query($sql, array_keys($fieldsUsedInQuery));
 
         return $query->fetchAll(\PDO::FETCH_COLUMN);
