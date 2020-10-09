@@ -15,9 +15,6 @@
         <plugin name="ScandiPWA::ProductEntityAttributesForAst" type="ScandiPWA\CatalogGraphQl\Plugin\Resolver\Products\FilterArgument\ProductEntityAttributesForAst" sortOrder="1" disabled="false"/>
     </type>
 
-    <preference for="Magento\CatalogGraphQl\Model\Resolver\Products\DataProvider\Product\CollectionProcessor\StockProcessor"
-                type="ScandiPWA\CatalogGraphQl\Model\Resolver\Products\DataProvider\Product\CollectionProcessor\StockProcessor" />
-
     <preference for="Magento\CatalogGraphQl\Model\Resolver\Products\DataProvider\Product\CollectionProcessor\AttributeProcessor"
                 type="ScandiPWA\CatalogGraphQl\Model\Resolver\Products\DataProvider\Product\CollectionProcessor\AttributeProcessor" />
 
