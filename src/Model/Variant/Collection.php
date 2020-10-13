@@ -183,7 +183,6 @@ class Collection
                 switch ($filter->getField()) {
                     // if this is a category filter, continue, or if we ignore filters, return true
                     case 'category_url_path':
-                    case 'category_id':
                     case 'price':
                         if ($includeFilters) {
                             return true;
