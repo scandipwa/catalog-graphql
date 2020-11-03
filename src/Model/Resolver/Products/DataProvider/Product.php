@@ -23,6 +23,7 @@ use Magento\Framework\Exception\NoSuchEntityException;
 use ScandiPWA\CatalogGraphQl\Model\Resolver\Products\DataProvider\Product\CriteriaCheck;
 use Magento\Store\Model\StoreManagerInterface;
 use ScandiPWA\Performance\Model\Resolver\Products\CollectionPostProcessor;
+use Magento\GraphQl\Model\Query\ContextInterface;
 
 /**
  * Product field data provider, used for GraphQL resolver processing.
@@ -125,6 +126,7 @@ class Product extends MagentoProduct
      * @param string[] $attributes
      * @param bool $isSearch
      * @param bool $isChildSearch
+     * @param ContextInterface $context
      * @param bool $isMinMaxRequested
      * @param bool $isReturnCount
      * @param bool $isReturnItems
@@ -136,6 +138,7 @@ class Product extends MagentoProduct
         array $attributes = [],
         bool $isSearch = false,
         bool $isChildSearch = false,
+        ContextInterface $context = null,
         bool $isMinMaxRequested = true,
         bool $isReturnCount = true,
         bool $isReturnItems = true
