@@ -15,12 +15,8 @@ type MediaGalleryImageOfType @doc(description: "Products thumbnail image") {
 }
 
 input ProductAttributeFilterInput {
-    category_url_key: FilterTypeInput @doc(description: "Category url_key the product belongs to")
-    category_url_path: FilterTypeInput @doc(description: "Category url_path the product belongs to")
     conditions: FilterTypeInput @doc(description: "Searches products by JSON formatted conditions")
     customer_group_id: FilterTypeInput @doc(description: "Modifies product prices based on customer group")
-    news_from_date: FilterTypeInput @doc(description: "The beginning date for new product listings, and determines if the product is featured as a new product.")
-    news_to_date: FilterTypeInput @doc(description: "The end date for new product listings.")
 }
 
 type MediaGalleryEntry  @doc(description: "MediaGalleryEntry defines characteristics about images and videos associated with a specific product") {
@@ -32,14 +28,6 @@ type ProductImage @doc(description: "Extend product Image fields for frontend-dr
     path: String @doc(description: "Relative path to origin image") @resolver(class:"ScandiPWA\\CatalogGraphQl\\Model\\Resolver\\Product\\ProductImage\\Path")
 }
 
-type Query {
-    category (
-        id: Int @doc(description: "Ids of the category")
-        url_path: String @doc(description: "Url path of the category")
-    ): CategoryTree
-    @resolver(class: "ScandiPWA\\CatalogGraphQl\\Model\\Resolver\\CategoryTree")
-}
-
 type CategoryTree {
     is_active: Boolean @doc(description: "Category is enabled")
 }
@@ -48,7 +36,7 @@ interface ProductInterface {
     qty: Float @doc(description: "Qty field for checkout order view")
     stock_item: ProductStockItem @resolver(class: "ScandiPWA\\CatalogGraphQl\\Model\\Resolver\\Inventory\\StockCount")
     url: String @resolver(class: "ScandiPWA\\CatalogGraphQl\\Model\\Resolver\\Product\\Url")
-    attributes: [AttributeWithValue]
+    s_attributes: [AttributeWithValue]
 }
 
 interface CategoryInterface {

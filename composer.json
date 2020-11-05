@@ -2,6 +2,7 @@
     "name": "scandipwa/catalog-graphql",
     "description": "Catalog-specific modifications for ScandiPWA",
     "type": "magento2-theme",
+    "version": "2.18.0",
     "license": [
         "OSL-3.0"
     ],
@@ -14,8 +15,8 @@
         "magento/module-rule": "*",
         "magento/module-graph-ql": "*",
         "magento/module-store": "*",
-        "magento/module-elasticsearch": "^101",
-        "magento/module-catalog-graph-ql": "^100.4",
+        "magento/module-elasticsearch": "*",
+        "magento/module-catalog-graph-ql": "^100.4.1",
         "magento/module-configurable-product-graph-ql": "^100.3",
         "magento/module-bundle-graph-ql": "^100.3",
         "magento/module-swatches": "*",
