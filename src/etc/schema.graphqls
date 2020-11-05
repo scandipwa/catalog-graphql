@@ -36,32 +36,10 @@ interface ProductInterface {
     qty: Float @doc(description: "Qty field for checkout order view")
     stock_item: ProductStockItem @resolver(class: "ScandiPWA\\CatalogGraphQl\\Model\\Resolver\\Inventory\\StockCount")
     url: String @resolver(class: "ScandiPWA\\CatalogGraphQl\\Model\\Resolver\\Product\\Url")
-    s_attributes: [AttributeWithValue]
 }
 
 interface CategoryInterface {
     url: String  @resolver(class: "ScandiPWA\\CatalogGraphQl\\Model\\Resolver\\Category\\Url")
-}
-
-type AttributeWithValue {
-    attribute_code: String
-    entity_type: String
-    attribute_type: String
-    attribute_value: String
-    attribute_label: String
-    attribute_id: Int
-    attribute_options: [AttributeWithValueOption]
-}
-
-type AttributeWithValueOption {
-    label: String
-    value: String
-    swatch_data: AttributeWithValueSwatchData
-}
-
-type AttributeWithValueSwatchData {
-    type: String
-    value: String
 }
 
 type Products {
