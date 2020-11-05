@@ -2,7 +2,6 @@
     "name": "scandipwa/catalog-graphql",
     "description": "Catalog-specific modifications for ScandiPWA",
     "type": "magento2-theme",
-    "version": "2.18.0",
     "license": [
         "OSL-3.0"
     ],
