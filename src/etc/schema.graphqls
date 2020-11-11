@@ -63,3 +63,22 @@ extends type Breadcrumb {
 interface AggregationOptionInterface {
     swatch_data: SwatchData @doc(description: "Swatch data") @resolver(class: "ScandiPWA\\CatalogGraphQl\\Model\\Resolver\\Aggregations\\SwatchData")
 }
+
+type Mutation {
+    saveSelectedCurrency(currency: String): Query @resolver(class:"ScandiPWA\\CatalogGraphQl\\Model\\Resolver\\Currency\\SaveSelectedCurrency")
+}
+
+type Query {
+    currencyData: CurrencyConfig @resolver(class: "ScandiPWA\\CatalogGraphQl\\Model\\Resolver\\Currency\\CurrencyResolver") @doc(description: "The currency data query")
+}
+
+type CurrencyConfig {
+    available_currencies_data: [Currency],
+    current_currency_code: String
+}
+
+type Currency {
+    id: String
+    label: String
+    value: String
+}
