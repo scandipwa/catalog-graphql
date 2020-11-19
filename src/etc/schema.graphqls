@@ -41,7 +41,8 @@ interface ProductInterface {
 }
 
 interface CategoryInterface {
-    url: String  @resolver(class: "ScandiPWA\\CatalogGraphQl\\Model\\Resolver\\Category\\Url")
+    url: String  @resolver(class: "ScandiPWA\\CatalogGraphQl\\Model\\Resolver\\Category\\Url"),
+    display_mode: String @doc(description: "Category display mode (products only, static block only, both)")
 }
 
 type Products {
