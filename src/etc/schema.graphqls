@@ -83,3 +83,7 @@ type Currency {
     label: String
     value: String
 }
+
+extend type Products {
+    aggregations: [Aggregation] @doc(description: "Layered navigation aggregations.") @resolver(class: "ScandiPWA\\CatalogGraphQl\\Model\\Resolver\\Aggregations")
+}
