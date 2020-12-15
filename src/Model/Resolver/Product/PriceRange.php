@@ -157,10 +157,12 @@ class PriceRange extends CorePriceRange
             return $this->discount->getDiscountByDifference($regularPrice, $finalPrice);
         }
 
-        $percentOff = $this->getSpecialProductPrice($product);
+        $specialPrice = $this->getSpecialProductPrice($product);
+        $percentOff = ($specialPrice < 0) ? 0 : 100 - $specialPrice;
+
         return [
-            'amount_off' => 0,
-            'percent_off' => ($percentOff < 0) ? 0 : 100 - $percentOff
+            'amount_off' => $regularPrice * ($percentOff / 100),
+            'percent_off' => $percentOff
         ];
     }
 
