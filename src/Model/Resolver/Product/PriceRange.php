@@ -92,9 +92,10 @@ class PriceRange extends CorePriceRange
     protected function getMinimumProductPrice(SaleableInterface $product, StoreInterface $store): array
     {
         $priceProvider = $this->priceProviderPool->getProviderByProductType($product->getTypeId());
-        $regularPrice = $priceProvider->getMinimalRegularPrice($product)->getValue();
-        $finalPrice = $priceProvider->getMinimalFinalPrice($product)->getValue();
-        $minPriceArray = $this->formatPrice((float) $regularPrice, (float) $finalPrice, $store);
+        $regularPrice = (float) $priceProvider->getMinimalRegularPrice($product)->getValue();
+        $finalPrice = (float) $priceProvider->getMinimalFinalPrice($product)->getValue();
+        $discount = $this->calculateDiscount($product, $regularPrice, $finalPrice);
+        $minPriceArray = $this->formatPrice($regularPrice, $finalPrice, $discount, $store);
         $minPriceArray['model'] = $product;
         return $minPriceArray;
     }
@@ -109,9 +110,10 @@ class PriceRange extends CorePriceRange
     protected function getMaximumProductPrice(SaleableInterface $product, StoreInterface $store): array
     {
         $priceProvider = $this->priceProviderPool->getProviderByProductType($product->getTypeId());
-        $regularPrice = $priceProvider->getMaximalRegularPrice($product)->getValue();
-        $finalPrice = $priceProvider->getMaximalFinalPrice($product)->getValue();
-        $maxPriceArray = $this->formatPrice((float) $regularPrice, (float) $finalPrice, $store);
+        $regularPrice = (float) $priceProvider->getMaximalRegularPrice($product)->getValue();
+        $finalPrice = (float) $priceProvider->getMaximalFinalPrice($product)->getValue();
+        $discount = $this->calculateDiscount($product, $regularPrice, $finalPrice);
+        $maxPriceArray = $this->formatPrice($regularPrice, $finalPrice, $discount, $store);
         $maxPriceArray['model'] = $product;
         return $maxPriceArray;
     }
@@ -124,7 +126,7 @@ class PriceRange extends CorePriceRange
      * @param StoreInterface $store
      * @return array
      */
-    protected function formatPrice(float $regularPrice, float $finalPrice, StoreInterface $store): array
+    protected function formatPrice(float $regularPrice, float $finalPrice, array $discount, StoreInterface $store): array
     {
         return [
             'regular_price' => [
@@ -135,7 +137,54 @@ class PriceRange extends CorePriceRange
                 'value' => $finalPrice,
                 'currency' => $store->getCurrentCurrencyCode()
             ],
-            'discount' => $this->discount->getDiscountByDifference($regularPrice, $finalPrice),
+            'discount' => $discount,
         ];
+    }
+
+    /**
+     * Calculates correct discount amount
+     * - Bundle items can contain $regularPrice and $finalFrice from two different
+     * - product instances, thus we are intersted in BE set special price procentage.
+     *
+     * @param Product $product
+     * @param float $regularPrice
+     * @param float $finalPrice
+     * @return array
+     */
+    protected function calculateDiscount(Product $product, float $regularPrice, float $finalPrice) : array
+    {
+        if ($product->getTypeId() !== 'bundle') {
+            return $this->discount->getDiscountByDifference($regularPrice, $finalPrice);
+        }
+
+        // Bundle products have special price set in % (percents)
+        $specialPricePrecentage = $this->getSpecialProductPrice($product);
+        $percentOff = is_null($specialPricePrecentage) ? 0 : 100 - $specialPricePrecentage;
+
+        return [
+            'amount_off' => $regularPrice * ($percentOff / 100),
+            'percent_off' => $percentOff
+        ];
+    }
+
+    /**
+     * Gets [active] special price value
+     *
+     * @param Product $product
+     * @return float
+     */
+    protected function getSpecialProductPrice(Product $product): ?float
+    {
+        $specialPrice = $product->getSpecialPrice();
+        if (!$specialPrice) {
+            return null;
+        }
+
+        // Special price range
+        $from = strtotime($product->getSpecialFromDate());
+        $to = $product->getSpecialToDate() === null ? null : strtotime($product->getSpecialToDate());
+        $now = time();
+
+        return ($now >= $from && $now <= $to) || ($now >= $from && is_null($to)) ? (float)$specialPrice : null;
     }
 }
