@@ -153,12 +153,13 @@ class PriceRange extends CorePriceRange
      */
     protected function calculateDiscount(Product $product, float $regularPrice, float $finalPrice) : array
     {
-        if ($product->getTypeId() != 'bundle') {
+        if ($product->getTypeId() !== 'bundle') {
             return $this->discount->getDiscountByDifference($regularPrice, $finalPrice);
         }
 
-        $specialPrice = $this->getSpecialProductPrice($product);
-        $percentOff = ($specialPrice < 0) ? 0 : 100 - $specialPrice;
+        // Bundle products have special price set in % (percents)
+        $specialPricePrecentage = $this->getSpecialProductPrice($product);
+        $percentOff = is_null($specialPricePrecentage) ? 0 : 100 - $specialPricePrecentage;
 
         return [
             'amount_off' => $regularPrice * ($percentOff / 100),
@@ -172,11 +173,11 @@ class PriceRange extends CorePriceRange
      * @param Product $product
      * @return float
      */
-    protected function getSpecialProductPrice(Product $product): float
+    protected function getSpecialProductPrice(Product $product): ?float
     {
         $specialPrice = $product->getSpecialPrice();
         if (!$specialPrice) {
-            return -1;
+            return null;
         }
 
         // Special price range
@@ -184,6 +185,6 @@ class PriceRange extends CorePriceRange
         $to = $product->getSpecialToDate() === null ? null : strtotime($product->getSpecialToDate());
         $now = time();
 
-        return ($now >= $from && $now <= $to || $now >= $from && is_null($to)) ? (float)$specialPrice : -1;
+        return ($now >= $from && $now <= $to) || ($now >= $from && is_null($to)) ? (float)$specialPrice : null;
     }
 }
