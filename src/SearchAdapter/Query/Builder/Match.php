@@ -29,6 +29,11 @@ class Match extends CoreMatch
     public const FUZZINESS_LEVEL = 'AUTO';
 
     /**
+     * Define unsuppoted match_condition types that do not support fuzziness field
+     */
+    protected const UNSUPORTED_FUZZINESS_TYPES = ['match_phrase_prefix'];
+
+    /**
      * @var FieldMapperInterface
      */
     private $fieldMapper;
@@ -124,18 +129,23 @@ class Match extends CoreMatch
                 continue;
             }
             $matchCondition = $match['matchCondition'] ?? $condition;
-            $conditions[] = [
+            $newCondition = [
                 'condition' => $queryValue['condition'],
                 'body' => [
                     $matchCondition => [
                         $resolvedField => [
                             'query' => $transformedValue,
                             'boost' => $match['boost'] ?? 1,
-                            'fuzziness' => self::FUZZINESS_LEVEL
                         ],
                     ],
                 ],
             ];
+
+            if (!in_array($matchCondition, self::UNSUPORTED_FUZZINESS_TYPES)) {
+                $newCondition['body'][$matchCondition][$resolvedField]['fuzziness'] = self::FUZZINESS_LEVEL;
+            }
+
+            $conditions[] = $newCondition;
         }
 
         return $conditions;
