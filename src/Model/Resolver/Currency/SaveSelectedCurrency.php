@@ -14,12 +14,14 @@ declare(strict_types=1);
 namespace ScandiPWA\CatalogGraphQl\Model\Resolver\Currency;
 
 use Exception;
+use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\GraphQl\Config\Element\Field;
 use Magento\Framework\GraphQl\Query\Resolver\ContextInterface;
 use Magento\Framework\GraphQl\Query\Resolver\Value;
 use Magento\Framework\GraphQl\Query\ResolverInterface;
 use Magento\Framework\GraphQl\Schema\Type\ResolveInfo;
 use Magento\Store\Model\StoreManagerInterface;
+use \Magento\Checkout\Model\Session as SessionManager;
 
 /**
  * Class SaveCartItem
@@ -33,13 +35,21 @@ class SaveSelectedCurrency implements ResolverInterface
     protected $storeManager;
 
     /**
+     * @var SessionManager
+     */
+    protected $sessionManager;
+
+    /**
      * SaveSelectedCurrency constructor.
      * @param StoreManagerInterface $storeManager
+     * @param SessionManager $sessionManager
      */
     public function __construct(
-        StoreManagerInterface $storeManager
+        StoreManagerInterface $storeManager,
+        SessionManager $sessionManager
     ) {
         $this->storeManager = $storeManager;
+        $this->sessionManager = $sessionManager;
     }
 
     /**
@@ -64,6 +74,13 @@ class SaveSelectedCurrency implements ResolverInterface
 
         if ($currency) {
             $this->storeManager->getStore()->setCurrentCurrencyCode($currency);
+
+            // Rebuilds active quotes all values (price, currency, etc.)
+            try {
+                $this->sessionManager->getQuote()->collectTotals()->save();
+            } catch (NoSuchEntityException $exception) {
+                // Ignore if quote is not set
+            }
         }
 
         return [];
