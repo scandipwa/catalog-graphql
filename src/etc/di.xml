@@ -76,4 +76,7 @@
     <type name="Magento\Eav\Model\Entity\Collection\AbstractCollection">
         <plugin name="find_duplicate_entry" type="ScandiPWA\CatalogGraphQl\Plugin\Collection" sortOrder="20"/>
     </type>
+
+    <preference for="Magento\CatalogGraphQl\DataProvider\Product\LayeredNavigation\Builder\Price"
+                type="ScandiPWA\CatalogGraphQl\Model\Layer\Filter\Price" />
 </config>
