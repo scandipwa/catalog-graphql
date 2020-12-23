@@ -5,6 +5,7 @@ namespace ScandiPWA\CatalogGraphQl\Model\Resolver\Category;
 use Magento\Framework\GraphQl\Config\Element\Field;
 use Magento\Framework\GraphQl\Schema\Type\ResolveInfo;
 use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\UrlInterface;
 use Magento\Store\Api\Data\StoreInterface;
 use Magento\Framework\Filesystem\DirectoryList;
 use Magento\Catalog\Model\Category\FileInfo;
@@ -55,7 +56,7 @@ class Image extends CoreImage {
 
         /** @var StoreInterface $store */
         $store = $context->getExtensionAttributes()->getStore();
-        $baseUrl = $store->getBaseUrl();
+        $baseUrl = $store->getBaseUrl(UrlInterface::URL_TYPE_DIRECT_LINK);
 
         $filenameWithMedia =  $this->fileInfo->isBeginsWithMediaDirectoryPath($imagePath)
             ? $imagePath : $this->formatFileNameWithMediaCategoryFolder($imagePath);
