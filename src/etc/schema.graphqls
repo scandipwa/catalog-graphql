@@ -50,6 +50,14 @@ type Products {
     max_price: Float @doc(description: "Maximal price among all selected items")
 }
 
+type ProductPrice @doc(description: "Represents a product price.") {
+    regular_price: Money! @doc(description: "The regular price of the product.")
+    regular_price_excl_tax: Money!  @doc(description: "The regular price of the product excluding taxes.")
+    final_price: Money! @doc(description: "The final price of the product after discounts applied.")
+    final_price_excl_tax: Money! @doc(description: "The final price of the product after discounts applied excluding taxes.")
+    discount: ProductDiscount @doc(description: "The price discount. Represents the difference between the regular and final price.")
+}
+
 type ProductStockItem {
     qty: Float @doc(description: "Product quantity available in stock")
     min_sale_qty: Int @doc(description: "Minimal amount of item that can be bought")
