@@ -79,4 +79,7 @@
 
     <preference for="Magento\CatalogGraphQl\DataProvider\Product\LayeredNavigation\Builder\Price"
                 type="ScandiPWA\CatalogGraphQl\Model\Layer\Filter\Price" />
+
+    <preference for="Magento\CatalogGraphQl\Model\Resolver\Category\SortFields"
+                type="ScandiPWA\CatalogGraphQl\Model\Resolver\Category\SortFields" />
 </config>
