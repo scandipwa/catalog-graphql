@@ -123,8 +123,7 @@ class Url implements ResolverInterface
         if (isset($value['file'])) {
             $image = $this->productImageFactory->create();
             $image->setDestinationSubdir('image')->setBaseFile($value['file']);
-            $imageUrl = $image->getUrl();
-            return $imageUrl;
+            return $image->getUrl();
         }
 
         return [];

@@ -102,7 +102,7 @@ class MediaGalleryEntries implements ResolverInterface
         array $args = null
     ): Value {
         if (!isset($value['model'])) {
-            $result = function () {
+            $result = static function () {
                 return null;
             };
 
@@ -126,7 +126,7 @@ class MediaGalleryEntries implements ResolverInterface
             }
         }
 
-        $result = function () use ($mediaGalleryEntries) {
+        $result = static function () use ($mediaGalleryEntries) {
             return $mediaGalleryEntries;
         };
 

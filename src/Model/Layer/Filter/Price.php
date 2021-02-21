@@ -111,7 +111,7 @@ class Price implements LayerBuilderInterface
      * @return float|int|string
      */
     private function getMetricValue($base, $rate) {
-        return (!is_null($base) && is_numeric($base)) ? $base * $rate : '*';
+        return ($base !== null && is_numeric($base)) ? $base * $rate : '*';
     }
 
     /**

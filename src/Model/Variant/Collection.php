@@ -144,11 +144,7 @@ class Collection
     {
         $childrenMap = $this->fetch($info);
 
-        if (!isset($childrenMap[$id])) {
-            return [];
-        }
-
-        return $childrenMap[$id];
+        return $childrenMap[$id] ?? [];
     }
 
     /**
@@ -217,7 +213,7 @@ class Collection
         $childCollectionMap = [];
         $childProductsList = [];
 
-        $parentIds = array_map(function ($product) {
+        $parentIds = array_map(static function ($product) {
             return $product->getId();
         }, $this->parentProducts);
 

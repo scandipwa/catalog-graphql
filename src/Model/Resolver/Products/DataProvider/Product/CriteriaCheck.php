@@ -12,7 +12,7 @@ class CriteriaCheck
      * @param SearchCriteriaInterface $searchCriteria
      * @return bool
      */
-    static public function isSingleProductFilter(SearchCriteriaInterface $searchCriteria)
+    public static function isSingleProductFilter(SearchCriteriaInterface $searchCriteria)
     {
         foreach ($searchCriteria->getFilterGroups() as $filterGroup) {
             $filters = $filterGroup->getFilters();
@@ -23,7 +23,7 @@ class CriteriaCheck
                 }
             }
         }
-        
+
         return false;
     }
 
@@ -31,7 +31,7 @@ class CriteriaCheck
      * @param \Magento\Framework\Api\Filter $filter
      * @return bool
      */
-    static public function isSingleProductFilterType($filter) {
+    public static function isSingleProductFilterType($filter) {
         $type = $filter->getConditionType();
         $field = $filter->getField();
 

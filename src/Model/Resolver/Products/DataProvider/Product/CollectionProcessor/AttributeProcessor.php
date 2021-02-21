@@ -19,7 +19,7 @@ use Magento\GraphQl\Model\Query\ContextInterface;
  */
 class AttributeProcessor implements CollectionProcessorInterface
 {
-    const ATTRIBUTES_FIELD = 'attributes';
+    public const ATTRIBUTES_FIELD = 'attributes';
 
     /**
      * {@inheritdoc}

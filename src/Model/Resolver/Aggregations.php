@@ -18,7 +18,7 @@ use Magento\Framework\GraphQl\Schema\Type\ResolveInfo;
 use Magento\Store\Api\Data\StoreInterface;
 
 class Aggregations extends AggregationsBase {
-    const PRICE_ATTR_CODE = 'price';
+    public const PRICE_ATTR_CODE = 'price';
 
     /**
      * @inheritdoc
@@ -41,7 +41,7 @@ class Aggregations extends AggregationsBase {
      * @return array
      */
     private function processPriceFilter(array $result): array {
-        return array_map(function ($item) {
+        return array_map(static function ($item) {
             if ($item['attribute_code'] === self::PRICE_ATTR_CODE) {
                 $lastIdx = count($item['options']) - 1;
                 $lastOpt = $item['options'][$lastIdx];

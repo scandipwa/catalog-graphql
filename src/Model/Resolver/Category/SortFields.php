@@ -79,7 +79,7 @@ class SortFields implements ResolverInterface
 
         array_walk(
             $sortOptions,
-            function (&$option) {
+            static function (&$option) {
                 $option['label'] = (string)$option['label'];
             }
         );

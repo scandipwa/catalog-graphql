@@ -144,11 +144,11 @@ class AstConverterPlugin {
         unset($arguments['conditions']); // drop conditions from filters
 
         $conditions = $next($fieldName, $arguments);
-        array_push($conditions, $this->clauseFactory->create(
+        $conditions[] = $this->clauseFactory->create(
             'sku',
             'in',
             $SKUs
-        ));
+        );
 
         return $conditions;
     }
