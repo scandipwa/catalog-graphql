@@ -13,6 +13,8 @@ declare(strict_types=1);
 
 namespace ScandiPWA\CatalogGraphQl\Model\Layer\Filter;
 
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Store\Model\StoreManagerInterface;
 use Magento\CatalogGraphQl\DataProvider\Product\LayeredNavigation\LayerBuilderInterface;
 use Magento\Framework\Api\Search\AggregationInterface;
@@ -66,6 +68,7 @@ class Price implements LayerBuilderInterface
     /**
      * @inheritdoc
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     * @throws NoSuchEntityException|LocalizedException
      */
     public function build(AggregationInterface $aggregation, ?int $storeId): array
     {

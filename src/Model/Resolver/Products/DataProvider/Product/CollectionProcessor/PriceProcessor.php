@@ -33,7 +33,6 @@ class PriceProcessor implements CollectionProcessorInterface
         $collection->addTaxPercents();
 
         if (in_array(self::PRICE_FIELD, $attributeNames, true)) {
-            /** @var $collection Collection */
             $collection->addPriceData();
         }
 

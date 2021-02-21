@@ -45,7 +45,6 @@ class StockCount implements ResolverInterface {
             throw new LocalizedException(__('"model" value should be specified'));
         }
 
-        /* @var $product ProductInterface */
         $product = $value['model'];
 
         $stockStatus = $this->stockStatusRepository->get($product->getId());
