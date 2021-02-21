@@ -22,6 +22,10 @@ use Magento\Search\Model\Query;
 use Magento\Store\Model\ScopeInterface;
 use ScandiPWA\Performance\Model\Resolver\Products\DataPostProcessor;
 
+/**
+ * Class Filter
+ * @package ScandiPWA\CatalogGraphQl\Model\Resolver\Products\Query
+ */
 class Filter extends MagentoFilter {
     /**
      * @var SearchResultFactory
@@ -138,6 +142,7 @@ class Filter extends MagentoFilter {
      * @param array $args
      * @param ResolveInfo $info
      * @return SearchCriteriaInterface
+     * @throws InputException
      */
     private function buildSearchCriteria(array $args, ResolveInfo $info): SearchCriteriaInterface
     {
