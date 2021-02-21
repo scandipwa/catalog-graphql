@@ -15,7 +15,8 @@ use Magento\GraphQl\Model\Query\ContextParametersInterface;
 use Magento\GraphQl\Model\Query\ContextParametersProcessorInterface;
 
 /**
- * @inheritdoc
+ * Class AddSearchCriteriaToContext
+ * @package ScandiPWA\CatalogGraphQl\Model\Context
  */
 class AddSearchCriteriaToContext implements ContextParametersProcessorInterface
 {

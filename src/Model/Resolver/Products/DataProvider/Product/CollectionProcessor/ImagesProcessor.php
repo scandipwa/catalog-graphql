@@ -16,7 +16,6 @@ use Magento\GraphQl\Model\Query\ContextInterface;
 /**
  * Adds passed in attributes to product collection results
  *
- * {@inheritdoc}
  */
 class ImagesProcessor implements CollectionProcessorInterface
 {

@@ -19,7 +19,8 @@ use Magento\Framework\GraphQl\Config\Element\Field;
 use Magento\Framework\GraphQl\Query\ResolverInterface;
 
 /**
- * @inheritdoc
+ * Class StockCount
+ * @package ScandiPWA\CatalogGraphQl\Model\Resolver\Inventory
  */
 class StockCount implements ResolverInterface {
     /**

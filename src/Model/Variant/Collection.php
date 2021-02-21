@@ -137,8 +137,8 @@ class Collection
      * Retrieve child products from for passed in parent id.
      *
      * @param int $id
+     * @param $info
      * @return array
-     * @throws \Exception
      */
     public function getChildProductsByParentId(int $id, $info) : array
     {
@@ -258,6 +258,7 @@ class Collection
     /**
      * Fetch all children products from parent id's.
      *
+     * @param $info
      * @return array
      */
     protected function fetch($info) : array {

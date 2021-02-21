@@ -106,7 +106,6 @@ class Search extends CoreSearch
      * @param ResolveInfo $info
      * @param ContextInterface $context
      * @return SearchResult
-     * @throws Exception
      */
     public function getResult(
         array $args,

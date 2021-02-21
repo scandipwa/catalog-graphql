@@ -23,6 +23,10 @@ use Magento\Rule\Model\Condition\Combine;
 use Magento\Rule\Model\Condition\Sql\Builder;
 use Magento\Widget\Helper\Conditions;
 
+/**
+ * Class AstConverterPlugin
+ * @package ScandiPWA\CatalogGraphQl\Plugin\Resolver\Argument
+ */
 class AstConverterPlugin {
     /** @var Conditions */
     protected $conditionsHelper;

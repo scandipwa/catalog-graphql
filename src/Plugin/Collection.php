@@ -9,6 +9,10 @@ use Exception;
 use Magento\Eav\Model\Entity\Collection\AbstractCollection;
 use Magento\Framework\DataObject;
 
+/**
+ * Class Collection
+ * @package ScandiPWA\CatalogGraphQl\Plugin
+ */
 class Collection
 {
     /**

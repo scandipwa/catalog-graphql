@@ -17,6 +17,10 @@ use Magento\Framework\GraphQl\Config\Element\Field;
 use Magento\Framework\GraphQl\Schema\Type\ResolveInfo;
 use Magento\Store\Api\Data\StoreInterface;
 
+/**
+ * Class Aggregations
+ * @package ScandiPWA\CatalogGraphQl\Model\Resolver
+ */
 class Aggregations extends AggregationsBase {
     public const PRICE_ATTR_CODE = 'price';
 

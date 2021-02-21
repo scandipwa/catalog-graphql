@@ -4,6 +4,7 @@ namespace ScandiPWA\CatalogGraphQl\Model\Rule\Condition;
 use Magento\CatalogWidget\Model\Rule\Condition\Product as ProductCondition;
 use Magento\Catalog\Model\ResourceModel\Eav\Attribute;
 use Magento\Catalog\Model\ResourceModel\Product\Collection;
+use Magento\Framework\Exception\NoSuchEntityException;
 
 /**
  * Class Product
@@ -15,6 +16,7 @@ class Product extends ProductCondition
      * @param Attribute $attribute
      * @param Collection $collection
      * @return $this
+     * @throws NoSuchEntityException
      */
     protected function addGlobalAttribute(
         Attribute $attribute,

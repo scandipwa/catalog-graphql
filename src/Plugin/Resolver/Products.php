@@ -18,6 +18,10 @@ use Magento\Framework\GraphQl\Config\Element\Field;
 use Magento\Framework\GraphQl\Query\Resolver\Argument\SearchCriteria\Builder;
 use Magento\Framework\GraphQl\Schema\Type\ResolveInfo;
 
+/**
+ * Class Products
+ * @package ScandiPWA\CatalogGraphQl\Plugin\Resolver
+ */
 class Products {
     /** @var Builder */
     protected $searchCriteriaBuilder;
@@ -38,6 +42,15 @@ class Products {
         $this->customerSession = $customerSession;
     }
 
+    /**
+     * @param CoreProducts $products
+     * @param Field $field
+     * @param $context
+     * @param ResolveInfo $info
+     * @param array|null $value
+     * @param array|null $args
+     * @return array
+     */
     public function beforeResolve(
         CoreProducts $products,
         Field $field,

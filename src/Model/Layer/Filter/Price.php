@@ -20,7 +20,8 @@ use Magento\Framework\Api\Search\BucketInterface;
 use Magento\CatalogGraphQl\DataProvider\Product\LayeredNavigation\Formatter\LayerFormatter;
 
 /**
- * @inheritdoc
+ * Class Price
+ * @package ScandiPWA\CatalogGraphQl\Model\Layer\Filter
  */
 class Price implements LayerBuilderInterface
 {
@@ -51,6 +52,7 @@ class Price implements LayerBuilderInterface
 
     /**
      * @param LayerFormatter $layerFormatter
+     * @param StoreManagerInterface $storeManager
      */
     public function __construct(
         LayerFormatter $layerFormatter,

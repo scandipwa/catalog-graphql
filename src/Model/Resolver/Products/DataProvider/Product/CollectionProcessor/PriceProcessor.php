@@ -15,7 +15,6 @@ use Magento\GraphQl\Model\Query\ContextInterface;
 /**
  * Adds price data to product collection
  *
- * {@inheritdoc}
  */
 class PriceProcessor implements CollectionProcessorInterface
 {

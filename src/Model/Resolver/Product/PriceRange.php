@@ -127,7 +127,10 @@ class PriceRange extends CorePriceRange
      * Format price for GraphQl output
      *
      * @param float $regularPrice
+     * @param float $regularPriceExclTax
      * @param float $finalPrice
+     * @param float $finalPriceExclTax
+     * @param array $discount
      * @param StoreInterface $store
      * @return array
      */

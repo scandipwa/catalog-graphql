@@ -4,8 +4,13 @@
 namespace ScandiPWA\CatalogGraphQl\Model\Resolver\Products\DataProvider\Product;
 
 
+use Magento\Framework\Api\Filter;
 use Magento\Framework\Api\SearchCriteriaInterface;
 
+/**
+ * Class CriteriaCheck
+ * @package ScandiPWA\CatalogGraphQl\Model\Resolver\Products\DataProvider\Product
+ */
 class CriteriaCheck
 {
     /**
@@ -28,7 +33,7 @@ class CriteriaCheck
     }
 
     /**
-     * @param \Magento\Framework\Api\Filter $filter
+     * @param Filter $filter
      * @return bool
      */
     public static function isSingleProductFilterType($filter) {
