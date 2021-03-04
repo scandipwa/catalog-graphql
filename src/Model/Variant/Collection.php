@@ -212,8 +212,6 @@ class Collection
      * @return array
      */
     protected function getChildCollectionMapAndList(): array {
-        $isReturnSingleChild = $this->getIsReturnSingleChild();
-
         $childCollectionMap = [];
         $childProductsList = [];
 
@@ -237,9 +235,6 @@ class Collection
 
             if (!isset($childCollectionMap[$parentId])) {
                 $childCollectionMap[$parentId] = [];
-            } else if ($isReturnSingleChild) {
-                // if child collection is already array => has one item, and we should return one child - skip
-                continue;
             }
 
             $childCollectionMap[$parentId][] = $childId;
@@ -252,8 +247,36 @@ class Collection
         ];
     }
 
-    protected function getSearchCriteria(array $childrenIds): SearchCriteriaInterface {
-        // build a search criteria based on original one and filter of product ids
+    protected function getSearchCriteria(array $childrenIds, bool $isSingleProduct): SearchCriteriaInterface {
+        if ($isSingleProduct) {
+            $filterGroups = $this->searchCriteria->getFilterGroups();
+
+            $skip = [
+                'category_url_path',
+                'category_id',
+                'price',
+                'customer_group_id'
+            ];
+
+            foreach ($filterGroups as $filterGroup) {
+                $filters = $filterGroup->getFilters();
+
+                foreach ($filters as $filter) {
+                    $field = $filter->getField();
+
+                    if (in_array($field, $skip)) {
+                        continue;
+                    }
+
+                    $this->searchCriteriaBuilder->addFilter(
+                        $filter->getField(),
+                        $filter->getValue(),
+                        $filter->getConditionType()
+                    );
+                }
+            }
+        }
+
         return $this->searchCriteriaBuilder
             ->addFilter('entity_id', $childrenIds, 'in')
             ->create();
@@ -275,8 +298,8 @@ class Collection
         ] = $this->getChildCollectionMapAndList();
 
         $collection = $this->collectionFactory->create();
-
-        $searchCriteria = $this->getSearchCriteria($childProductsList);
+        $isReturnSingleChild = $this->getIsReturnSingleChild(true);
+        $searchCriteria = $this->getSearchCriteria($childProductsList, $isReturnSingleChild);
 
         $attributeData = $this->attributeCodes;
 
@@ -295,8 +318,6 @@ class Collection
 
         $products = $collection->getItems();
         $productsToProcess = [];
-
-        $isReturnSingleChild = $this->getIsReturnSingleChild(true);
 
         if ($isReturnSingleChild) {
             foreach ($this->parentProducts as $parentProduct) {

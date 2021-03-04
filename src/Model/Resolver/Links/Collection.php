@@ -214,6 +214,8 @@ class Collection
         /** @var Selection $link */
         foreach ($links as $link) {
             $data = $link->getData();
+            $productId = $link->getProductId();
+            $product = isset($productMap[$productId]) ? $productMap[$productId] : null;
             $formattedLink = [
                 'price' => $link->getSelectionPriceValue(),
                 'position' => $link->getPosition(),
@@ -226,7 +228,7 @@ class Collection
                     (string)$link->getSelectionPriceType()
                 ) ?: 'DYNAMIC',
                 'can_change_quantity' => $link->getSelectionCanChangeQty(),
-                'product' => $productMap[$link->getProductId()]
+                'product' => $product
             ];
 
             $data = array_replace($data, $formattedLink);
