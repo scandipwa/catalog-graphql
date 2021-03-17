@@ -87,3 +87,11 @@ type Currency {
 extend type Products {
     aggregations: [Aggregation] @doc(description: "Layered navigation aggregations.") @resolver(class: "ScandiPWA\\CatalogGraphQl\\Model\\Resolver\\Aggregations")
 }
+
+type DownloadableProduct {
+    samples_title: String @resolver(class: "ScandiPWA\\CatalogGraphQl\\Model\\Resolver\\Product\\SamplesTitle")
+}
+
+type DownloadableProductLinks {
+    sample_url: String @resolver(class: "ScandiPWA\\CatalogGraphQl\\Model\\Resolver\\Product\\SampleUrl")
+}
