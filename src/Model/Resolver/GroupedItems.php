@@ -87,6 +87,7 @@ class GroupedItems extends MagentoGroupedItems
 
         $itemData = [];
         $productSKUs = [];
+        $result = [];
         $productModel = $value['model'];
 
         // This fix allows to request min / max price and grouped items
@@ -132,13 +133,18 @@ class GroupedItems extends MagentoGroupedItems
         );
 
         foreach ($productsData as $productData) {
-            if (!isset($itemData[$productData['sku']])) {
+            $sku = $productData['sku'];
+
+            if (!isset($itemData[$sku])) {
                 continue;
             }
 
-            $itemData[$productData['sku']]['product'] = $productData;
+            $resultItem = $itemData[$sku];
+            $resultItem['product'] = $productData;
+
+            $result[] = $resultItem;
         }
 
-        return $itemData;
+        return $result;
     }
 }
