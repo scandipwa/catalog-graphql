@@ -117,7 +117,8 @@ class MediaGalleryEntries implements ResolverInterface
             foreach ($product->getMediaGalleryEntries() as $key => $entry) {
                 $thumbnail = $this->getImageOfType($entry, 'scandipwa_media_thumbnail', 'thumbnail');
                 $base = $this->getImageOfType($entry, 'scandipwa_media_base', 'base');
-                $mediaGalleryEntries[$key] = $entry->getData() + ['thumbnail' => $thumbnail, 'base' => $base];
+                $large = $this->getImageOfType($entry, 'scandipwa_media_large', 'large');
+                $mediaGalleryEntries[$key] = $entry->getData() + ['thumbnail' => $thumbnail, 'base' => $base, 'large' => $large];
 
                 if ($entry->getExtensionAttributes() && $entry->getExtensionAttributes()->getVideoContent()) {
                     $mediaGalleryEntries[$key]['video_content']
