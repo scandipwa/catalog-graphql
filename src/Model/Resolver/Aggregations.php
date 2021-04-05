@@ -90,10 +90,10 @@ class Aggregations extends AggregationsBase {
      */
     private function normalizeBooleanLabels(array $result): array {
         foreach ($result as $attr => $attrGroup) {
-            $attrType = $this->attribute->loadByCode('catalog_product', $attr['attribute_code'])->getFrontendInput();
+            $attrType = $this->attribute->loadByCode('catalog_product', $attrGroup['attribute_code'])->getFrontendInput();
             if ($attrType == 'boolean') {
-                foreach ($$attrGroup['options'] as $option => $attrOption){
-                    $attrOption['label'] = $this->booleanLabels[$option['value']];
+                foreach ($attrGroup['options'] as $option => $attrOption){
+                    $result[$attr]['options'][$option]['label'] = $this->booleanLabels[$attrOption['value']];
                 }
             }
         }
