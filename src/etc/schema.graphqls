@@ -99,6 +99,10 @@ extend type Products {
     aggregations: [Aggregation] @doc(description: "Layered navigation aggregations.") @resolver(class: "ScandiPWA\\CatalogGraphQl\\Model\\Resolver\\Aggregations")
 }
 
+extend type Aggregation {
+    position: Int @doc(description: "Attribute position in filter menu.")
+}
+
 type DownloadableProduct {
     samples_title: String @resolver(class: "ScandiPWA\\CatalogGraphQl\\Model\\Resolver\\Product\\SamplesTitle")
 }

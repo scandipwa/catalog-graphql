@@ -60,7 +60,7 @@ class Aggregations extends AggregationsBase {
     ) {
         $result = parent::resolve($field, $context, $info, $value);
         $result = $this->processPriceFilter($result);
-        $result = $this->normalizeBooleanLabels($result);
+        $result = $this->enhanceAttributes($result);
         return $result;
     }
 
@@ -88,14 +88,19 @@ class Aggregations extends AggregationsBase {
      * @param array $result Filters
      * @return array
      */
-    private function normalizeBooleanLabels(array $result): array {
+    private function enhanceAttributes(array $result): array {
         foreach ($result as $attr => $attrGroup) {
-            $attrType = $this->attribute->loadByCode('catalog_product', $attrGroup['attribute_code'])->getFrontendInput();
-            if ($attrType == 'boolean') {
+            $attribute = $this->attribute->loadByCode('catalog_product', $attrGroup['attribute_code']);
+
+            // Process options and replace '1' and '0' labels for options having boolean type.
+            if ($attribute->getFrontendInput() == 'boolean') {
                 foreach ($attrGroup['options'] as $option => $attrOption){
                     $result[$attr]['options'][$option]['label'] = $this->booleanLabels[$attrOption['value']];
                 }
             }
+
+            // Set position in the filters list
+            $result[$attr]['position'] = $attribute->getPosition();
         }
         return $result;
     }
