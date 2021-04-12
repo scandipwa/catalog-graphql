@@ -24,6 +24,7 @@ input ProductAttributeFilterInput {
 type MediaGalleryEntry  @doc(description: "MediaGalleryEntry defines characteristics about images and videos associated with a specific product") {
     thumbnail: MediaGalleryImageOfType @doc(description: "The path of the thumbnail image on the server thumbnail")
     base: MediaGalleryImageOfType @doc(description: "The path of the thumbnail image on the server thumbnail")
+    large: MediaGalleryImageOfType @doc(description: "The path of the large image on the server")
 }
 
 type ProductImage @doc(description: "Extend product Image fields for frontend-driven loading mechanism") {
@@ -105,4 +106,22 @@ type DownloadableProduct {
 
 type DownloadableProductLinks {
     sample_url: String @resolver(class: "ScandiPWA\\CatalogGraphQl\\Model\\Resolver\\Product\\SampleUrl")
+}
+
+extend type BundleProduct {
+    bundle_options: [BundleOption] @doc(description: "Additional pricing info specific for bundle products") @resolver(class: "ScandiPWA\\CatalogGraphQl\\Model\\Resolver\\Product\\BundleProductOptions")
+}
+
+type BundleOption {
+    option_id: Int
+    selection_details: [BundleOptionSelection]
+}
+
+type BundleOptionSelection {
+    selection_id: Int
+    name: String
+    regular_option_price: Float
+    regular_option_price_excl_tax: Float
+    final_option_price: Float
+    final_option_price_excl_tax: Float
 }
