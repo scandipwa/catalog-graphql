@@ -85,7 +85,7 @@ class BundleProductOptions implements ResolverInterface
                 $taxableItem = $bundleProduct->getPriceType() == Price::PRICE_TYPE_FIXED ? $bundleProduct : $optionSelection;
 
                 $selectionPrice = $priceModel->getSelectionPrice($bundleProduct, $optionSelection, 1);
-                $selectionPriceExclTax = $this->catalogData->getTaxPrice($taxableItem, $selectionPrice, false);
+                $selectionPriceExclTax = $this->catalogData->getTaxPrice($taxableItem, $selectionPrice, false, null, null, null, null, null, false);
 
                 $selectionPriceType = $this->enumLookup->getEnumValueFromField(
                     'PriceTypeEnum',
