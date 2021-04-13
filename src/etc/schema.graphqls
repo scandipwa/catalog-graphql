@@ -55,9 +55,9 @@ type ProductPrice @doc(description: "Represents a product price.") {
     regular_price_excl_tax: Money!  @doc(description: "The regular price of the product excluding taxes.")
     final_price: Money! @doc(description: "The final price of the product after discounts applied.")
     final_price_excl_tax: Money! @doc(description: "The final price of the product after discounts applied excluding taxes.")
-    base_price: Money! @doc(description: "The base price of the product.")
-    base_final_price: Money! @doc(description: "The base price of the product after discounts applied.")
-    base_final_price_excl_tax: Money! @doc(description: "The base price of the product after discounts applied excluding taxes.")
+    default_price: Money! @doc(description: "The base price of the product.")
+    default_final_price: Money! @doc(description: "The base price of the product after discounts applied.")
+    default_final_price_excl_tax: Money! @doc(description: "The base price of the product after discounts applied excluding taxes.")
     discount: ProductDiscount @doc(description: "The price discount. Represents the difference between the regular and final price.")
 }
 
