@@ -22,8 +22,9 @@ input ProductAttributeFilterInput {
 }
 
 type MediaGalleryEntry  @doc(description: "MediaGalleryEntry defines characteristics about images and videos associated with a specific product") {
-    thumbnail: MediaGalleryImageOfType @doc(description: "The path of the thumbnail image on the server thumbnail")
-    base: MediaGalleryImageOfType @doc(description: "The path of the thumbnail image on the server thumbnail")
+    thumbnail: MediaGalleryImageOfType @doc(description: "The path of the thumbnail image on the server")
+    base: MediaGalleryImageOfType @doc(description: "The path of the base image on the server")
+    large: MediaGalleryImageOfType @doc(description: "The path of the large image on the server")
 }
 
 type ProductImage @doc(description: "Extend product Image fields for frontend-driven loading mechanism") {
