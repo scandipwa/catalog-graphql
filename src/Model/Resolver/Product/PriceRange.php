@@ -91,23 +91,13 @@ class PriceRange extends CorePriceRange
     protected function getMinimumProductPrice(SaleableInterface $product, StoreInterface $store): array
     {
         $priceProvider = $this->priceProviderPool->getProviderByProductType($product->getTypeId());
-
         $regularPrice = (float) $priceProvider->getMinimalRegularPrice($product)->getValue();
         $finalPrice = (float) $priceProvider->getMinimalFinalPrice($product)->getValue();
-
-        $baseRegularPrice = (float) $product->getPrice();
-        $baseFinalPrice = (float) $priceProvider->getRegularPrice($product)->getValue();
-
         $discount = $this->calculateDiscount($product, $regularPrice, $finalPrice);
-
         $regularPriceExclTax = (float) $priceProvider->getMinimalRegularPrice($product)->getBaseAmount();
         $finalPriceExclTax = (float) $priceProvider->getMinimalFinalPrice($product)->getBaseAmount();
-        $baseFinalPriceExclTax = (float) $priceProvider->getRegularPrice($product)->getBaseAmount();
 
-        $minPriceArray = $this->formatPrice(
-            $regularPrice, $regularPriceExclTax, $finalPrice, $finalPriceExclTax,
-            $baseRegularPrice, $baseFinalPrice, $baseFinalPriceExclTax, $discount, $store
-        );
+        $minPriceArray = $this->formatPrice($regularPrice, $regularPriceExclTax, $finalPrice, $finalPriceExclTax, $discount, $store);
         $minPriceArray['model'] = $product;
         return $minPriceArray;
     }
@@ -122,23 +112,13 @@ class PriceRange extends CorePriceRange
     protected function getMaximumProductPrice(SaleableInterface $product, StoreInterface $store): array
     {
         $priceProvider = $this->priceProviderPool->getProviderByProductType($product->getTypeId());
-
         $regularPrice = (float) $priceProvider->getMaximalRegularPrice($product)->getValue();
         $finalPrice = (float) $priceProvider->getMaximalFinalPrice($product)->getValue();
-
-        $baseRegularPrice = (float) $product->getPrice();
-        $baseFinalPrice = (float) $priceProvider->getRegularPrice($product)->getValue();
-
         $discount = $this->calculateDiscount($product, $regularPrice, $finalPrice);
-
         $regularPriceExclTax = (float) $priceProvider->getMinimalRegularPrice($product)->getBaseAmount();
         $finalPriceExclTax = (float) $priceProvider->getMinimalFinalPrice($product)->getBaseAmount();
-        $baseFinalPriceExclTax = (float) $priceProvider->getRegularPrice($product)->getBaseAmount();
 
-        $maxPriceArray = $this->formatPrice(
-            $regularPrice, $regularPriceExclTax, $finalPrice, $finalPriceExclTax,
-            $baseRegularPrice, $baseFinalPrice, $baseFinalPriceExclTax, $discount, $store
-        );
+        $maxPriceArray = $this->formatPrice($regularPrice, $regularPriceExclTax, $finalPrice, $finalPriceExclTax, $discount, $store);
         $maxPriceArray['model'] = $product;
         return $maxPriceArray;
     }
@@ -156,9 +136,6 @@ class PriceRange extends CorePriceRange
         float $regularPriceExclTax,
         float $finalPrice,
         float $finalPriceExclTax,
-        float $baseRegularPrice,
-        float $baseFinalPrice,
-        float $baseFinalPriceExclTax,
         array $discount,
         StoreInterface $store
     ): array {
@@ -177,18 +154,6 @@ class PriceRange extends CorePriceRange
             ],
             'final_price_excl_tax' => [
                 'value' => $finalPriceExclTax,
-                'currency' => $store->getCurrentCurrencyCode()
-            ],
-            'base_price' => [
-                'value' => $baseRegularPrice,
-                'currency' => $store->getCurrentCurrencyCode()
-            ],
-            'base_final_price' => [
-                'value' => $baseFinalPrice,
-                'currency' => $store->getCurrentCurrencyCode()
-            ],
-            'base_final_price_excl_tax' => [
-                'value' => $baseFinalPriceExclTax,
                 'currency' => $store->getCurrentCurrencyCode()
             ],
             'discount' => $discount,
