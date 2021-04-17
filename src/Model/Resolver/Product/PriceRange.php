@@ -14,6 +14,7 @@ use Magento\Framework\GraphQl\Schema\Type\ResolveInfo;
 use Magento\Catalog\Model\Product;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Pricing\SaleableInterface;
+use Magento\Framework\Pricing\PriceCurrencyInterface;
 use Magento\Store\Api\Data\StoreInterface;
 use Magento\CatalogGraphQl\Model\Resolver\Product\PriceRange as CorePriceRange;
 
@@ -33,12 +34,18 @@ class PriceRange extends CorePriceRange
     protected $priceProviderPool;
 
     /**
+     * @var PriceCurrencyInterface
+     */
+    private PriceCurrencyInterface $priceCurrency;
+
+    /**
      * @param PriceProviderPool $priceProviderPool
      * @param Discount $discount
      */
     public function __construct(
         PriceProviderPool $priceProviderPool,
-        Discount $discount
+        Discount $discount,
+        PriceCurrencyInterface $priceCurrency
     )
     {
         parent::__construct(
@@ -48,6 +55,7 @@ class PriceRange extends CorePriceRange
 
         $this->priceProviderPool = $priceProviderPool;
         $this->discount = $discount;
+        $this->priceCurrency = $priceCurrency;
     }
 
     /**
@@ -95,7 +103,7 @@ class PriceRange extends CorePriceRange
         $regularPrice = (float) $priceProvider->getMinimalRegularPrice($product)->getValue();
         $finalPrice = (float) $priceProvider->getMinimalFinalPrice($product)->getValue();
 
-        $defaultRegularPrice = (float) $product->getPrice();
+        $defaultRegularPrice = $this->priceCurrency->convert($product->getPrice());
         $defaultFinalPrice = (float) $priceProvider->getRegularPrice($product)->getValue();
 
         $discount = $this->calculateDiscount($product, $regularPrice, $finalPrice);

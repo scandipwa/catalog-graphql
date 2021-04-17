@@ -15,6 +15,7 @@ use Magento\Framework\GraphQl\Config\Element\Field;
 use Magento\Framework\GraphQl\Schema\Type\ResolveInfo;
 use Magento\Framework\GraphQl\Query\EnumLookup;
 use Magento\Framework\GraphQl\Query\ResolverInterface;
+use Magento\Framework\Pricing\PriceCurrencyInterface;
 
 /**
  * @inheritdoc
@@ -33,6 +34,10 @@ class BundleProductOptions implements ResolverInterface
      */
     private $enumLookup;
 
+    /**
+     * @var PriceCurrencyInterface
+     */
+    private PriceCurrencyInterface $priceCurrency;
 
     /**
      * @param CatalogData $catalogData
@@ -40,11 +45,13 @@ class BundleProductOptions implements ResolverInterface
      */
     public function __construct(
         EnumLookup $enumLookup,
-        CatalogData $catalogData
+        CatalogData $catalogData,
+        PriceCurrencyInterface $priceCurrency
     )
     {
         $this->enumLookup = $enumLookup;
         $this->catalogData = $catalogData;
+        $this->priceCurrency = $priceCurrency;
     }
 
     /**
@@ -102,10 +109,10 @@ class BundleProductOptions implements ResolverInterface
 
                 $selectionsResult[] = [
                     'selection_id' => $optionSelection->getSelectionId(),
-                    'regular_option_price' => $regularPrice,
-                    'regular_option_price_excl_tax' => $regularPriceExclTax,
-                    'final_option_price' => $selectionPrice,
-                    'final_option_price_excl_tax' => $selectionPriceExclTax
+                    'regular_option_price' => $this->priceCurrency->convert($regularPrice),
+                    'regular_option_price_excl_tax' => $this->priceCurrency->convert($regularPriceExclTax),
+                    'final_option_price' => $this->priceCurrency->convert($selectionPrice),
+                    'final_option_price_excl_tax' => $this->priceCurrency->convert($selectionPriceExclTax)
                 ];
             }
 
