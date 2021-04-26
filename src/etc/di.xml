@@ -82,7 +82,4 @@
 
     <preference for="Magento\CatalogGraphQl\Model\Resolver\Category\SortFields"
                 type="ScandiPWA\CatalogGraphQl\Model\Resolver\Category\SortFields" />
-
-    <preference for="Magento\Elasticsearch\SearchAdapter\Dynamic\DataProvider"
-                type="ScandiPWA\CatalogGraphQl\SearchAdapter\Dynamic\DataProvider"/>
 </config>
