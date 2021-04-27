@@ -104,3 +104,35 @@ type DownloadableProduct {
 type DownloadableProductLinks {
     sample_url: String @resolver(class: "ScandiPWA\\CatalogGraphQl\\Model\\Resolver\\Product\\SampleUrl")
 }
+
+extend type CustomizableAreaValue {
+    currency: String @doc(description: "Currency code for the option.")
+}
+
+extend type CustomizableDateValue {
+    currency: String @doc(description: "Currency code for the option.")
+}
+
+extend type CustomizableDropDownValue {
+    currency: String @doc(description: "Currency code for the option.")
+}
+
+extend type CustomizableMultipleValue {
+    currency: String @doc(description: "Currency code for the option.")
+}
+
+extend type CustomizableFieldValue {
+    currency: String @doc(description: "Currency code for the option.")
+}
+
+extend type CustomizableFileValue {
+    currency: String @doc(description: "Currency code for the option.")
+}
+
+extend type CustomizableRadioValue {
+    currency: String @doc(description: "Currency code for the option.")
+}
+
+extend type CustomizableCheckboxValue {
+    currency: String @doc(description: "Currency code for the option.")
+}
