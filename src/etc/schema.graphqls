@@ -141,19 +141,19 @@ extend type CustomizableCheckboxValue {
 }
 
 extend type BundleProduct {
-bundle_options: [BundleOption] @doc(description: "Additional pricing info specific for bundle products") @resolver(class: "ScandiPWA\\CatalogGraphQl\\Model\\Resolver\\Product\\BundleProductOptions")
+    bundle_options: [BundleOption] @doc(description: "Additional pricing info specific for bundle products") @resolver(class: "ScandiPWA\\CatalogGraphQl\\Model\\Resolver\\Product\\BundleProductOptions")
 }
 
 type BundleOption {
-option_id: Int
-selection_details: [BundleOptionSelection]
+    option_id: Int
+    selection_details: [BundleOptionSelection]
 }
 
 type BundleOptionSelection {
-selection_id: Int
-name: String
-regular_option_price: Float
-regular_option_price_excl_tax: Float
-final_option_price: Float
-final_option_price_excl_tax: Float
+    selection_id: Int
+    name: String
+    regular_option_price: Float
+    regular_option_price_excl_tax: Float
+    final_option_price: Float
+    final_option_price_excl_tax: Float
 }
