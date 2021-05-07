@@ -22,8 +22,8 @@ input ProductAttributeFilterInput {
 }
 
 type MediaGalleryEntry  @doc(description: "MediaGalleryEntry defines characteristics about images and videos associated with a specific product") {
-    thumbnail: MediaGalleryImageOfType @doc(description: "The path of the thumbnail image on the server thumbnail")
-    base: MediaGalleryImageOfType @doc(description: "The path of the thumbnail image on the server thumbnail")
+    thumbnail: MediaGalleryImageOfType @doc(description: "The path of the thumbnail image on the server")
+    base: MediaGalleryImageOfType @doc(description: "The path of the base image on the server")
     large: MediaGalleryImageOfType @doc(description: "The path of the large image on the server")
 }
 
@@ -108,20 +108,52 @@ type DownloadableProductLinks {
     sample_url: String @resolver(class: "ScandiPWA\\CatalogGraphQl\\Model\\Resolver\\Product\\SampleUrl")
 }
 
+extend type CustomizableAreaValue {
+    currency: String @doc(description: "Currency code for the option.")
+}
+
+extend type CustomizableDateValue {
+    currency: String @doc(description: "Currency code for the option.")
+}
+
+extend type CustomizableDropDownValue {
+    currency: String @doc(description: "Currency code for the option.")
+}
+
+extend type CustomizableMultipleValue {
+    currency: String @doc(description: "Currency code for the option.")
+}
+
+extend type CustomizableFieldValue {
+    currency: String @doc(description: "Currency code for the option.")
+}
+
+extend type CustomizableFileValue {
+    currency: String @doc(description: "Currency code for the option.")
+}
+
+extend type CustomizableRadioValue {
+    currency: String @doc(description: "Currency code for the option.")
+}
+
+extend type CustomizableCheckboxValue {
+    currency: String @doc(description: "Currency code for the option.")
+}
+
 extend type BundleProduct {
-    bundle_options: [BundleOption] @doc(description: "Additional pricing info specific for bundle products") @resolver(class: "ScandiPWA\\CatalogGraphQl\\Model\\Resolver\\Product\\BundleProductOptions")
+bundle_options: [BundleOption] @doc(description: "Additional pricing info specific for bundle products") @resolver(class: "ScandiPWA\\CatalogGraphQl\\Model\\Resolver\\Product\\BundleProductOptions")
 }
 
 type BundleOption {
-    option_id: Int
-    selection_details: [BundleOptionSelection]
+option_id: Int
+selection_details: [BundleOptionSelection]
 }
 
 type BundleOptionSelection {
-    selection_id: Int
-    name: String
-    regular_option_price: Float
-    regular_option_price_excl_tax: Float
-    final_option_price: Float
-    final_option_price_excl_tax: Float
+selection_id: Int
+name: String
+regular_option_price: Float
+regular_option_price_excl_tax: Float
+final_option_price: Float
+final_option_price_excl_tax: Float
 }

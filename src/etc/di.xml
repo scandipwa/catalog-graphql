@@ -82,4 +82,7 @@
 
     <preference for="Magento\CatalogGraphQl\Model\Resolver\Category\SortFields"
                 type="ScandiPWA\CatalogGraphQl\Model\Resolver\Category\SortFields" />
+
+    <preference for="Magento\CatalogGraphQl\Model\Resolver\Product\Options"
+                type="ScandiPWA\CatalogGraphQl\Model\Resolver\Product\Options" />
 </config>

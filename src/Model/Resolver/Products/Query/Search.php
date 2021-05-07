@@ -17,6 +17,8 @@ use Magento\CatalogGraphQl\Model\Resolver\Products\SearchResultFactory;
 use Magento\GraphQl\Model\Query\ContextInterface;
 use Magento\Search\Api\SearchInterface;
 use Magento\Search\Model\Search\PageSizeProvider;
+use Magento\Search\Model\QueryFactory;
+use Magento\Store\Model\StoreManagerInterface;
 
 use Magento\CatalogGraphQl\Model\Resolver\Products\Query\FieldSelection;
 use Magento\CatalogGraphQl\Model\Resolver\Products\Query\Search as CoreSearch;
@@ -64,6 +66,16 @@ class Search extends CoreSearch
     protected $productPostProcessor;
 
     /**
+     * @var QueryFactory
+     */
+    protected $queryFactory;
+
+    /**
+     * @var StoreManagerInterface
+     */
+    protected $storeManager;
+
+    /**
      * @param SearchInterface $search
      * @param SearchResultFactory $searchResultFactory
      * @param PageSizeProvider $pageSize
@@ -71,6 +83,8 @@ class Search extends CoreSearch
      * @param ProductSearch $productsProvider
      * @param SearchCriteriaBuilder $searchCriteriaBuilder
      * @param DataPostProcessor $productPostProcessor
+     * @param QueryFactory $queryFactory
+     * @param StoreManagerInterface $storeManager
      */
     public function __construct(
         SearchInterface $search,
@@ -79,7 +93,9 @@ class Search extends CoreSearch
         FieldSelection $fieldSelection,
         ProductSearch $productsProvider,
         SearchCriteriaBuilder $searchCriteriaBuilder,
-        DataPostProcessor $productPostProcessor
+        DataPostProcessor $productPostProcessor,
+        QueryFactory $queryFactory,
+        StoreManagerInterface $storeManager
     ) {
         parent::__construct(
             $search,
@@ -97,6 +113,8 @@ class Search extends CoreSearch
         $this->productsProvider = $productsProvider;
         $this->searchCriteriaBuilder = $searchCriteriaBuilder;
         $this->productPostProcessor = $productPostProcessor;
+        $this->queryFactory = $queryFactory;
+        $this->storeManager = $storeManager;
     }
 
     /**
@@ -139,6 +157,11 @@ class Search extends CoreSearch
         $searchCriteria->setPageSize($realPageSize);
         $searchCriteria->setCurrentPage($realCurrentPage);
 
+        // Following lines are added to increment search terms
+        if (!empty($args['search']) && strlen(trim($args['search']))) {
+            $this->incrementQuery($args['search'], $searchResults->getTotalCount());
+        }
+
         // Following lines are changed
         if (count($queryFields) > 0) {
             $productArray = $this->productPostProcessor->process(
@@ -179,5 +202,19 @@ class Search extends CoreSearch
         $searchCriteria = $this->searchCriteriaBuilder->build($args, $includeAggregations);
 
         return $searchCriteria;
+    }
+
+    /**
+     * @param $queryText
+     * @param $queryResultCount
+     * @return void
+     */
+    private function incrementQuery($queryText, $queryResultCount) {
+        $query = $this->queryFactory->get();
+        $query->setQueryText($queryText);
+        $query->setNumResults($queryResultCount);
+        $query->setStoreId($this->storeManager->getStore()->getId());
+        $query->saveIncrementalPopularity();
+        $query->saveNumResults($queryResultCount);
     }
 }
