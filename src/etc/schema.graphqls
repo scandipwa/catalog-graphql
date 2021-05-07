@@ -136,3 +136,7 @@ extend type CustomizableRadioValue {
 extend type CustomizableCheckboxValue {
     currency: String @doc(description: "Currency code for the option.")
 }
+
+extend type ConfigurableProduct {
+    variants_plp: [ConfigurableVariant] @doc(description: "An array of variants of products, optimized version for PLP") @resolver(class: "ScandiPWA\\CatalogGraphQl\\Model\\Resolver\\ConfigurableVariantPlp")
+}

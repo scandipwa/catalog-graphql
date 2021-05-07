@@ -12,6 +12,7 @@ namespace ScandiPWA\CatalogGraphQl\Model\Variant;
 
 use Magento\Catalog\Api\Data\ProductInterface;
 use Magento\Catalog\Model\Product;
+use Magento\Catalog\Model\ResourceModel\Eav\Attribute;
 use Magento\ConfigurableProduct\Model\ResourceModel\Product\Type\Configurable\Product\CollectionFactory;
 use Magento\Catalog\Model\ResourceModel\Product\CollectionFactory as ProductCollectionFactory;
 use Magento\Framework\Api\SearchCriteria;
@@ -59,6 +60,9 @@ class Collection
     /** @var DataPostProcessor  */
     protected $dataPostProcessor;
 
+    /** @var DataPostProcessor\Stocks  */
+    protected $stocksPostProcessor;
+
     /** @var ProductCollectionFactory  */
     protected $collectionFactory;
 
@@ -75,6 +79,7 @@ class Collection
      * @param CollectionProcessorInterface $collectionProcessor
      * @param CollectionPostProcessor $collectionPostProcessor
      * @param DataPostProcessor $dataPostProcessor
+     * @param DataPostProcessor\Stocks $stocksPostProcessor
      * @param ResourceConnection $connection
      */
     public function __construct(
@@ -85,6 +90,7 @@ class Collection
         CollectionProcessorInterface $collectionProcessor,
         CollectionPostProcessor $collectionPostProcessor,
         DataPostProcessor $dataPostProcessor,
+        DataPostProcessor\Stocks $stocksPostProcessor,
         ResourceConnection $connection
     ) {
         $this->childCollectionFactory = $childCollectionFactory;
@@ -93,6 +99,7 @@ class Collection
         $this->collectionProcessor = $collectionProcessor;
         $this->collectionPostProcessor = $collectionPostProcessor;
         $this->dataPostProcessor = $dataPostProcessor;
+        $this->stocksPostProcessor = $stocksPostProcessor;
         $this->collectionFactory = $collectionFactory;
         $this->connection = $connection;
 
@@ -143,6 +150,24 @@ class Collection
     public function getChildProductsByParentId(int $id, $info) : array
     {
         $childrenMap = $this->fetch($info);
+
+        if (!isset($childrenMap[$id])) {
+            return [];
+        }
+
+        return $childrenMap[$id];
+    }
+
+    /**
+     * Retrieve child products from for passed in parent id.
+     *
+     * @param int $id
+     * @return array
+     * @throws \Exception
+     */
+    public function getChildProductsByParentIdPlp(int $id, $info) : array
+    {
+        $childrenMap = $this->fetchPlp($info);
 
         if (!isset($childrenMap[$id])) {
             return [];
@@ -341,6 +366,111 @@ class Collection
             $info,
             ['isSingleProduct' => CriteriaCheck::isSingleProductFilter($this->searchCriteria)]
         );
+
+        foreach ($this->parentProducts as $product) {
+            $parentId = $product->getId();
+            $childIds = $childCollectionMap[$parentId];
+
+            $this->childrenMap[$parentId] = [];
+
+            foreach ($childIds as $childId) {
+                if (!isset($productsData[$childId])) {
+                    continue;
+                }
+
+                $productData = $productsData[$childId];
+
+                $formattedChild = [
+                    'product' => $productData,
+                    'sku' => $productData['sku']
+                ];
+
+                $this->childrenMap[$parentId][] = $formattedChild;
+            }
+        }
+
+        return $this->childrenMap;
+    }
+
+    /**
+     * Fetch all children products from parent id's, optimized for PLP page
+     *
+     * @return array
+     */
+    protected function fetchPlp($info) : array {
+        if (empty($this->parentProducts) || !empty($this->childrenMap)) {
+            return $this->childrenMap;
+        }
+
+        [
+            $childProductsList,
+            $childCollectionMap
+        ] = $this->getChildCollectionMapAndList();
+
+        $collection = $this->collectionFactory->create();
+        $searchCriteria = $this->getSearchCriteria($childProductsList, false);
+
+        $attributeData = $this->attributeCodes;
+
+        $this->collectionProcessor->process(
+            $collection,
+            $searchCriteria,
+            $attributeData
+        );
+
+        $collection->load();
+
+        $this->collectionPostProcessor->process(
+            $collection,
+            $attributeData
+        );
+
+        $products = $collection->getItems();
+
+        // Populate stock status (use same post processor as for non-plp variants)
+        $stockStatusCallback = $this->stocksPostProcessor->process(
+            $products,
+            'variants_plp/product',
+            $info,
+            ['isSingleProduct' => false]
+        );
+
+        // Populate attributes (use more simple logic)
+        $productsData = [];
+        $productAttributes = [];
+
+        /** @var Product $product */
+        foreach ($products as $product) {
+            $productId = $product->getId();
+            $productIds[] = $productId;
+
+            // Create storage for future attributes
+            $productAttributes[$productId] = [];
+
+            /** @var Attribute $attribute */
+            foreach ($product->getAttributes() as $attributeCode => $attribute) {
+                // Skip non-PLP attributes
+                if (!$attribute->getUsedInProductListing()) {
+                    continue;
+                }
+
+                $productAttributes[$productId][$attributeCode] = [
+                    'attribute_code' => $attribute->getAttributeCode(),
+                    'attribute_type' => $attribute->getFrontendInput(),
+                    'attribute_label' => $attribute->getStoreLabel(),
+                    'attribute_id' => $attribute->getAttributeId(),
+                    'attribute_value' => $product->getData($attributeCode)
+                ];
+            }
+
+            // Set stock status
+            $stockStatusCallback($product);
+
+            $productsData[$product->getId()] = $product->getData() + [
+                'model' => $product,
+                's_attributes' => $productAttributes[$productId]
+            ];
+        }
 
         foreach ($this->parentProducts as $product) {
             $parentId = $product->getId();
