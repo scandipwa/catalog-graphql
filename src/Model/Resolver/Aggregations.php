@@ -17,6 +17,7 @@ use Magento\CatalogGraphQl\Model\Resolver\Layer\DataProvider\Filters;
 use Magento\CatalogGraphQl\DataProvider\Product\LayeredNavigation\LayerBuilder;
 use Magento\Framework\GraphQl\Config\Element\Field;
 use Magento\Framework\GraphQl\Schema\Type\ResolveInfo;
+use Magento\Framework\Exception\LocalizedException;
 use Magento\Store\Api\Data\StoreInterface;
 use Magento\Catalog\Model\ResourceModel\Eav\Attribute;
 
@@ -42,11 +43,6 @@ class Aggregations extends AggregationsBase {
     }
 
     const PRICE_ATTR_CODE = 'price';
-
-    protected array $booleanLabels = [
-        0 => 'No',
-        1 => 'Yes'
-    ];
 
     /**
      * @inheritdoc
@@ -87,6 +83,8 @@ class Aggregations extends AggregationsBase {
      * Process options and replace '1' and '0' labels for options having boolean type.
      * @param array $result Filters
      * @return array
+     *
+     * @throws LocalizedException
      */
     private function enhanceAttributes(array $result): array {
         foreach ($result as $attr => $attrGroup) {
@@ -95,7 +93,15 @@ class Aggregations extends AggregationsBase {
             // Process options and replace '1' and '0' labels for options having boolean type.
             if ($attribute->getFrontendInput() == 'boolean') {
                 foreach ($attrGroup['options'] as $option => $attrOption){
-                    $result[$attr]['options'][$option]['label'] = $this->booleanLabels[$attrOption['value']];
+                    if($attrOption['value'] === 1){
+                        $result[$attr]['options'][$option]['label'] = __('Yes');
+                    }
+                    else if($attrOption['value'] === 0){
+                        $result[$attr]['options'][$option]['label'] = __('No');
+                    }
+                    else {
+                        throw new LocalizedException(__('Invalid value for boolean attribute: ' . $attrOption['value']));
+                    }
                 }
             }
 
