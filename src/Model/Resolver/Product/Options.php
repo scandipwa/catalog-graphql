@@ -28,7 +28,7 @@ class Options extends CoreOptions
     /**
      * @var PriceCurrencyInterface
      */
-    private PriceCurrencyInterface $priceCurrency;
+    private $priceCurrency;
 
     public function __construct(
         PriceCurrencyInterface $priceCurrency
