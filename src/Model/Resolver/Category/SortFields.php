@@ -65,6 +65,10 @@ class SortFields implements ResolverInterface
         ];
     }
 
+    /**
+     * @param $context
+     * @return array
+     */
     private function getSortOptions($context): array {
         $categoryId = $this->getCategoryId($context);
         $sortOptions = [];
@@ -79,7 +83,7 @@ class SortFields implements ResolverInterface
 
         array_walk(
             $sortOptions,
-            function (&$option) {
+            static function (&$option) {
                 $option['label'] = (string)$option['label'];
             }
         );
@@ -87,6 +91,10 @@ class SortFields implements ResolverInterface
         return $sortOptions;
     }
 
+    /**
+     * @param $context
+     * @return int
+     */
     private function getCategoryId($context): int {
         $categoryId = 0;
         $filterGroups = $context->getExtensionAttributes()->getSearchCriteria()->getFilterGroups();
@@ -106,6 +114,10 @@ class SortFields implements ResolverInterface
         return $categoryId;
     }
 
+    /**
+     * @param $context
+     * @return string
+     */
     private function getDefaultSortOption($context): string {
         return $this->catalogConfig->getProductListDefaultSortBy(
             (int)$context->getExtensionAttributes()->getStore()->getId()

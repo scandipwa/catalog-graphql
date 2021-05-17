@@ -29,12 +29,12 @@ class AttributeDbProvider
      * @var ResourceConnection
      */
     private $connection;
-    
+
     /**
      * @var Fields
      */
     private $queryFields;
-    
+
     /**
      * AttributeDbProvider constructor.
      * @param ResourceConnection $connection
@@ -48,12 +48,10 @@ class AttributeDbProvider
         $this->connection = $connection;
         $this->queryFields = $queryFields;
     }
-    
+
     /**
      * Returns array of valid attributes, corresponding to request
      *
-     * @throws \Magento\Framework\Exception\LocalizedException
-     * @throws \Zend_Db_Adapter_Exception
      * @throws \Zend_Db_Statement_Exception
      * @return array
      */

@@ -124,7 +124,6 @@ class Search extends CoreSearch
      * @param ResolveInfo $info
      * @param ContextInterface $context
      * @return SearchResult
-     * @throws Exception
      */
     public function getResult(
         array $args,
@@ -171,7 +170,7 @@ class Search extends CoreSearch
                 ['isSingleProduct' => CriteriaCheck::isSingleProductFilter($searchCriteria)]
             );
         } else {
-            $productArray = array_map(function ($product) {
+            $productArray = array_map(static function ($product) {
                 return $product->getData() + ['model' => $product];
             }, $searchResults->getItems());
         }
@@ -199,9 +198,7 @@ class Search extends CoreSearch
     {
         $productFields = (array)$info->getFieldSelection(1);
         $includeAggregations = isset($productFields['filters']) || isset($productFields['aggregations']);
-        $searchCriteria = $this->searchCriteriaBuilder->build($args, $includeAggregations);
-
-        return $searchCriteria;
+        return $this->searchCriteriaBuilder->build($args, $includeAggregations);
     }
 
     /**

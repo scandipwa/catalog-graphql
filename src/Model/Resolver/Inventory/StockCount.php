@@ -19,7 +19,8 @@ use Magento\Framework\GraphQl\Config\Element\Field;
 use Magento\Framework\GraphQl\Query\ResolverInterface;
 
 /**
- * @inheritdoc
+ * Class StockCount
+ * @package ScandiPWA\CatalogGraphQl\Model\Resolver\Inventory
  */
 class StockCount implements ResolverInterface {
     /**
@@ -44,7 +45,6 @@ class StockCount implements ResolverInterface {
             throw new LocalizedException(__('"model" value should be specified'));
         }
 
-        /* @var $product ProductInterface */
         $product = $value['model'];
 
         $stockStatus = $this->stockStatusRepository->get($product->getId());

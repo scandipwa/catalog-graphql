@@ -37,7 +37,6 @@ class Category {
      * @param CoreCategory $category
      * @param callable $next
      * @return mixed
-     * @throws \Magento\Framework\Exception\LocalizedException
      */
     public function aroundGetProductCount(
         CoreCategory $category,

@@ -137,18 +137,14 @@ class Collection
      * Retrieve child products from for passed in parent id.
      *
      * @param int $id
+     * @param $info
      * @return array
-     * @throws \Exception
      */
     public function getChildProductsByParentId(int $id, $info) : array
     {
         $childrenMap = $this->fetch($info);
 
-        if (!isset($childrenMap[$id])) {
-            return [];
-        }
-
-        return $childrenMap[$id];
+        return $childrenMap[$id] ?? [];
     }
 
     /**
@@ -215,7 +211,7 @@ class Collection
         $childCollectionMap = [];
         $childProductsList = [];
 
-        $parentIds = array_map(function ($product) {
+        $parentIds = array_map(static function ($product) {
             return $product->getId();
         }, $this->parentProducts);
 
@@ -285,6 +281,7 @@ class Collection
     /**
      * Fetch all children products from parent id's.
      *
+     * @param $info
      * @return array
      */
     protected function fetch($info) : array {

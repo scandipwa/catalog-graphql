@@ -12,6 +12,7 @@ declare(strict_types=1);
 namespace ScandiPWA\CatalogGraphQl\Model\Resolver\Product;
 
 use Magento\Framework\App\Area;
+use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\GraphQl\Schema\Type\ResolveInfo;
 use Magento\Catalog\Model\Product;
 use Magento\Framework\GraphQl\Config\Element\Field;
@@ -66,6 +67,13 @@ class MediaGalleryEntries implements ResolverInterface
         $this->emulation = $emulation;
     }
 
+    /**
+     * @param $mediaGalleryEntry
+     * @param $imageId
+     * @param $type
+     * @return array
+     * @throws NoSuchEntityException
+     */
     protected function getImageOfType(
         $mediaGalleryEntry,
         $imageId,
@@ -102,7 +110,7 @@ class MediaGalleryEntries implements ResolverInterface
         array $args = null
     ): Value {
         if (!isset($value['model'])) {
-            $result = function () {
+            $result = static function () {
                 return null;
             };
 
@@ -127,7 +135,7 @@ class MediaGalleryEntries implements ResolverInterface
             }
         }
 
-        $result = function () use ($mediaGalleryEntries) {
+        $result = static function () use ($mediaGalleryEntries) {
             return $mediaGalleryEntries;
         };
 

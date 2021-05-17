@@ -14,13 +14,14 @@ namespace ScandiPWA\CatalogGraphQl\Plugin\ResourceModel;
 
 use Magento\Catalog\Model\ResourceModel\Category as CoreCategory;
 use Magento\Eav\Model\Entity\Context;
+use Magento\Framework\App\ResourceConnection;
 
 /**
  * Class Category
  */
 class Category {
     /**
-     * @var \Magento\Framework\App\ResourceConnection
+     * @var ResourceConnection
      */
     protected $resource;
 

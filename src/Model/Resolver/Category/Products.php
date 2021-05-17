@@ -25,7 +25,7 @@ use Magento\Framework\GraphQl\Exception\GraphQlInputException;
 class Products implements ResolverInterface
 {
     /**
-     * @var \Magento\Catalog\Api\ProductRepositoryInterface
+     * @var ProductRepositoryInterface
      */
     private $productRepository;
 
@@ -90,7 +90,7 @@ class Products implements ResolverInterface
             );
         }
 
-        $data = [
+        return [
             'total_count' => $searchResult->getTotalCount(),
             'min_price'   => $searchResult->getMinPrice(),
             'max_price'   => $searchResult->getMaxPrice(),
@@ -101,6 +101,5 @@ class Products implements ResolverInterface
                 'total_pages' => $maxPages
             ]
         ];
-        return $data;
     }
 }

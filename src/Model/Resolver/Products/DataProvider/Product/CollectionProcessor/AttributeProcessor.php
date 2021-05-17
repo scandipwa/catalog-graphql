@@ -15,11 +15,10 @@ use Magento\GraphQl\Model\Query\ContextInterface;
 /**
  * Adds passed in attributes to product collection results
  *
- * {@inheritdoc}
  */
 class AttributeProcessor implements CollectionProcessorInterface
 {
-    const ATTRIBUTES_FIELD = 'attributes';
+    public const ATTRIBUTES_FIELD = 'attributes';
 
     /**
      * {@inheritdoc}

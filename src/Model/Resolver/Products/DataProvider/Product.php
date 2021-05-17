@@ -15,6 +15,10 @@ use ScandiPWA\Performance\Model\Resolver\Products\CollectionPostProcessor;
 use ScandiPWA\CatalogGraphQl\Model\Resolver\Products\DataProvider\Product\CriteriaCheck;
 use Magento\CatalogGraphQl\Model\Resolver\Products\DataProvider\Product\CollectionPostProcessor as MagentoCollectionPostProcessor;
 
+/**
+ * Class Product
+ * @package ScandiPWA\CatalogGraphQl\Model\Resolver\Products\DataProvider
+ */
 class Product extends MagentoProduct {
     /**
      * @var CollectionFactory

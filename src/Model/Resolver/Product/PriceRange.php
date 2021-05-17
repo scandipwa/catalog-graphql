@@ -127,7 +127,10 @@ class PriceRange extends CorePriceRange
      * Format price for GraphQl output
      *
      * @param float $regularPrice
+     * @param float $regularPriceExclTax
      * @param float $finalPrice
+     * @param float $finalPriceExclTax
+     * @param array $discount
      * @param StoreInterface $store
      * @return array
      */
@@ -178,7 +181,7 @@ class PriceRange extends CorePriceRange
 
         // Bundle products have special price set in % (percents)
         $specialPricePrecentage = $this->getSpecialProductPrice($product);
-        $percentOff = is_null($specialPricePrecentage) ? 0 : 100 - $specialPricePrecentage;
+        $percentOff = $specialPricePrecentage === null ? 0 : 100 - $specialPricePrecentage;
 
         return [
             'amount_off' => $regularPrice * ($percentOff / 100),
@@ -204,6 +207,6 @@ class PriceRange extends CorePriceRange
         $to = $product->getSpecialToDate() === null ? null : strtotime($product->getSpecialToDate());
         $now = time();
 
-        return ($now >= $from && $now <= $to) || ($now >= $from && is_null($to)) ? (float)$specialPrice : null;
+        return ($now >= $from && $now <= $to) || ($now >= $from && $to === null) ? $specialPrice : null;
     }
 }

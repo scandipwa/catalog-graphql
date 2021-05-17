@@ -131,11 +131,7 @@ class Collection
     {
         $linksList = $this->fetch();
 
-        if (!isset($linksList[$optionId])) {
-            return [];
-        }
-
-        return $linksList[$optionId];
+        return $linksList[$optionId] ?? [];
     }
 
     /**

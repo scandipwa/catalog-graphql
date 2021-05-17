@@ -19,7 +19,8 @@ use Magento\Framework\GraphQl\Query\Resolver\ValueFactory;
 use Magento\Framework\GraphQl\Query\ResolverInterface;
 
 /**
- * @inheritdoc
+ * Class Product
+ * @package ScandiPWA\CatalogGraphQl\Model\Resolver
  */
 class Product implements ResolverInterface
 {

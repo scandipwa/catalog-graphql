@@ -13,6 +13,8 @@ declare(strict_types=1);
 
 namespace ScandiPWA\CatalogGraphQl\Model\Layer\Filter;
 
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Store\Model\StoreManagerInterface;
 use Magento\CatalogGraphQl\DataProvider\Product\LayeredNavigation\LayerBuilderInterface;
 use Magento\Framework\Api\Search\AggregationInterface;
@@ -20,7 +22,8 @@ use Magento\Framework\Api\Search\BucketInterface;
 use Magento\CatalogGraphQl\DataProvider\Product\LayeredNavigation\Formatter\LayerFormatter;
 
 /**
- * @inheritdoc
+ * Class Price
+ * @package ScandiPWA\CatalogGraphQl\Model\Layer\Filter
  */
 class Price implements LayerBuilderInterface
 {
@@ -51,6 +54,7 @@ class Price implements LayerBuilderInterface
 
     /**
      * @param LayerFormatter $layerFormatter
+     * @param StoreManagerInterface $storeManager
      */
     public function __construct(
         LayerFormatter $layerFormatter,
@@ -64,6 +68,7 @@ class Price implements LayerBuilderInterface
     /**
      * @inheritdoc
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     * @throws NoSuchEntityException|LocalizedException
      */
     public function build(AggregationInterface $aggregation, ?int $storeId): array
     {
@@ -111,7 +116,7 @@ class Price implements LayerBuilderInterface
      * @return float|int|string
      */
     private function getMetricValue($base, $rate) {
-        return (!is_null($base) && is_numeric($base)) ? $base * $rate : '*';
+        return ($base !== null && is_numeric($base)) ? $base * $rate : '*';
     }
 
     /**

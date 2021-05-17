@@ -4,15 +4,20 @@
 namespace ScandiPWA\CatalogGraphQl\Model\Resolver\Products\DataProvider\Product;
 
 
+use Magento\Framework\Api\Filter;
 use Magento\Framework\Api\SearchCriteriaInterface;
 
+/**
+ * Class CriteriaCheck
+ * @package ScandiPWA\CatalogGraphQl\Model\Resolver\Products\DataProvider\Product
+ */
 class CriteriaCheck
 {
     /**
      * @param SearchCriteriaInterface $searchCriteria
      * @return bool
      */
-    static public function isSingleProductFilter(SearchCriteriaInterface $searchCriteria)
+    public static function isSingleProductFilter(SearchCriteriaInterface $searchCriteria)
     {
         foreach ($searchCriteria->getFilterGroups() as $filterGroup) {
             $filters = $filterGroup->getFilters();
@@ -23,15 +28,15 @@ class CriteriaCheck
                 }
             }
         }
-        
+
         return false;
     }
 
     /**
-     * @param \Magento\Framework\Api\Filter $filter
+     * @param Filter $filter
      * @return bool
      */
-    static public function isSingleProductFilterType($filter) {
+    public static function isSingleProductFilterType($filter) {
         $type = $filter->getConditionType();
         $field = $filter->getField();
 
