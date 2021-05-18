@@ -26,7 +26,14 @@ class Aggregations extends AggregationsBase {
     /**
      * @var Attribute
      */
-    private Attribute $attribute;
+    private $attribute;
+
+    const PRICE_ATTR_CODE = 'price';
+
+    protected array $booleanValueMapping = [
+        0 => false,
+        1 => true
+    ];
 
     public function __construct(
         Filters $filtersDataProvider,
@@ -41,8 +48,6 @@ class Aggregations extends AggregationsBase {
 
         $this->attribute = $attribute;
     }
-
-    const PRICE_ATTR_CODE = 'price';
 
     /**
      * @inheritdoc
@@ -83,26 +88,21 @@ class Aggregations extends AggregationsBase {
      * Process options and replace '1' and '0' labels for options having boolean type.
      * @param array $result Filters
      * @return array
-     *
-     * @throws LocalizedException
      */
     private function enhanceAttributes(array $result): array {
         foreach ($result as $attr => $attrGroup) {
             $attribute = $this->attribute->loadByCode('catalog_product', $attrGroup['attribute_code']);
 
-            // Process options and replace '1' and '0' labels for options having boolean type.
+            // Add flag to indicate that attribute is boolean (Yes/No, Enable/Disable, etc.)
             if ($attribute->getFrontendInput() == 'boolean') {
+                $result[$attr]['is_boolean'] = true;
+
                 foreach ($attrGroup['options'] as $option => $attrOption){
-                    if($attrOption['value'] === 1){
-                        $result[$attr]['options'][$option]['label'] = __('Yes');
-                    }
-                    else if($attrOption['value'] === 0){
-                        $result[$attr]['options'][$option]['label'] = __('No');
-                    }
-                    else {
-                        throw new LocalizedException(__('Invalid value for boolean attribute: ' . $attrOption['value']));
-                    }
+                    $result[$attr]['options'][$option]['value'] = $this->booleanValueMapping[$attrOption['value']];
                 }
+            }
+            else {
+                $result[$attr]['is_boolean'] = false;
             }
 
             // Set position in the filters list
