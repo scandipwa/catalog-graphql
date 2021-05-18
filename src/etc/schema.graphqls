@@ -22,8 +22,9 @@ input ProductAttributeFilterInput {
 }
 
 type MediaGalleryEntry  @doc(description: "MediaGalleryEntry defines characteristics about images and videos associated with a specific product") {
-    thumbnail: MediaGalleryImageOfType @doc(description: "The path of the thumbnail image on the server thumbnail")
-    base: MediaGalleryImageOfType @doc(description: "The path of the thumbnail image on the server thumbnail")
+    thumbnail: MediaGalleryImageOfType @doc(description: "The path of the thumbnail image on the server")
+    base: MediaGalleryImageOfType @doc(description: "The path of the base image on the server")
+    large: MediaGalleryImageOfType @doc(description: "The path of the large image on the server")
 }
 
 type ProductImage @doc(description: "Extend product Image fields for frontend-driven loading mechanism") {
@@ -55,9 +56,6 @@ type ProductPrice @doc(description: "Represents a product price.") {
     regular_price_excl_tax: Money!  @doc(description: "The regular price of the product excluding taxes.")
     final_price: Money! @doc(description: "The final price of the product after discounts applied.")
     final_price_excl_tax: Money! @doc(description: "The final price of the product after discounts applied excluding taxes.")
-    base_price: Money! @doc(description: "The base price of the product.")
-    base_final_price: Money! @doc(description: "The base price of the product after discounts applied.")
-    base_final_price_excl_tax: Money! @doc(description: "The base price of the product after discounts applied excluding taxes.")
     discount: ProductDiscount @doc(description: "The price discount. Represents the difference between the regular and final price.")
 }
 
@@ -109,4 +107,36 @@ type DownloadableProduct {
 
 type DownloadableProductLinks {
     sample_url: String @resolver(class: "ScandiPWA\\CatalogGraphQl\\Model\\Resolver\\Product\\SampleUrl")
+}
+
+extend type CustomizableAreaValue {
+    currency: String @doc(description: "Currency code for the option.")
+}
+
+extend type CustomizableDateValue {
+    currency: String @doc(description: "Currency code for the option.")
+}
+
+extend type CustomizableDropDownValue {
+    currency: String @doc(description: "Currency code for the option.")
+}
+
+extend type CustomizableMultipleValue {
+    currency: String @doc(description: "Currency code for the option.")
+}
+
+extend type CustomizableFieldValue {
+    currency: String @doc(description: "Currency code for the option.")
+}
+
+extend type CustomizableFileValue {
+    currency: String @doc(description: "Currency code for the option.")
+}
+
+extend type CustomizableRadioValue {
+    currency: String @doc(description: "Currency code for the option.")
+}
+
+extend type CustomizableCheckboxValue {
+    currency: String @doc(description: "Currency code for the option.")
 }
