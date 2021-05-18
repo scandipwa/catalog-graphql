@@ -30,11 +30,6 @@ class Aggregations extends AggregationsBase {
 
     const PRICE_ATTR_CODE = 'price';
 
-    protected array $booleanValueMapping = [
-        0 => false,
-        1 => true
-    ];
-
     public function __construct(
         Filters $filtersDataProvider,
         LayerBuilder $layerBuilder,
@@ -96,10 +91,6 @@ class Aggregations extends AggregationsBase {
             // Add flag to indicate that attribute is boolean (Yes/No, Enable/Disable, etc.)
             if ($attribute->getFrontendInput() == 'boolean') {
                 $result[$attr]['is_boolean'] = true;
-
-                foreach ($attrGroup['options'] as $option => $attrOption){
-                    $result[$attr]['options'][$option]['value'] = $this->booleanValueMapping[$attrOption['value']];
-                }
             }
             else {
                 $result[$attr]['is_boolean'] = false;
