@@ -56,6 +56,9 @@ type ProductPrice @doc(description: "Represents a product price.") {
     regular_price_excl_tax: Money!  @doc(description: "The regular price of the product excluding taxes.")
     final_price: Money! @doc(description: "The final price of the product after discounts applied.")
     final_price_excl_tax: Money! @doc(description: "The final price of the product after discounts applied excluding taxes.")
+    default_price: Money! @doc(description: "The base price of the product.")
+    default_final_price: Money! @doc(description: "The base price of the product after discounts applied.")
+    default_final_price_excl_tax: Money! @doc(description: "The base price of the product after discounts applied excluding taxes.")
     discount: ProductDiscount @doc(description: "The price discount. Represents the difference between the regular and final price.")
 }
 
@@ -135,6 +138,24 @@ extend type CustomizableRadioValue {
 
 extend type CustomizableCheckboxValue {
     currency: String @doc(description: "Currency code for the option.")
+}
+
+extend type BundleProduct {
+    bundle_options: [BundleOption] @doc(description: "Additional pricing info specific for bundle products") @resolver(class: "ScandiPWA\\CatalogGraphQl\\Model\\Resolver\\Product\\BundleProductOptions")
+}
+
+type BundleOption {
+    option_id: Int
+    selection_details: [BundleOptionSelection]
+}
+
+type BundleOptionSelection {
+    selection_id: Int
+    name: String
+    regular_option_price: Float
+    regular_option_price_excl_tax: Float
+    final_option_price: Float
+    final_option_price_excl_tax: Float
 }
 
 extend type ConfigurableProduct {
