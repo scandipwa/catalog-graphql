@@ -86,7 +86,7 @@ class BundleProductOptions implements ResolverInterface
             $selectionsResult = [];
 
             /* @var \Magento\Bundle\Model\Selection $optionSelection */
-            foreach ($bundleOption->getSelections() as $optionSelection) {
+            foreach (($bundleOption->getSelections() ?? []) as $optionSelection) {
                 // For bundle with fix price taxes are calculated based on the bundle product itself
                 // For bundle with dynamic price taxes are calculated based on the referenced products
                 $taxableItem = $bundleProduct->getPriceType() == Price::PRICE_TYPE_FIXED ? $bundleProduct : $optionSelection;
