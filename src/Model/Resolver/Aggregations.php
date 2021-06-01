@@ -22,14 +22,16 @@ use Magento\Store\Api\Data\StoreInterface;
 use Magento\Catalog\Model\ResourceModel\Eav\Attribute;
 
 class Aggregations extends AggregationsBase {
-
     /**
      * @var Attribute
      */
-    private $attribute;
+    protected $attribute;
 
-    const PRICE_ATTR_CODE = 'price';
+    public const PRICE_ATTR_CODE = 'price';
 
+    /**
+     * @inheritdoc
+     */
     public function __construct(
         Filters $filtersDataProvider,
         LayerBuilder $layerBuilder,
@@ -55,8 +57,10 @@ class Aggregations extends AggregationsBase {
         array $args = null
     ) {
         $result = parent::resolve($field, $context, $info, $value);
+
         $result = $this->processPriceFilter($result);
         $result = $this->enhanceAttributes($result);
+
         return $result;
     }
 
@@ -65,7 +69,7 @@ class Aggregations extends AggregationsBase {
      * @param array $result Filters
      * @return array
      */
-    private function processPriceFilter(array $result): array {
+    protected function processPriceFilter(array $result): array {
         return array_map(function ($item) {
             if ($item['attribute_code'] === self::PRICE_ATTR_CODE) {
                 $lastIdx = count($item['options']) - 1;
@@ -84,21 +88,21 @@ class Aggregations extends AggregationsBase {
      * @param array $result Filters
      * @return array
      */
-    private function enhanceAttributes(array $result): array {
+    protected function enhanceAttributes(array $result): array {
         foreach ($result as $attr => $attrGroup) {
             $attribute = $this->attribute->loadByCode('catalog_product', $attrGroup['attribute_code']);
 
             // Add flag to indicate that attribute is boolean (Yes/No, Enable/Disable, etc.)
             if ($attribute->getFrontendInput() == 'boolean') {
                 $result[$attr]['is_boolean'] = true;
-            }
-            else {
+            } else {
                 $result[$attr]['is_boolean'] = false;
             }
 
             // Set position in the filters list
             $result[$attr]['position'] = $attribute->getPosition();
         }
+        
         return $result;
     }
 }
