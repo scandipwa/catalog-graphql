@@ -27,6 +27,9 @@ class Aggregations extends AggregationsBase {
      */
     protected $attribute;
 
+    /**
+     * Code of the price attribute in aggregations
+     */
     public const PRICE_ATTR_CODE = 'price';
 
     /**
@@ -93,16 +96,12 @@ class Aggregations extends AggregationsBase {
             $attribute = $this->attribute->loadByCode('catalog_product', $attrGroup['attribute_code']);
 
             // Add flag to indicate that attribute is boolean (Yes/No, Enable/Disable, etc.)
-            if ($attribute->getFrontendInput() == 'boolean') {
-                $result[$attr]['is_boolean'] = true;
-            } else {
-                $result[$attr]['is_boolean'] = false;
-            }
+            $result[$attr]['is_boolean'] = $attribute->getFrontendInput() === 'boolean';
 
             // Set position in the filters list
             $result[$attr]['position'] = $attribute->getPosition();
         }
-        
+
         return $result;
     }
 }
