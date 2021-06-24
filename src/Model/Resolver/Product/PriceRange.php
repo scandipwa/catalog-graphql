@@ -142,6 +142,10 @@ class PriceRange extends CorePriceRange
             $defaultFinalPriceExclTax = (float) $priceProvider->getRegularPrice($product)->getBaseAmount();
         }
 
+        $defaultRegularPrice = isset($defaultRegularPrice) ? $defaultRegularPrice : 0;
+        $defaultFinalPrice = isset($defaultFinalPrice) ? $defaultFinalPrice : 0;
+        $defaultFinalPriceExclTax = isset($defaultFinalPriceExclTax) ? $defaultFinalPriceExclTax : 0;
+
         $minPriceArray = $this->formatPrice(
             $regularPrice, $regularPriceExclTax, $finalPrice, $finalPriceExclTax,
             $defaultRegularPrice, $defaultFinalPrice, $defaultFinalPriceExclTax, $discount, $store
