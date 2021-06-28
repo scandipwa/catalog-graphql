@@ -92,7 +92,12 @@ class BundleProductOptions implements ResolverInterface
                 $taxableItem = $bundleProduct->getPriceType() == Price::PRICE_TYPE_FIXED ? $bundleProduct : $optionSelection;
 
                 $selectionPrice = $priceModel->getSelectionPrice($bundleProduct, $optionSelection, 1);
-                $selectionPriceExclTax = $this->catalogData->getTaxPrice($taxableItem, $selectionPrice, false, null, null, null, null, null, false);
+                $selectionPriceInclTax = $this->catalogData->getTaxPrice(
+                    $taxableItem, $selectionPrice, true, null, null, null, null, null, false
+                );
+                $selectionPriceExclTax = $this->catalogData->getTaxPrice(
+                    $taxableItem, $selectionPrice, false, null, null, null, null, null, false
+                );
 
                 $selectionPriceType = $this->enumLookup->getEnumValueFromField(
                     'PriceTypeEnum',
@@ -105,13 +110,14 @@ class BundleProductOptions implements ResolverInterface
                         : $optionSelection->getSelectionPriceValue()
                     : $optionSelection->getPrice();
 
+                $regularPriceInclTax = $this->catalogData->getTaxPrice($taxableItem, $regularPrice, true);
                 $regularPriceExclTax = $this->catalogData->getTaxPrice($taxableItem, $regularPrice, false);
 
                 $selectionsResult[] = [
                     'selection_id' => $optionSelection->getSelectionId(),
-                    'regular_option_price' => $this->priceCurrency->convert($regularPrice),
+                    'regular_option_price' => $this->priceCurrency->convert($regularPriceInclTax),
                     'regular_option_price_excl_tax' => $this->priceCurrency->convert($regularPriceExclTax),
-                    'final_option_price' => $this->priceCurrency->convert($selectionPrice),
+                    'final_option_price' => $this->priceCurrency->convert($selectionPriceInclTax),
                     'final_option_price_excl_tax' => $this->priceCurrency->convert($selectionPriceExclTax)
                 ];
             }

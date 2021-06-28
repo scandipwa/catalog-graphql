@@ -15,6 +15,7 @@ use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\GraphQl\Query\Resolver\ContextInterface;
 use Magento\Framework\GraphQl\Schema\Type\ResolveInfo;
 use Magento\Framework\Pricing\PriceCurrencyInterface;
+use Magento\Catalog\Helper\Data as CatalogData;
 use Magento\Catalog\Model\Product;
 use Magento\Catalog\Model\Product\Option;
 use Magento\CatalogGraphQl\Model\Resolver\Product\Options as CoreOptions;
@@ -28,13 +29,24 @@ class Options extends CoreOptions
     /**
      * @var PriceCurrencyInterface
      */
-    private PriceCurrencyInterface $priceCurrency;
+    protected PriceCurrencyInterface $priceCurrency;
 
+    /**
+     * @var CatalogData
+     */
+    protected $catalogData;
+
+    /**
+     * @param PriceCurrencyInterface $priceCurrency,
+     * @param CatalogData $catalogData
+     */
     public function __construct(
-        PriceCurrencyInterface $priceCurrency
+        PriceCurrencyInterface $priceCurrency,
+        CatalogData $catalogData
     )
     {
         $this->priceCurrency = $priceCurrency;
+        $this->catalogData = $catalogData;
     }
 
     /**
@@ -83,9 +95,20 @@ class Options extends CoreOptions
                     $options[$key]['value'][$valueKey]['price_type']
                         = $value->getPriceType() !== null ? strtoupper($value->getPriceType()) : 'DYNAMIC';
 
-                    $options[$key]['value'][$valueKey]['price']
-                        = $this->priceCurrency->convert($options[$key]['value'][$valueKey]['price']);
+                    $selectionPrice = $this->priceCurrency->convert($options[$key]['value'][$valueKey]['price']);
+                    $options[$key]['value'][$valueKey]['price'] = $selectionPrice;
                     $options[$key]['value'][$valueKey]['currency'] = $currentCurrency;
+
+                    // Calculate price including tax for option value
+                    $taxablePrice = strtoupper($value->getPriceType()) == 'PERCENT'
+                        ? $product->getPrice() * $selectionPrice / 100
+                        : $selectionPrice;
+                    $options[$key]['value'][$valueKey]['priceInclTax'] = $this->catalogData->getTaxPrice(
+                        $product, $taxablePrice, true, null, null, null, null, null, null
+                    );
+                    $options[$key]['value'][$valueKey]['priceExclTax'] = $this->catalogData->getTaxPrice(
+                        $product, $taxablePrice, false, null, null, null, null, null, null
+                    );
                 }
 
                 if (empty($values)) {
@@ -93,9 +116,20 @@ class Options extends CoreOptions
                     $options[$key]['value']['price_type']
                         = $option->getPriceType() !== null ? strtoupper($option->getPriceType()) : 'DYNAMIC';
 
-                    $options[$key]['value']['price']
-                        = $this->priceCurrency->convert($options[$key]['value']['price']);
+                    $selectionPrice = $this->priceCurrency->convert($options[$key]['value']['price']);
+                    $options[$key]['value']['price'] = $selectionPrice;
                     $options[$key]['value']['currency'] = $currentCurrency;
+
+                    // Calculate price including tax for option value
+                    $taxablePrice = strtoupper($value->getPriceType()) == 'PERCENT'
+                        ? $product->getPrice() * $selectionPrice / 100
+                        : $selectionPrice;
+                    $options[$key]['value']['priceInclTax'] = $this->catalogData->getTaxPrice(
+                        $product, $taxablePrice, true, null, null, null, null, null, null
+                    );
+                    $options[$key]['value']['priceExclTax'] = $this->catalogData->getTaxPrice(
+                        $product, $taxablePrice, false, null, null, null, null, null, null
+                    );
                 }
             }
         }

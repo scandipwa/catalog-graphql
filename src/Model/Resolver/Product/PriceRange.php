@@ -9,9 +9,14 @@ namespace ScandiPWA\CatalogGraphQl\Model\Resolver\Product;
 
 use Magento\CatalogGraphQl\Model\Resolver\Product\Price\Discount;
 use Magento\CatalogGraphQl\Model\Resolver\Product\Price\ProviderPool as PriceProviderPool;
+use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\GraphQl\Config\Element\Field;
 use Magento\Framework\GraphQl\Schema\Type\ResolveInfo;
+use Magento\Catalog\Helper\Data as TaxHelper;
 use Magento\Catalog\Model\Product;
+use Magento\Catalog\Model\Product\Type as ProductType;
+use Magento\Catalog\Pricing\Price\FinalPrice;
+use Magento\Catalog\Pricing\Price\RegularPrice;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Pricing\SaleableInterface;
 use Magento\Framework\Pricing\PriceCurrencyInterface;
@@ -23,6 +28,8 @@ use Magento\CatalogGraphQl\Model\Resolver\Product\PriceRange as CorePriceRange;
  */
 class PriceRange extends CorePriceRange
 {
+    const XML_PRICE_INCLUDES_TAX = 'tax/calculation/price_includes_tax';
+
     /**
      * @var Discount
      */
@@ -39,13 +46,25 @@ class PriceRange extends CorePriceRange
     private PriceCurrencyInterface $priceCurrency;
 
     /**
+     * @var ScopeConfigInterface
+     */
+    protected $scopeConfig;
+
+    /**
+     * @var TaxHelper
+     */
+    protected $taxHelper;
+
+    /**
      * @param PriceProviderPool $priceProviderPool
      * @param Discount $discount
      */
     public function __construct(
         PriceProviderPool $priceProviderPool,
         Discount $discount,
-        PriceCurrencyInterface $priceCurrency
+        PriceCurrencyInterface $priceCurrency,
+        ScopeConfigInterface $scopeConfig,
+        TaxHelper $taxHelper
     )
     {
         parent::__construct(
@@ -56,6 +75,8 @@ class PriceRange extends CorePriceRange
         $this->priceProviderPool = $priceProviderPool;
         $this->discount = $discount;
         $this->priceCurrency = $priceCurrency;
+        $this->scopeConfig = $scopeConfig;
+        $this->taxHelper = $taxHelper;
     }
 
     /**
@@ -103,14 +124,27 @@ class PriceRange extends CorePriceRange
         $regularPrice = (float) $priceProvider->getMinimalRegularPrice($product)->getValue();
         $finalPrice = (float) $priceProvider->getMinimalFinalPrice($product)->getValue();
 
-        $defaultRegularPrice = $this->priceCurrency->convert($product->getPrice());
-        $defaultFinalPrice = (float) $priceProvider->getRegularPrice($product)->getValue();
-
         $discount = $this->calculateDiscount($product, $regularPrice, $finalPrice);
 
         $regularPriceExclTax = (float) $priceProvider->getMinimalRegularPrice($product)->getBaseAmount();
         $finalPriceExclTax = (float) $priceProvider->getMinimalFinalPrice($product)->getBaseAmount();
-        $defaultFinalPriceExclTax = (float) $priceProvider->getRegularPrice($product)->getBaseAmount();
+
+        if($product->getTypeId() == ProductType::TYPE_SIMPLE) {
+            $priceInfo = $product->getPriceInfo();
+            $defaultRegularPrice = $priceInfo->getPrice(RegularPrice::PRICE_CODE)->getAmount()->getValue();
+            $defaultFinalPrice = $priceInfo->getPrice(FinalPrice::PRICE_CODE)->getAmount()->getValue();
+            $defaultFinalPriceExclTax = $priceInfo->getPrice(FinalPrice::PRICE_CODE)->getAmount()->getBaseAmount();
+
+            $discount = $this->calculateDiscount($product, $defaultRegularPrice, $defaultFinalPrice);
+        } else {
+            $defaultRegularPrice = $this->taxHelper->getTaxPrice($product, $product->getPrice(), $this->isPriceIncludesTax());
+            $defaultFinalPrice = (float) round($priceProvider->getRegularPrice($product)->getValue(), 2);
+            $defaultFinalPriceExclTax = (float) $priceProvider->getRegularPrice($product)->getBaseAmount();
+        }
+
+        $defaultRegularPrice = isset($defaultRegularPrice) ? $defaultRegularPrice : 0;
+        $defaultFinalPrice = isset($defaultFinalPrice) ? $defaultFinalPrice : 0;
+        $defaultFinalPriceExclTax = isset($defaultFinalPriceExclTax) ? $defaultFinalPriceExclTax : 0;
 
         $minPriceArray = $this->formatPrice(
             $regularPrice, $regularPriceExclTax, $finalPrice, $finalPriceExclTax,
@@ -248,5 +282,12 @@ class PriceRange extends CorePriceRange
         $now = time();
 
         return ($now >= $from && $now <= $to) || ($now >= $from && is_null($to)) ? (float)$specialPrice : null;
+    }
+
+    protected function isPriceIncludesTax(){
+        return $this->scopeConfig->getValue(
+            self::XML_PRICE_INCLUDES_TAX,
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORES
+        );
     }
 }

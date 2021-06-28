@@ -115,34 +115,50 @@ type DownloadableProductLinks {
 
 extend type CustomizableAreaValue {
     currency: String @doc(description: "Currency code for the option.")
+    priceInclTax: Float @doc(description: "Option value price including tax.")
+    priceExclTax: Float @doc(description: "Option value price excluding tax.")
 }
 
 extend type CustomizableDateValue {
     currency: String @doc(description: "Currency code for the option.")
+    priceInclTax: Float @doc(description: "Option value price including tax.")
+    priceExclTax: Float @doc(description: "Option value price excluding tax.")
 }
 
 extend type CustomizableDropDownValue {
     currency: String @doc(description: "Currency code for the option.")
+    priceInclTax: Float @doc(description: "Option value price including tax.")
+    priceExclTax: Float @doc(description: "Option value price excluding tax.")
 }
 
 extend type CustomizableMultipleValue {
     currency: String @doc(description: "Currency code for the option.")
+    priceInclTax: Float @doc(description: "Option value price including tax.")
+    priceExclTax: Float @doc(description: "Option value price excluding tax.")
 }
 
 extend type CustomizableFieldValue {
     currency: String @doc(description: "Currency code for the option.")
+    priceInclTax: Float @doc(description: "Option value price including tax.")
+    priceExclTax: Float @doc(description: "Option value price excluding tax.")
 }
 
 extend type CustomizableFileValue {
     currency: String @doc(description: "Currency code for the option.")
+    priceInclTax: Float @doc(description: "Option value price including tax.")
+    priceExclTax: Float @doc(description: "Option value price excluding tax.")
 }
 
 extend type CustomizableRadioValue {
     currency: String @doc(description: "Currency code for the option.")
+    priceInclTax: Float @doc(description: "Option value price including tax.")
+    priceExclTax: Float @doc(description: "Option value price excluding tax.")
 }
 
 extend type CustomizableCheckboxValue {
     currency: String @doc(description: "Currency code for the option.")
+    priceInclTax: Float @doc(description: "Option value price including tax.")
+    priceExclTax: Float @doc(description: "Option value price excluding tax.")
 }
 
 extend type BundleProduct {
