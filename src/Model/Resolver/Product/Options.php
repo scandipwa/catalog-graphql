@@ -89,18 +89,18 @@ class Options extends CoreOptions
 
                 $values = $option->getValues() ?: [];
 
-                /** @var Option\Value $value */
-                foreach ($values as $valueKey => $value) {
-                    $options[$key]['value'][$valueKey] = $value->getData();
+                /** @var Option\Value $optionValue */
+                foreach ($values as $valueKey => $optionValue) {
+                    $options[$key]['value'][$valueKey] = $optionValue->getData();
                     $options[$key]['value'][$valueKey]['price_type']
-                        = $value->getPriceType() !== null ? strtoupper($value->getPriceType()) : 'DYNAMIC';
+                        = $optionValue->getPriceType() !== null ? strtoupper($optionValue->getPriceType()) : 'DYNAMIC';
 
                     $selectionPrice = $this->priceCurrency->convert($options[$key]['value'][$valueKey]['price']);
                     $options[$key]['value'][$valueKey]['price'] = $selectionPrice;
                     $options[$key]['value'][$valueKey]['currency'] = $currentCurrency;
 
                     // Calculate price including tax for option value
-                    $taxablePrice = strtoupper($value->getPriceType()) == 'PERCENT'
+                    $taxablePrice = strtoupper($optionValue->getPriceType()) == 'PERCENT'
                         ? $product->getPrice() * $selectionPrice / 100
                         : $selectionPrice;
                     $options[$key]['value'][$valueKey]['priceInclTax'] = $this->catalogData->getTaxPrice(
@@ -121,7 +121,7 @@ class Options extends CoreOptions
                     $options[$key]['value']['currency'] = $currentCurrency;
 
                     // Calculate price including tax for option value
-                    $taxablePrice = strtoupper($value->getPriceType()) == 'PERCENT'
+                    $taxablePrice = strtoupper($option->getPriceType()) == 'PERCENT'
                         ? $product->getPrice() * $selectionPrice / 100
                         : $selectionPrice;
                     $options[$key]['value']['priceInclTax'] = $this->catalogData->getTaxPrice(
