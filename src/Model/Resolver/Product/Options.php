@@ -95,14 +95,16 @@ class Options extends CoreOptions
                     $options[$key]['value'][$valueKey]['price_type']
                         = $optionValue->getPriceType() !== null ? strtoupper($optionValue->getPriceType()) : 'DYNAMIC';
 
-                    $selectionPrice = $this->priceCurrency->convert($options[$key]['value'][$valueKey]['price']);
+                    $selectionPrice = $options[$key]['value'][$valueKey]['price'];
                     $options[$key]['value'][$valueKey]['price'] = $selectionPrice;
                     $options[$key]['value'][$valueKey]['currency'] = $currentCurrency;
 
                     // Calculate price including tax for option value
                     $taxablePrice = strtoupper($optionValue->getPriceType()) == 'PERCENT'
-                        ? $product->getPrice() * $selectionPrice / 100
+                        ? $product->getFinalPrice() * $selectionPrice / 100
                         : $selectionPrice;
+                    $taxablePrice = $this->priceCurrency->convert($taxablePrice);
+
                     $options[$key]['value'][$valueKey]['priceInclTax'] = $this->catalogData->getTaxPrice(
                         $product, $taxablePrice, true, null, null, null, null, null, null
                     );
@@ -116,14 +118,16 @@ class Options extends CoreOptions
                     $options[$key]['value']['price_type']
                         = $option->getPriceType() !== null ? strtoupper($option->getPriceType()) : 'DYNAMIC';
 
-                    $selectionPrice = $this->priceCurrency->convert($options[$key]['value']['price']);
+                    $selectionPrice = $options[$key]['value']['price'];
                     $options[$key]['value']['price'] = $selectionPrice;
                     $options[$key]['value']['currency'] = $currentCurrency;
 
                     // Calculate price including tax for option value
                     $taxablePrice = strtoupper($option->getPriceType()) == 'PERCENT'
-                        ? $product->getPrice() * $selectionPrice / 100
+                        ? $product->getFinalPrice() * $selectionPrice / 100
                         : $selectionPrice;
+                    $taxablePrice = $this->priceCurrency->convert($taxablePrice);
+
                     $options[$key]['value']['priceInclTax'] = $this->catalogData->getTaxPrice(
                         $product, $taxablePrice, true, null, null, null, null, null, null
                     );
