@@ -178,3 +178,7 @@ type BundleOptionSelection {
     final_option_price: Float
     final_option_price_excl_tax: Float
 }
+
+extend type ConfigurableProduct {
+    variants_plp: [ConfigurableVariant] @doc(description: "An array of variants of products, optimized version for PLP") @resolver(class: "ScandiPWA\\CatalogGraphQl\\Model\\Resolver\\ConfigurableVariantPlp")
+}
