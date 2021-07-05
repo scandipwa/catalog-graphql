@@ -13,6 +13,7 @@ namespace ScandiPWA\CatalogGraphQl\Model\Variant;
 use Magento\Catalog\Api\Data\ProductInterface;
 use Magento\Catalog\Model\Product;
 use Magento\Catalog\Model\ResourceModel\Eav\Attribute;
+use Magento\CatalogInventory\Helper\Stock as StockFilter;
 use Magento\ConfigurableProduct\Model\ResourceModel\Product\Type\Configurable\Product\CollectionFactory;
 use Magento\Catalog\Model\ResourceModel\Product\CollectionFactory as ProductCollectionFactory;
 use Magento\Framework\Api\SearchCriteria;
@@ -69,6 +70,9 @@ class Collection
     /** @var ResourceConnection  */
     protected $connection;
 
+    /** @var StockFilter */
+    protected $stockFilter;
+
     /**
      * Collection constructor.
      *
@@ -81,6 +85,7 @@ class Collection
      * @param DataPostProcessor $dataPostProcessor
      * @param DataPostProcessor\Stocks $stocksPostProcessor
      * @param ResourceConnection $connection
+     * @oaran StockFilter $stockFilter
      */
     public function __construct(
         CollectionFactory $childCollectionFactory,
@@ -91,7 +96,8 @@ class Collection
         CollectionPostProcessor $collectionPostProcessor,
         DataPostProcessor $dataPostProcessor,
         DataPostProcessor\Stocks $stocksPostProcessor,
-        ResourceConnection $connection
+        ResourceConnection $connection,
+        StockFilter $stockFilter
     ) {
         $this->childCollectionFactory = $childCollectionFactory;
         $this->searchCriteriaBuilder = $searchCriteriaBuilder;
@@ -102,6 +108,7 @@ class Collection
         $this->stocksPostProcessor = $stocksPostProcessor;
         $this->collectionFactory = $collectionFactory;
         $this->connection = $connection;
+        $this->stockFilter = $stockFilter;
 
         $this->searchCriteria = $this->searchCriteriaBuilder->create();
     }
@@ -327,6 +334,10 @@ class Collection
         $searchCriteria = $this->getSearchCriteria($childProductsList, $isReturnSingleChild);
 
         $attributeData = $this->attributeCodes;
+
+        if ($isReturnSingleChild) {
+            $this->stockFilter->addInStockFilterToCollection($collection);
+        }
 
         $this->collectionProcessor->process(
             $collection,
