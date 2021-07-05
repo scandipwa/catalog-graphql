@@ -99,9 +99,9 @@ class Url implements ResolverInterface
 
         /** @var Product $product */
         $product = $value['model'];
+        $storeId = $this->storeManager->getStore()->getId();
 
         if (isset($value['image_type'])) {
-            $storeId = $this->storeManager->getStore()->getId();
             $this->emulation->startEnvironmentEmulation($storeId, Area::AREA_FRONTEND, true);
 
             $image = $this->imageHelper
@@ -115,15 +115,21 @@ class Url implements ResolverInterface
                 ->keepTransparency(true)
                 ->keepFrame(false);
 
+            $imageUrl = $image->getUrl();
+
             $this->emulation->stopEnvironmentEmulation();
 
-            return $image->getUrl();
+            return $imageUrl;
         }
 
         if (isset($value['file'])) {
+            $this->emulation->startEnvironmentEmulation($storeId, Area::AREA_FRONTEND, true);
+
             $image = $this->productImageFactory->create();
             $image->setDestinationSubdir('image')->setBaseFile($value['file']);
             $imageUrl = $image->getUrl();
+
+            $this->emulation->stopEnvironmentEmulation();
             return $imageUrl;
         }
 
