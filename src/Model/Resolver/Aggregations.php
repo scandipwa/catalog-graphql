@@ -81,10 +81,20 @@ class Aggregations extends AggregationsBase {
         return array_map(function ($item) {
             if ($item['attribute_code'] === self::PRICE_ATTR_CODE) {
                 $lastIdx = count($item['options']) - 1;
-                $lastOpt = $item['options'][$lastIdx];
-                $lastOpt['label'] = preg_replace('/-\d+/', '', $lastOpt['label']);
-                $lastOpt['value'] = preg_replace('/(\d+)_\d+/', '$1_*', $lastOpt['value']);
-                $item['options'][$lastIdx] = $lastOpt;
+
+                foreach ($item['options'] as $index => $option) {
+                    if ($lastIdx != 0 && $index == $lastIdx) {
+                        $item['options'][$index]['label'] = preg_replace('/(\d+)~\d+/', '$1~*', $option['label']);
+                        $item['options'][$index]['value'] = preg_replace('/(\d+)_\d+/', '$1_*', $option['value']);
+                    } else {
+                        $item['options'][$index]['label'] = preg_replace_callback('/(\d+~)(\d+)/', function ($matches) {
+                            return $matches[1].($matches[2]-0.01);
+                        }, $option['label']);
+                        $item['options'][$index]['value'] = preg_replace_callback('/(\d+_)(\d+)/', function ($matches) {
+                            return $matches[1].($matches[2]-0.01);
+                        }, $option['value']);
+                    }
+                }
             }
 
             return $item;
