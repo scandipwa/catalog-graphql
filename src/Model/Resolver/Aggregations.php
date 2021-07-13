@@ -33,6 +33,11 @@ class Aggregations extends AggregationsBase {
     public const PRICE_ATTR_CODE = 'price';
 
     /**
+     * Code of the category id in aggregations
+     */
+    public const CATEGORY_ID_CODE = 'category_id';
+
+    /**
      * @inheritdoc
      */
     public function __construct(
@@ -93,6 +98,14 @@ class Aggregations extends AggregationsBase {
      */
     protected function enhanceAttributes(array $result): array {
         foreach ($result as $attr => $attrGroup) {
+            // Category ID is not a real attribute in Magento, so needs special handling
+            if($attrGroup['attribute_code'] == self::CATEGORY_ID_CODE){
+                $result[$attr]['is_boolean'] = false;
+                $result[$attr]['position'] = 0;
+                $result[$attr]['has_swatch'] = false;
+                continue;
+            }
+
             $attribute = $this->attribute->loadByCode('catalog_product', $attrGroup['attribute_code']);
 
             // Add flag to indicate that attribute is boolean (Yes/No, Enable/Disable, etc.)
@@ -100,6 +113,15 @@ class Aggregations extends AggregationsBase {
 
             // Set position in the filters list
             $result[$attr]['position'] = $attribute->getPosition();
+
+            // Add flag to indicate that attribute has swatch values (required to properly handle edge cases with removed colors/inconsistent data)
+            $additionalData = $attribute->getAdditionalData();
+            if(is_null($additionalData)){
+                $result[$attr]['has_swatch'] = false;
+            } else {
+                $additionalDataParsed = json_decode($additionalData, true);
+                $result[$attr]['has_swatch'] = isset($additionalDataParsed['swatch_input_type']);
+            }
         }
 
         return $result;

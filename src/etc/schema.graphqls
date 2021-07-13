@@ -103,6 +103,7 @@ extend type Products {
 extend type Aggregation {
     position: Int @doc(description: "Attribute position in filter menu.")
     is_boolean: Boolean @doc(description: "Flag to indicate that aggregated attribute has boolean type.")
+    has_swatch: Boolean @doc(description: "Flag to indicate that aggregated attribute uses swatch to select value.")
 }
 
 type DownloadableProduct {
