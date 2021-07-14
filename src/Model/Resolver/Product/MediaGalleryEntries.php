@@ -81,10 +81,12 @@ class MediaGalleryEntries implements ResolverInterface
             ->keepTransparency(true)
             ->keepFrame(false);
 
+        $url = $image->getUrl();
+
         $this->emulation->stopEnvironmentEmulation();
 
         return [
-            'url' => $image->getUrl(),
+            'url' => $url,
             'type' => $type
         ];
     }
