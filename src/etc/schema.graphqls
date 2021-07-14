@@ -66,6 +66,7 @@ type ProductStockItem {
     qty: Float @doc(description: "Product quantity available in stock")
     min_sale_qty: Int @doc(description: "Minimal amount of item that can be bought")
     max_sale_qty: Int @doc(description: "Maximal amount of item that can be bought")
+    qty_increments: Int @doc(description: "Increment for number of items that can be bought")
 }
 
 extends type Breadcrumb {
