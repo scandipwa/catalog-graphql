@@ -18,6 +18,7 @@ use Magento\CatalogGraphQl\DataProvider\Product\LayeredNavigation\LayerBuilderIn
 use Magento\Framework\Api\Search\AggregationInterface;
 use Magento\Framework\Api\Search\BucketInterface;
 use Magento\CatalogGraphQl\DataProvider\Product\LayeredNavigation\Formatter\LayerFormatter;
+use ScandiPWA\CatalogGraphQl\Model\Layer\AttributeDataProvider;
 
 /**
  * @inheritdoc
@@ -40,6 +41,11 @@ class Price implements LayerBuilderInterface
     private $layerFormatter;
 
     /**
+     * @var AttributeDataProvider
+     */
+    private $attributeDataProvider;
+
+    /**
      * @var array
      */
     private static $bucketMap = [
@@ -54,11 +60,13 @@ class Price implements LayerBuilderInterface
      */
     public function __construct(
         LayerFormatter $layerFormatter,
-        StoreManagerInterface $storeManager
+        StoreManagerInterface $storeManager,
+        AttributeDataProvider $attributeDataProvider
     )
     {
         $this->layerFormatter = $layerFormatter;
         $this->storeManager = $storeManager;
+        $this->attributeDataProvider = $attributeDataProvider;
     }
 
     /**
@@ -72,8 +80,12 @@ class Price implements LayerBuilderInterface
             return [];
         }
 
+        // Localize value of the price attribute
+        $attributeData = $this->attributeDataProvider->getAttributeData('price', $storeId);
+        $attributeLabel = $attributeData['attribute_store_label'] ?? $attributeData['frontend_label'] ?? self::$bucketMap[self::PRICE_BUCKET]['label'];
+
         $result = $this->layerFormatter->buildLayer(
-            self::$bucketMap[self::PRICE_BUCKET]['label'],
+            $attributeLabel,
             \count($bucket->getValues()),
             self::$bucketMap[self::PRICE_BUCKET]['request_name']
         );
