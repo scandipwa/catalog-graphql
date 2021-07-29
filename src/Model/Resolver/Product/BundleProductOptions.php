@@ -115,6 +115,7 @@ class BundleProductOptions implements ResolverInterface
 
                 $selectionsResult[] = [
                     'selection_id' => $optionSelection->getSelectionId(),
+                    'name' => $optionSelection->getName(),
                     'regular_option_price' => $this->priceCurrency->convert($regularPriceInclTax),
                     'regular_option_price_excl_tax' => $this->priceCurrency->convert($regularPriceExclTax),
                     'final_option_price' => $this->priceCurrency->convert($selectionPriceInclTax),
