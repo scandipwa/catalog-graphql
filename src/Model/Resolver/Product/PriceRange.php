@@ -43,7 +43,7 @@ class PriceRange extends CorePriceRange
     /**
      * @var PriceCurrencyInterface
      */
-    private PriceCurrencyInterface $priceCurrency;
+    private $priceCurrency;
 
     /**
      * @var ScopeConfigInterface

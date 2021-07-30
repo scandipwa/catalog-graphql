@@ -29,7 +29,7 @@ class Options extends CoreOptions
     /**
      * @var PriceCurrencyInterface
      */
-    protected PriceCurrencyInterface $priceCurrency;
+    protected $priceCurrency;
 
     /**
      * @var CatalogData
