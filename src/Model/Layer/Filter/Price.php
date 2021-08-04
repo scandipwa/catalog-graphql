@@ -94,7 +94,7 @@ class Price implements LayerBuilderInterface
             // Builds graph-ql response
             $result['options'][] = $this->layerFormatter->buildItem(
                 $priceRange['from'] . '~' . $priceRange['to'],
-                $metrics['value'],
+                $priceRange['from'] . '_' . $priceRange['to'],
                 $metrics['count']
             );
         }
