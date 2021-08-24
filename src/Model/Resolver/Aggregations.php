@@ -84,13 +84,13 @@ class Aggregations extends AggregationsBase {
 
                 foreach ($item['options'] as $index => $option) {
                     if ($lastIdx != 0 && $index == $lastIdx) {
-                        $item['options'][$index]['label'] = preg_replace('/(\d+)~\d+/', '$1~*', $option['label']);
-                        $item['options'][$index]['value'] = preg_replace('/(\d+)_\d+/', '$1_*', $option['value']);
+                        $item['options'][$index]['label'] = preg_replace('/(\d+\.?\d*)~(\d+\.?\d*)/', '$1~*', $option['label']);
+                        $item['options'][$index]['value'] = preg_replace('/(\d+\.?\d*)_(\d+\.?\d*)/', '$1_*', $option['value']);
                     } else {
-                        $item['options'][$index]['label'] = preg_replace_callback('/(\d+~)(\d+)/', function ($matches) {
+                        $item['options'][$index]['label'] = preg_replace_callback('/(\d+\.?\d*~)(\d+\.?\d*)/', function ($matches) {
                             return $matches[1].($matches[2]-0.01);
                         }, $option['label']);
-                        $item['options'][$index]['value'] = preg_replace_callback('/(\d+_)(\d+)/', function ($matches) {
+                        $item['options'][$index]['value'] = preg_replace_callback('/(\d+\.?\d*_)(\d+\.?\d*)/', function ($matches) {
                             return $matches[1].($matches[2]-0.01);
                         }, $option['value']);
                     }
