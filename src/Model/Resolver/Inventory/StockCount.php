@@ -51,6 +51,7 @@ class StockCount implements ResolverInterface {
         $stockItem = $stockStatus->getStockItem();
 
         return [
+            'in_stock' => $stockItem->getIsInStock(),
             'qty' => $stockItem->getQty(),
             'min_sale_qty' => $stockItem->getMinSaleQty(),
             'max_sale_qty' => $stockItem->getMaxSaleQty(),
