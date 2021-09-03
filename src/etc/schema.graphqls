@@ -116,6 +116,10 @@ type DownloadableProductLinks {
     sample_url: String @resolver(class: "ScandiPWA\\CatalogGraphQl\\Model\\Resolver\\Product\\SampleUrl")
 }
 
+interface CustomizableOptionInterface {
+    type: String
+}
+
 extend type CustomizableAreaValue {
     currency: String @doc(description: "Currency code for the option.")
     priceInclTax: Float @doc(description: "Option value price including tax.")
