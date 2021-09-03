@@ -4,7 +4,7 @@
  *
  * @category    ScandiPWA
  * @package     ScandiPWA_CatalogGraphQl
- * @author      Viktors Pliska <info@scandiweb.com>
+ * @author      <info@scandiweb.com>
  * @copyright   Copyright (c) 2018 Scandiweb, Ltd (https://scandiweb.com)
  */
 declare(strict_types=1);
