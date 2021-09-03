@@ -20,12 +20,16 @@ use Magento\Catalog\Model\Product;
 use Magento\Catalog\Model\Product\Option;
 use Magento\CatalogGraphQl\Model\Resolver\Product\Options as CoreOptions;
 use Magento\Framework\GraphQl\Config\Element\Field;
+use Magento\Framework\GraphQl\Query\Uid;
+use Magento\Framework\App\ObjectManager;
 
 /**
  * Format a product's option information to conform to GraphQL schema representation
  */
 class Options extends CoreOptions
 {
+    protected const OPTION_TYPE = 'custom-option';
+
     /**
      * @var PriceCurrencyInterface
      */
@@ -36,17 +40,24 @@ class Options extends CoreOptions
      */
     protected $catalogData;
 
+    /** @var Uid */
+    protected $uidEncoder;
+
     /**
-     * @param PriceCurrencyInterface $priceCurrency,
+     * @param PriceCurrencyInterface $priceCurrency
      * @param CatalogData $catalogData
+     * @param Uid|null $uidEncoder
      */
     public function __construct(
         PriceCurrencyInterface $priceCurrency,
-        CatalogData $catalogData
+        CatalogData $catalogData,
+        Uid $uidEncoder = null
     )
     {
         $this->priceCurrency = $priceCurrency;
         $this->catalogData = $catalogData;
+        $this->uidEncoder = $uidEncoder ?: ObjectManager::getInstance()
+            ->get(Uid::class);
     }
 
     /**
@@ -86,6 +97,9 @@ class Options extends CoreOptions
                 $options[$key] = $option->getData();
                 $options[$key]['required'] = $option->getIsRequire();
                 $options[$key]['product_sku'] = $option->getProductSku();
+                $options[$key]['uid'] = $this->uidEncoder->encode(
+                    self::OPTION_TYPE . '/' . $option->getOptionId()
+                );
 
                 $values = $option->getValues() ?: [];
 
