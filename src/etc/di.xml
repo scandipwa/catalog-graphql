@@ -88,4 +88,7 @@
 
     <preference for="Magento\CatalogGraphQl\Model\Resolver\Product\Options"
                 type="ScandiPWA\CatalogGraphQl\Model\Resolver\Product\Options" />
+
+    <preference for="Magento\CatalogUrlRewrite\Model\ResourceModel\Category\Product"
+                type="ScandiPWA\CatalogGraphQl\Model\ResourceModel\Category\Product" />
 </config>
