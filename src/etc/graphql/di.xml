@@ -95,4 +95,7 @@
 
     <preference for="Magento\CatalogGraphQl\Model\Resolver\Category\DataProvider\Breadcrumbs"
                 type="ScandiPWA\CatalogGraphQl\Model\Resolver\Category\DataProvider\Breadcrumbs" />
+
+    <preference for="Magento\BundleGraphQl\Model\Resolver\Options\Label"
+                type="ScandiPWA\CatalogGraphQl\Model\Resolver\Product\BundleLabel" />
 </config>
