@@ -68,7 +68,7 @@
     <type name="Magento\Framework\GraphQl\Query\QueryComplexityLimiter">
         <arguments>
             <argument name="queryDepth" xsi:type="number">20</argument>
-            <argument name="queryComplexity" xsi:type="number">1000</argument>
+            <argument name="queryComplexity" xsi:type="number">1500</argument>
         </arguments>
     </type>
 
@@ -88,4 +88,7 @@
 
     <preference for="Magento\CatalogGraphQl\Model\Resolver\Product\Options"
                 type="ScandiPWA\CatalogGraphQl\Model\Resolver\Product\Options" />
+
+    <preference for="Magento\CatalogUrlRewrite\Model\ResourceModel\Category\Product"
+                type="ScandiPWA\CatalogGraphQl\Model\ResourceModel\Category\Product" />
 </config>
