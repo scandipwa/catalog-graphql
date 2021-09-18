@@ -30,8 +30,18 @@ class AttributeProcessor implements CollectionProcessorInterface
         array $attributeNames,
         ContextInterface $context = null
     ): Collection {
-        // this simply works faster then adding one-by-one as each addAttributeToSelect makes a request to MYSQL
-        $collection->addAttributeToSelect('*');
+        // returning individual addAttributeToSelect calls
+        // while each of these runs a mysql query
+        // it is still faster than adding all attributes to select
+        // since that adds default+store-specific joins for each attribute in collection afterLoad
+        // previous addAttibuteToSelect('*') simply transferred the bulk of load to a different point in time
+        foreach ($attributeNames as $name) {
+            if ($name !== self::ATTRIBUTES_FIELD) {
+                $collection->addAttributeToSelect($name);
+
+                continue;
+            }
+        }
 
         return $collection;
     }

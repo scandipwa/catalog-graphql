@@ -28,6 +28,9 @@
     <preference for="Magento\CatalogWidget\Model\Rule\Condition\Product"
                 type="ScandiPWA\CatalogGraphQl\Model\Rule\Condition\Product" />
 
+    <preference for="Magento\CatalogGraphQl\Model\Resolver\Products\DataProvider\ProductSearch\ProductCollectionSearchCriteriaBuilder"
+                type="ScandiPWA\CatalogGraphQl\Model\Resolver\Products\DataProvider\ProductSearch\ProductCollectionSearchCriteriaBuilder" />
+
     <!-- Performance related changes -->
     <preference for="Magento\ConfigurableProductGraphQl\Model\Resolver\ConfigurableVariant"
                 type="ScandiPWA\CatalogGraphQl\Model\Resolver\ConfigurableVariant" />
