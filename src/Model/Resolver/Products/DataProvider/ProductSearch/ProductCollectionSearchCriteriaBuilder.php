@@ -14,6 +14,10 @@ use Magento\Framework\Api\Search\SearchCriteriaInterfaceFactory;
 use Magento\Framework\Api\SearchCriteriaInterface;
 use Magento\CatalogGraphQl\Model\Resolver\Products\DataProvider\ProductSearch\ProductCollectionSearchCriteriaBuilder as CoreProductCollectionSearchCriteriaBuilder;
 
+/**
+ * Class ProductCollectionSearchCriteriaBuilder
+ * @package ScandiPWA\CatalogGraphQl\Model\Resolver\Products\DataProvider\ProductSearch
+ */
 class ProductCollectionSearchCriteriaBuilder extends  CoreProductCollectionSearchCriteriaBuilder
 {
     /**

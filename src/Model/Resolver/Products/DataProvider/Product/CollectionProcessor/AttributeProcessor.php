@@ -38,8 +38,6 @@ class AttributeProcessor implements CollectionProcessorInterface
         foreach ($attributeNames as $name) {
             if ($name !== self::ATTRIBUTES_FIELD) {
                 $collection->addAttributeToSelect($name);
-
-                continue;
             }
         }
 
