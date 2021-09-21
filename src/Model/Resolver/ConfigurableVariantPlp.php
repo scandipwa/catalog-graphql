@@ -22,6 +22,7 @@ use Magento\Framework\GraphQl\Query\ResolverInterface;
 use Magento\Framework\GraphQl\Query\Resolver\ValueFactory;
 use Magento\Framework\GraphQl\Schema\Type\ResolveInfo;
 use Magento\Store\Model\StoreManagerInterface;
+use ScandiPWA\CatalogGraphQl\Model\Resolver\Products\DataProvider\Product\CollectionProcessor\AttributeProcessor;
 use ScandiPWA\CatalogGraphQl\Model\Variant\Collection;
 use ScandiPWA\Performance\Model\Resolver\ResolveInfoFieldsTrait;
 use ScandiPWA\Performance\Model\Resolver\Products\DataPostProcessor;
@@ -97,6 +98,7 @@ class ConfigurableVariantPlp extends ConfigurableVariant
         // Configure variant collection
         $this->variantCollection->addParentProduct($value['model']);
         $fields = $this->getFieldsFromProductInfo($info, 'variants/product');
+        $fields[] = AttributeProcessor::VARIANT_PLP_FIELD;
         $this->variantCollection->addEavAttributes($fields);
 
         $result = function () use ($value, $linkField, $info) {
