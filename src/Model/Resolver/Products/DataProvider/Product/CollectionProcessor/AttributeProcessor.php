@@ -7,6 +7,7 @@ declare(strict_types=1);
 
 namespace ScandiPWA\CatalogGraphQl\Model\Resolver\Products\DataProvider\Product\CollectionProcessor;
 
+use Magento\Catalog\Api\Data\EavAttributeInterface;
 use Magento\Catalog\Api\Data\ProductAttributeInterface;
 use Magento\Catalog\Model\ResourceModel\Product\Collection;
 use Magento\CatalogGraphQl\Model\Resolver\Products\DataProvider\Product\CollectionProcessorInterface;
@@ -22,6 +23,11 @@ use Magento\GraphQl\Model\Query\ContextInterface;
  */
 class AttributeProcessor implements CollectionProcessorInterface
 {
+    /**
+     * Identifier for request type
+     */
+    const VARIANT_PLP_FIELD = 'variant_plp';
+
     /**
      * @var ResourceConnection
      */
@@ -51,6 +57,26 @@ class AttributeProcessor implements CollectionProcessorInterface
         array $attributeNames,
         ContextInterface $context = null
     ): Collection {
+        if (in_array(self::VARIANT_PLP_FIELD, $attributeNames)) {
+            // for PLP variant load, attribute post processor is skipped
+            // however, all visible on product list attribute data is still needed
+            // what ends up being skipped is values such as attribute group data, swatches, etc
+            // wildcard addition in this case seems to be the fastest
+            $collection->addAttributeToSelect('*');
+
+            return $collection;
+        } else {
+            return $this->processRegularCollection($collection, $attributeNames);
+        }
+    }
+
+    /**
+     * @param Collection $collection
+     * @param array $attributeNames
+     * @return Collection
+     */
+    public function processRegularCollection(Collection $collection, array $attributeNames): Collection
+    {
         // $attributeNames is a list of all queried fields, rather than just attributes
         // load a list of valid attribute codes to skip individual attempts to load an attribute by non-existing key later
         $this->loadValidAttributeCodes();
@@ -65,7 +91,7 @@ class AttributeProcessor implements CollectionProcessorInterface
                 $collection->addAttributeToSelect($name);
             }
         }
-        
+
         return $collection;
     }
 
