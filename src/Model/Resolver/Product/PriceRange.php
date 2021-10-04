@@ -168,14 +168,27 @@ class PriceRange extends CorePriceRange
         $regularPrice = (float) $priceProvider->getMaximalRegularPrice($product)->getValue();
         $finalPrice = (float) $priceProvider->getMaximalFinalPrice($product)->getValue();
 
-        $defaultRegularPrice = (float) $product->getPrice();
-        $defaultFinalPrice = (float) $priceProvider->getRegularPrice($product)->getValue();
-
         $discount = $this->calculateDiscount($product, $regularPrice, $finalPrice);
 
-        $regularPriceExclTax = (float) $priceProvider->getMinimalRegularPrice($product)->getBaseAmount();
-        $finalPriceExclTax = (float) $priceProvider->getMinimalFinalPrice($product)->getBaseAmount();
-        $defaultFinalPriceExclTax = (float) $priceProvider->getRegularPrice($product)->getBaseAmount();
+        $regularPriceExclTax = (float) $priceProvider->getMaximalRegularPrice($product)->getBaseAmount();
+        $finalPriceExclTax = (float) $priceProvider->getMaximalFinalPrice($product)->getBaseAmount();
+
+        if($product->getTypeId() == ProductType::TYPE_SIMPLE) {
+            $priceInfo = $product->getPriceInfo();
+            $defaultRegularPrice = $priceInfo->getPrice(RegularPrice::PRICE_CODE)->getAmount()->getValue();
+            $defaultFinalPrice = $priceInfo->getPrice(FinalPrice::PRICE_CODE)->getAmount()->getValue();
+            $defaultFinalPriceExclTax = $priceInfo->getPrice(FinalPrice::PRICE_CODE)->getAmount()->getBaseAmount();
+
+            $discount = $this->calculateDiscount($product, $defaultRegularPrice, $defaultFinalPrice);
+        } else {
+            $defaultRegularPrice = $this->taxHelper->getTaxPrice($product, $product->getPrice(), $this->isPriceIncludesTax());
+            $defaultFinalPrice = (float) round($priceProvider->getRegularPrice($product)->getValue(), 2);
+            $defaultFinalPriceExclTax = (float) $priceProvider->getRegularPrice($product)->getBaseAmount();
+        }
+
+        $defaultRegularPrice = isset($defaultRegularPrice) ? $defaultRegularPrice : 0;
+        $defaultFinalPrice = isset($defaultFinalPrice) ? $defaultFinalPrice : 0;
+        $defaultFinalPriceExclTax = isset($defaultFinalPriceExclTax) ? $defaultFinalPriceExclTax : 0;
 
         $maxPriceArray = $this->formatPrice(
             $regularPrice, $regularPriceExclTax, $finalPrice, $finalPriceExclTax,
