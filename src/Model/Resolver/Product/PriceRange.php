@@ -263,7 +263,13 @@ class PriceRange extends CorePriceRange
     protected function calculateDiscount(Product $product, float $regularPrice, float $finalPrice) : array
     {
         if ($product->getTypeId() !== 'bundle') {
-            return $this->discount->getDiscountByDifference($regularPrice, $finalPrice);
+            // Calculate percent_off with higher precision to avoid +/- 0.01 price differences on frontend
+            $priceDifference = $regularPrice - $finalPrice;
+
+            return [
+                'amount_off' => round($priceDifference, 2),
+                'percent_off' => round($priceDifference / $regularPrice * 100, 8)
+            ];
         }
 
         // Bundle products have special price set in % (percents)
