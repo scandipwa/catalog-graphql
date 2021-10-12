@@ -31,6 +31,11 @@ class PriceRange extends CorePriceRange
     const XML_PRICE_INCLUDES_TAX = 'tax/calculation/price_includes_tax';
 
     /**
+     * @var float
+     */
+    private $zeroThreshold = 0.0001;
+
+    /**
      * @var Discount
      */
     protected $discount;
@@ -267,8 +272,8 @@ class PriceRange extends CorePriceRange
             $priceDifference = $regularPrice - $finalPrice;
 
             return [
-                'amount_off' => round($priceDifference, 2),
-                'percent_off' => round($priceDifference / $regularPrice * 100, 8)
+                'amount_off' => $this->getPriceDifferenceAsValue($regularPrice, $finalPrice),
+                'percent_off' => $this->getPriceDifferenceAsPercent($regularPrice, $finalPrice)
             ];
         }
 
@@ -280,6 +285,40 @@ class PriceRange extends CorePriceRange
             'amount_off' => $regularPrice * ($percentOff / 100),
             'percent_off' => $percentOff
         ];
+    }
+
+    /**
+     * Get value difference between two prices
+     *
+     * @param float $regularPrice
+     * @param float $finalPrice
+     * @return float
+     */
+    private function getPriceDifferenceAsValue(float $regularPrice, float $finalPrice)
+    {
+        $difference = $regularPrice - $finalPrice;
+        if ($difference <= $this->zeroThreshold) {
+            return 0;
+        }
+        return round($difference, 2);
+    }
+
+    /**
+     * Get percent difference between two prices
+     *
+     * @param float $regularPrice
+     * @param float $finalPrice
+     * @return float
+     */
+    private function getPriceDifferenceAsPercent(float $regularPrice, float $finalPrice)
+    {
+        $difference = $this->getPriceDifferenceAsValue($regularPrice, $finalPrice);
+
+        if ($difference <= $this->zeroThreshold || $regularPrice <= $this->zeroThreshold) {
+            return 0;
+        }
+
+        return round(($difference / $regularPrice) * 100, 8);
     }
 
     /**
