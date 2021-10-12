@@ -23,6 +23,7 @@ use Magento\CatalogGraphQl\Model\Resolver\Product\Options as CoreOptions;
 use Magento\Framework\GraphQl\Config\Element\Field;
 use Magento\Framework\GraphQl\Query\Uid;
 use Magento\Framework\App\ObjectManager;
+use Magento\Catalog\Model\Product\Option\Value as OptionValue;
 use Magento\Catalog\Pricing\Price\CalculateCustomOptionCatalogRule;
 
 /**
@@ -31,7 +32,8 @@ use Magento\Catalog\Pricing\Price\CalculateCustomOptionCatalogRule;
 class Options extends CoreOptions
 {
     protected const OPTION_TYPE = 'custom-option';
-
+    protected const DYNAMIC_TYPE = 'DYNAMIC';
+    
     /**
      * @var PriceCurrencyInterface
      */
@@ -100,10 +102,10 @@ class Options extends CoreOptions
     public function updateOptionPriceData(array &$optionArray, $optionValue, $product, $currentCurrency) {
         $optionArray['price_type'] = $optionValue->getPriceType() !== null
             ? strtoupper($optionValue->getPriceType())
-            : 'DYNAMIC';
+            : self::DYNAMIC_TYPE;
         $optionArray['price'] = $this->getPrice(
             $optionArray['price'],
-            strtoupper($optionValue->getPriceType()) == 'PERCENT',
+            strtolower($optionValue->getPriceType()) == OptionValue::TYPE_PERCENT,
             $product
         );
 
@@ -111,7 +113,7 @@ class Options extends CoreOptions
         $optionArray['currency'] = $currentCurrency;
 
         // Calculate price including tax for option value
-        $taxablePrice = strtoupper($optionValue->getPriceType()) == 'PERCENT'
+        $taxablePrice = strtolower($optionValue->getPriceType()) == OptionValue::TYPE_PERCENT
             ? $product->getFinalPrice() * $selectionPrice / 100
             : $selectionPrice;
         $taxablePrice = $this->priceCurrency->convert($taxablePrice);
