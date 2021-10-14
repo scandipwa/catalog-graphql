@@ -33,7 +33,7 @@ class PriceRange extends CorePriceRange
     /**
      * @var float
      */
-    private $zeroThreshold = 0.0001;
+    protected $zeroThreshold = 0.0001;
 
     /**
      * @var Discount
@@ -48,7 +48,7 @@ class PriceRange extends CorePriceRange
     /**
      * @var PriceCurrencyInterface
      */
-    private PriceCurrencyInterface $priceCurrency;
+    protected PriceCurrencyInterface $priceCurrency;
 
     /**
      * @var ScopeConfigInterface
@@ -294,12 +294,13 @@ class PriceRange extends CorePriceRange
      * @param float $finalPrice
      * @return float
      */
-    private function getPriceDifferenceAsValue(float $regularPrice, float $finalPrice)
+    protected function getPriceDifferenceAsValue(float $regularPrice, float $finalPrice)
     {
         $difference = $regularPrice - $finalPrice;
         if ($difference <= $this->zeroThreshold) {
             return 0;
         }
+
         return round($difference, 2);
     }
 
@@ -310,7 +311,7 @@ class PriceRange extends CorePriceRange
      * @param float $finalPrice
      * @return float
      */
-    private function getPriceDifferenceAsPercent(float $regularPrice, float $finalPrice)
+    protected function getPriceDifferenceAsPercent(float $regularPrice, float $finalPrice)
     {
         $difference = $this->getPriceDifferenceAsValue($regularPrice, $finalPrice);
 
