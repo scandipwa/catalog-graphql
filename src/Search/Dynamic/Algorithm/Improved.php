@@ -14,6 +14,7 @@ use Magento\Framework\Search\Adapter\OptionsInterface;
 use Magento\Framework\Search\Dynamic\Algorithm;
 use Magento\Framework\Search\Dynamic\Algorithm\AlgorithmInterface;
 use Magento\Framework\Search\Dynamic\DataProviderInterface;
+use Magento\Framework\Search\Dynamic\EntityStorage;
 use Magento\Framework\Search\Request\BucketInterface;
 
 class Improved implements AlgorithmInterface
@@ -54,7 +55,7 @@ class Improved implements AlgorithmInterface
     public function getItems(
         BucketInterface $bucket,
         array $dimensions,
-        \Magento\Framework\Search\Dynamic\EntityStorage $entityStorage
+        EntityStorage $entityStorage
     ) {
         $aggregations = $this->dataProvider->getAggregations($entityStorage);
 
