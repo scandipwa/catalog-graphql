@@ -44,7 +44,7 @@ class BuilderPlugin {
 
                 if($priceFilter){
                     $from = $priceFilter->getReference()->getFrom();
-                    $to = $priceFilter->getReference()->getTo() ?? '*';
+                    $to = $priceFilter->getReference()->getTo();
 
                     // If upper price limit wasn't passed, it means that user selected last available interval, so use '*'
                     // Otherwise, add 0.01 to compensate subtraction, which will be performed later

@@ -1,11 +1,13 @@
 <?php
 /**
- * ScandiPWA_CatalogGraphQl
+ * ScandiPWA - Progressive Web App for Magento
  *
- * @category ScandiPWA
- * @package ScandiPWA_CatalogGraphQl
- * @author Daniels Puzina <info@scandiweb.com>
- * @copyright Copyright (c) 2020 Scandiweb, Ltd (https://scandiweb.com)
+ * Copyright © Scandiweb, Inc. All rights reserved.
+ * See LICENSE for license details.
+ *
+ * @license OSL-3.0 (Open Software License ("OSL") v. 3.0)
+ * @package scandipwa/catalog-graphql
+ * @link    https://github.com/scandipwa/catalog-graphql
  */
 namespace ScandiPWA\CatalogGraphQl\Search\Dynamic\Algorithm;
 
@@ -81,8 +83,7 @@ class Improved implements AlgorithmInterface
 
         $data[0]['from'] = 0;
 
-        $dataSize = count($data);
-        for ($key = 0; $key < $dataSize; $key++) {
+        foreach (range(0, count($data) - 1) as $key){
             if (isset($data[$key + 1])) {
                 $data[$key]['to'] = $data[$key + 1]['from'];
             }
