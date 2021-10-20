@@ -33,7 +33,7 @@ class Price implements LayerBuilderInterface
     /**
      * @var string
      */
-    private const PRICE_BUCKET = 'price_bucket';
+    const PRICE_BUCKET = 'price_bucket';
 
     /**
      * @var LayerFormatter
