@@ -83,7 +83,7 @@ class Improved implements AlgorithmInterface
 
         $data[0]['from'] = 0;
 
-        foreach (range(0, count($data) - 1) as $key){
+        foreach ($data as $key => $key){
             if (isset($data[$key + 1])) {
                 $data[$key]['to'] = $data[$key + 1]['from'];
             }
