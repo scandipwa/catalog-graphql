@@ -22,6 +22,7 @@ use Magento\Framework\Pricing\SaleableInterface;
 use Magento\Framework\Pricing\PriceCurrencyInterface;
 use Magento\Store\Api\Data\StoreInterface;
 use Magento\CatalogGraphQl\Model\Resolver\Product\PriceRange as CorePriceRange;
+use Magento\ConfigurableProduct\Model\Product\Type\Configurable;
 
 /**
  * Format product's pricing information for price_range field
@@ -29,6 +30,7 @@ use Magento\CatalogGraphQl\Model\Resolver\Product\PriceRange as CorePriceRange;
 class PriceRange extends CorePriceRange
 {
     const XML_PRICE_INCLUDES_TAX = 'tax/calculation/price_includes_tax';
+    const FINAL_PRICE = 'final_price';
 
     /**
      * @var float
@@ -127,7 +129,13 @@ class PriceRange extends CorePriceRange
         $priceProvider = $this->priceProviderPool->getProviderByProductType($product->getTypeId());
 
         $regularPrice = (float) $priceProvider->getMinimalRegularPrice($product)->getValue();
-        $finalPrice = (float) $priceProvider->getMinimalFinalPrice($product)->getValue();
+        $finalPrice = 0;
+
+        if ($product->getTypeId() === Configurable::TYPE_CODE) {
+            $finalPrice = $product->getPriceInfo()->getPrice(self::FINAL_PRICE)->getValue();
+        } else {
+            $finalPrice = (float) $priceProvider->getMinimalFinalPrice($product)->getValue();
+        }
 
         $discount = $this->calculateDiscount($product, $regularPrice, $finalPrice);
 
