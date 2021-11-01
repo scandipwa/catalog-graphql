@@ -489,9 +489,9 @@ class Collection
             $stockStatusCallback($product);
 
             $productsData[$product->getId()] = $product->getData() + [
-                    'model' => $product,
-                    's_attributes' => $productAttributes[$productId]
-                ];
+                'model' => $product,
+                's_attributes' => $productAttributes[$productId]
+            ];
         }
 
         foreach ($this->parentProducts as $product) {
