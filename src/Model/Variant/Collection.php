@@ -452,6 +452,11 @@ class Collection
 
         /** @var Product $product */
         foreach ($products as $product) {
+            // Skip disabled products
+            if ($product->isDisabled()) {
+                continue;
+            }
+
             $productId = $product->getId();
             $productIds[] = $productId;
 
