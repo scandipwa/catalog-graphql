@@ -98,6 +98,9 @@
     <preference for="Magento\Framework\Search\Dynamic\Algorithm\Improved"
                 type="ScandiPWA\CatalogGraphQl\Search\Dynamic\Algorithm\Improved"/>
 
+    <preference for="Magento\DownloadableGraphQl\Resolver\Product\Links"
+                type="ScandiPWA\CatalogGraphQl\Model\Resolver\Product\Links" />
+
     <type name="Magento\Elasticsearch\SearchAdapter\Aggregation\Builder">
         <plugin name="aggregation_equalize_products_count_handler"
                 type="ScandiPWA\CatalogGraphQl\Plugin\SearchAdapter\Aggregation\BuilderPlugin" />
