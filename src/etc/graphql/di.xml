@@ -10,7 +10,9 @@
  */
 -->
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
-    <preference for="Magento\Catalog\Model\Product\Option\Type\Date" type="ScandiPWA\CatalogGraphQl\Model\Product\Option\DateType" />
+    <preference for="Magento\Catalog\Model\Product\Option\Type\Date"
+                type="ScandiPWA\CatalogGraphQl\Model\Product\Option\Type\Date" />
+
     <type name="Magento\Framework\GraphQl\Query\Resolver\Argument\AstConverter">
         <plugin
             name="condition-applier-plugin"

@@ -9,10 +9,10 @@
  */
 declare(strict_types=1);
 
-namespace ScandiPWA\CatalogGraphQl\Model\Product\Option;
+namespace ScandiPWA\CatalogGraphQl\Model\Product\Option\Type;
 
-use Magento\CatalogGraphQl\Model\Product\Option\DateType as SourceDateType;
 use Magento\Catalog\Model\Product\Option\Type\Date as ProductDateOptionType;
+use Magento\CatalogGraphQl\Model\Product\Option\DateType as SourceDateType;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Stdlib\DateTime;
 use Magento\Framework\GraphQl\Exception\GraphQlInputException;
@@ -20,7 +20,7 @@ use Magento\Framework\GraphQl\Exception\GraphQlInputException;
 /**
  * @inheritdoc
  */
-class DateType extends SourceDateType
+class Date extends SourceDateType
 {
     /**
      * @inheritdoc
@@ -61,7 +61,9 @@ class DateType extends SourceDateType
                 'year' => $dateTime->format('Y'),
                 'month' => $dateTime->format('m'),
                 'day' => $dateTime->format('d'),
-                'hour' => $dateTime->format('h'),
+                'hour' => $this->is24hTimeFormat()
+                    ? $dateTime->format('H')
+                    : $dateTime->format('h'),
                 'minute' => $dateTime->format('i'),
                 'day_part' => $dateTime->format('a'),
             ];
