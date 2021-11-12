@@ -28,6 +28,9 @@
     <preference for="Magento\CatalogWidget\Model\Rule\Condition\Product"
                 type="ScandiPWA\CatalogGraphQl\Model\Rule\Condition\Product" />
 
+    <preference for="Magento\CatalogGraphQl\Model\Resolver\Products\DataProvider\ProductSearch\ProductCollectionSearchCriteriaBuilder"
+                type="ScandiPWA\CatalogGraphQl\Model\Resolver\Products\DataProvider\ProductSearch\ProductCollectionSearchCriteriaBuilder" />
+
     <!-- Performance related changes -->
     <preference for="Magento\ConfigurableProductGraphQl\Model\Resolver\ConfigurableVariant"
                 type="ScandiPWA\CatalogGraphQl\Model\Resolver\ConfigurableVariant" />
@@ -68,7 +71,7 @@
     <type name="Magento\Framework\GraphQl\Query\QueryComplexityLimiter">
         <arguments>
             <argument name="queryDepth" xsi:type="number">20</argument>
-            <argument name="queryComplexity" xsi:type="number">1500</argument>
+            <argument name="queryComplexity" xsi:type="number">750</argument>
         </arguments>
     </type>
 
@@ -91,4 +94,15 @@
 
     <preference for="Magento\CatalogUrlRewrite\Model\ResourceModel\Category\Product"
                 type="ScandiPWA\CatalogGraphQl\Model\ResourceModel\Category\Product" />
+
+    <preference for="Magento\Framework\Search\Dynamic\Algorithm\Improved"
+                type="ScandiPWA\CatalogGraphQl\Search\Dynamic\Algorithm\Improved"/>
+
+    <preference for="Magento\DownloadableGraphQl\Resolver\Product\Links"
+                type="ScandiPWA\CatalogGraphQl\Model\Resolver\Product\Links" />
+
+    <type name="Magento\Elasticsearch\SearchAdapter\Aggregation\Builder">
+        <plugin name="aggregation_equalize_products_count_handler"
+                type="ScandiPWA\CatalogGraphQl\Plugin\SearchAdapter\Aggregation\BuilderPlugin" />
+    </type>
 </config>

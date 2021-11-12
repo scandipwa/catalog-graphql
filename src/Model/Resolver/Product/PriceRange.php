@@ -22,6 +22,7 @@ use Magento\Framework\Pricing\SaleableInterface;
 use Magento\Framework\Pricing\PriceCurrencyInterface;
 use Magento\Store\Api\Data\StoreInterface;
 use Magento\CatalogGraphQl\Model\Resolver\Product\PriceRange as CorePriceRange;
+use Magento\ConfigurableProduct\Model\Product\Type\Configurable;
 
 /**
  * Format product's pricing information for price_range field
@@ -29,6 +30,12 @@ use Magento\CatalogGraphQl\Model\Resolver\Product\PriceRange as CorePriceRange;
 class PriceRange extends CorePriceRange
 {
     const XML_PRICE_INCLUDES_TAX = 'tax/calculation/price_includes_tax';
+    const FINAL_PRICE = 'final_price';
+
+    /**
+     * @var float
+     */
+    protected $zeroThreshold = 0.0001;
 
     /**
      * @var Discount
@@ -43,7 +50,7 @@ class PriceRange extends CorePriceRange
     /**
      * @var PriceCurrencyInterface
      */
-    private PriceCurrencyInterface $priceCurrency;
+    protected PriceCurrencyInterface $priceCurrency;
 
     /**
      * @var ScopeConfigInterface
@@ -122,7 +129,13 @@ class PriceRange extends CorePriceRange
         $priceProvider = $this->priceProviderPool->getProviderByProductType($product->getTypeId());
 
         $regularPrice = (float) $priceProvider->getMinimalRegularPrice($product)->getValue();
-        $finalPrice = (float) $priceProvider->getMinimalFinalPrice($product)->getValue();
+        $finalPrice = 0;
+
+        if ($product->getTypeId() === Configurable::TYPE_CODE) {
+            $finalPrice = $product->getPriceInfo()->getPrice(self::FINAL_PRICE)->getValue();
+        } else {
+            $finalPrice = (float) $priceProvider->getMinimalFinalPrice($product)->getValue();
+        }
 
         $discount = $this->calculateDiscount($product, $regularPrice, $finalPrice);
 
@@ -168,14 +181,27 @@ class PriceRange extends CorePriceRange
         $regularPrice = (float) $priceProvider->getMaximalRegularPrice($product)->getValue();
         $finalPrice = (float) $priceProvider->getMaximalFinalPrice($product)->getValue();
 
-        $defaultRegularPrice = (float) $product->getPrice();
-        $defaultFinalPrice = (float) $priceProvider->getRegularPrice($product)->getValue();
-
         $discount = $this->calculateDiscount($product, $regularPrice, $finalPrice);
 
-        $regularPriceExclTax = (float) $priceProvider->getMinimalRegularPrice($product)->getBaseAmount();
-        $finalPriceExclTax = (float) $priceProvider->getMinimalFinalPrice($product)->getBaseAmount();
-        $defaultFinalPriceExclTax = (float) $priceProvider->getRegularPrice($product)->getBaseAmount();
+        $regularPriceExclTax = (float) $priceProvider->getMaximalRegularPrice($product)->getBaseAmount();
+        $finalPriceExclTax = (float) $priceProvider->getMaximalFinalPrice($product)->getBaseAmount();
+
+        if($product->getTypeId() == ProductType::TYPE_SIMPLE) {
+            $priceInfo = $product->getPriceInfo();
+            $defaultRegularPrice = $priceInfo->getPrice(RegularPrice::PRICE_CODE)->getAmount()->getValue();
+            $defaultFinalPrice = $priceInfo->getPrice(FinalPrice::PRICE_CODE)->getAmount()->getValue();
+            $defaultFinalPriceExclTax = $priceInfo->getPrice(FinalPrice::PRICE_CODE)->getAmount()->getBaseAmount();
+
+            $discount = $this->calculateDiscount($product, $defaultRegularPrice, $defaultFinalPrice);
+        } else {
+            $defaultRegularPrice = $this->taxHelper->getTaxPrice($product, $product->getPrice(), $this->isPriceIncludesTax());
+            $defaultFinalPrice = (float) round($priceProvider->getRegularPrice($product)->getValue(), 2);
+            $defaultFinalPriceExclTax = (float) $priceProvider->getRegularPrice($product)->getBaseAmount();
+        }
+
+        $defaultRegularPrice = isset($defaultRegularPrice) ? $defaultRegularPrice : 0;
+        $defaultFinalPrice = isset($defaultFinalPrice) ? $defaultFinalPrice : 0;
+        $defaultFinalPriceExclTax = isset($defaultFinalPriceExclTax) ? $defaultFinalPriceExclTax : 0;
 
         $maxPriceArray = $this->formatPrice(
             $regularPrice, $regularPriceExclTax, $finalPrice, $finalPriceExclTax,
@@ -250,7 +276,13 @@ class PriceRange extends CorePriceRange
     protected function calculateDiscount(Product $product, float $regularPrice, float $finalPrice) : array
     {
         if ($product->getTypeId() !== 'bundle') {
-            return $this->discount->getDiscountByDifference($regularPrice, $finalPrice);
+            // Calculate percent_off with higher precision to avoid +/- 0.01 price differences on frontend
+            $priceDifference = $regularPrice - $finalPrice;
+
+            return [
+                'amount_off' => $this->getPriceDifferenceAsValue($regularPrice, $finalPrice),
+                'percent_off' => $this->getPriceDifferenceAsPercent($regularPrice, $finalPrice)
+            ];
         }
 
         // Bundle products have special price set in % (percents)
@@ -261,6 +293,41 @@ class PriceRange extends CorePriceRange
             'amount_off' => $regularPrice * ($percentOff / 100),
             'percent_off' => $percentOff
         ];
+    }
+
+    /**
+     * Get value difference between two prices
+     *
+     * @param float $regularPrice
+     * @param float $finalPrice
+     * @return float
+     */
+    protected function getPriceDifferenceAsValue(float $regularPrice, float $finalPrice)
+    {
+        $difference = $regularPrice - $finalPrice;
+        if ($difference <= $this->zeroThreshold) {
+            return 0;
+        }
+
+        return round($difference, 2);
+    }
+
+    /**
+     * Get percent difference between two prices
+     *
+     * @param float $regularPrice
+     * @param float $finalPrice
+     * @return float
+     */
+    protected function getPriceDifferenceAsPercent(float $regularPrice, float $finalPrice)
+    {
+        $difference = $this->getPriceDifferenceAsValue($regularPrice, $finalPrice);
+
+        if ($difference <= $this->zeroThreshold || $regularPrice <= $this->zeroThreshold) {
+            return 0;
+        }
+
+        return round(($difference / $regularPrice) * 100, 8);
     }
 
     /**

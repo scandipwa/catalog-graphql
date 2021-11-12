@@ -8,10 +8,12 @@ declare(strict_types=1);
 namespace ScandiPWA\CatalogGraphQl\Model\Resolver\Products\Query;
 
 use Exception;
+use Magento\Catalog\Api\Data\ProductSearchResultsInterfaceFactory;
 use Magento\CatalogGraphQl\DataProvider\Product\SearchCriteriaBuilder;
 use Magento\CatalogGraphQl\Model\Resolver\Products\DataProvider\ProductSearch;
 use Magento\Framework\GraphQl\Schema\Type\ResolveInfo;
 use Magento\Framework\Api\Search\SearchCriteriaInterface;
+use Magento\Framework\Api\Search\SearchResultInterface;
 use Magento\CatalogGraphQl\Model\Resolver\Products\SearchResult;
 use Magento\CatalogGraphQl\Model\Resolver\Products\SearchResultFactory;
 use Magento\GraphQl\Model\Query\ContextInterface;
@@ -19,10 +21,10 @@ use Magento\Search\Api\SearchInterface;
 use Magento\Search\Model\Search\PageSizeProvider;
 use Magento\Search\Model\QueryFactory;
 use Magento\Store\Model\StoreManagerInterface;
-
 use Magento\CatalogGraphQl\Model\Resolver\Products\Query\FieldSelection;
 use Magento\CatalogGraphQl\Model\Resolver\Products\Query\Search as CoreSearch;
 use ScandiPWA\CatalogGraphQl\Model\Resolver\Products\DataProvider\Product\CriteriaCheck;
+use ScandiPWA\CatalogGraphQl\Model\Resolver\Products\DataProvider\Product\EmulateSearchResult;
 use ScandiPWA\Performance\Model\Resolver\Products\DataPostProcessor;
 
 /**
@@ -76,8 +78,20 @@ class Search extends CoreSearch
     protected $storeManager;
 
     /**
+     * @var ProductSearchResultsInterfaceFactory
+     */
+    protected $productSearchResultsInterfaceFactory;
+
+    /**
+     * @var EmulateSearchResult
+     */
+    protected $emulateSearchResult;
+
+    /**
      * @param SearchInterface $search
      * @param SearchResultFactory $searchResultFactory
+     * @param ProductSearchResultsInterfaceFactory $productSearchResultsInterfaceFactory
+     * @param EmulateSearchResult $emulateSearchResult
      * @param PageSizeProvider $pageSize
      * @param FieldSelection $fieldSelection
      * @param ProductSearch $productsProvider
@@ -89,6 +103,8 @@ class Search extends CoreSearch
     public function __construct(
         SearchInterface $search,
         SearchResultFactory $searchResultFactory,
+        ProductSearchResultsInterfaceFactory $productSearchResultsInterfaceFactory,
+        EmulateSearchResult $emulateSearchResult,
         PageSizeProvider $pageSize,
         FieldSelection $fieldSelection,
         ProductSearch $productsProvider,
@@ -115,6 +131,8 @@ class Search extends CoreSearch
         $this->productPostProcessor = $productPostProcessor;
         $this->queryFactory = $queryFactory;
         $this->storeManager = $storeManager;
+        $this->productSearchResultsInterfaceFactory = $productSearchResultsInterfaceFactory;
+        $this->emulateSearchResult = $emulateSearchResult;
     }
 
     /**
@@ -133,29 +151,24 @@ class Search extends CoreSearch
     ): SearchResult {
         $queryFields = $this->fieldSelection->getProductsFieldSelection($info);
         $searchCriteria = $this->buildSearchCriteria($args, $info);
+        $itemsResults = $this->getSearchResults($searchCriteria, $info);
 
-        $realPageSize = $searchCriteria->getPageSize();
-        $realCurrentPage = $searchCriteria->getCurrentPage();
-        //Because of limitations of sort and pagination on search API we will query all IDS
-        $pageSize = $this->pageSizeProvider->getMaxPageSize();
-        $searchCriteria->setPageSize($pageSize);
-        $searchCriteria->setCurrentPage(0);
-        $itemsResults = $this->search->search($searchCriteria);
+        if ($this->includeItems($info)) {
+            // load product collection only if items are requested
+            $searchResults = $this->productsProvider->getList(
+                $searchCriteria,
+                $itemsResults,
+                $queryFields,
+                $context
+            );
+        } else {
+            $searchResults = $this->productSearchResultsInterfaceFactory->create();
+            $searchResults->setSearchCriteria($searchCriteria);
+            $searchResults->setTotalCount($itemsResults->getTotalCount());
+        }
 
-        //Address limitations of sort and pagination on search API apply original pagination from GQL query
-        $searchCriteria->setPageSize($realPageSize);
-        $searchCriteria->setCurrentPage($realCurrentPage);
-        $searchResults = $this->productsProvider->getList(
-            $searchCriteria,
-            $itemsResults,
-            $queryFields,
-            $context
-        );
-
-        $totalPages = $realPageSize ? ((int)ceil($searchResults->getTotalCount() / $realPageSize)) : 0;
-
-        $searchCriteria->setPageSize($realPageSize);
-        $searchCriteria->setCurrentPage($realCurrentPage);
+        $totalPages = $searchCriteria->getPageSize() ?
+            ((int)ceil($searchResults->getTotalCount() / $searchCriteria->getPageSize())) : 0;
 
         // Following lines are added to increment search terms
         if (!empty($args['search']) && strlen(trim($args['search']))) {
@@ -181,11 +194,38 @@ class Search extends CoreSearch
                 'totalCount' => $searchResults->getTotalCount(),
                 'productsSearchResult' => $productArray,
                 'searchAggregation' => $itemsResults->getAggregations(),
-                'pageSize' => $realPageSize,
-                'currentPage' => $realCurrentPage,
+                'pageSize' => $searchCriteria->getPageSize(),
+                'currentPage' => $searchCriteria->getCurrentPage(),
                 'totalPages' => $totalPages,
             ]
         );
+    }
+
+    /**
+     * @param SearchCriteriaInterface $searchCriteria
+     * @param ResolveInfo $info
+     * @return SearchResultInterface
+     */
+    private function getSearchResults(SearchCriteriaInterface $searchCriteria, ResolveInfo $info): SearchResultInterface
+    {
+        if (CriteriaCheck::isOnlySingleIdFilter($searchCriteria)) {
+            return $this->emulateSearchResult->execute($searchCriteria);
+        }
+
+        $realPageSize =  $searchCriteria->getPageSize();
+        $realCurrentPage = $searchCriteria->getCurrentPage();
+
+        // Because of limitations of sort and pagination on search API we will query all IDS
+        $pageSize = $this->pageSizeProvider->getMaxPageSize();
+        $searchCriteria->setPageSize($pageSize);
+        $searchCriteria->setCurrentPage(0);
+
+        $itemsResults = $this->search->search($searchCriteria);
+
+        $searchCriteria->setPageSize($realPageSize);
+        $searchCriteria->setCurrentPage($realCurrentPage);
+
+        return $itemsResults;
     }
 
     /**
@@ -197,11 +237,31 @@ class Search extends CoreSearch
      */
     private function buildSearchCriteria(array $args, ResolveInfo $info): SearchCriteriaInterface
     {
-        $productFields = (array)$info->getFieldSelection(1);
-        $includeAggregations = isset($productFields['filters']) || isset($productFields['aggregations']);
-        $searchCriteria = $this->searchCriteriaBuilder->build($args, $includeAggregations);
+        $searchCriteria = $this->searchCriteriaBuilder->build($args, $this->includeAggregations($info));
 
         return $searchCriteria;
+    }
+
+    /**
+     * @param ResolveInfo $info
+     * @return bool
+     */
+    private function includeAggregations(ResolveInfo $info): bool
+    {
+        $productFields = (array)$info->getFieldSelection(1);
+
+        return isset($productFields['filters']) || isset($productFields['aggregations']);
+    }
+
+    /**
+     * @param ResolveInfo $info
+     * @return bool
+     */
+    private function includeItems(ResolveInfo $info): bool
+    {
+        $productFields = (array)$info->getFieldSelection(1);
+
+        return isset($productFields['items']);
     }
 
     /**

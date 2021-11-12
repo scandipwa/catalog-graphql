@@ -19,6 +19,7 @@ use Magento\Framework\GraphQl\Config\Element\Field;
 use Magento\Framework\GraphQl\Schema\Type\ResolveInfo;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Store\Api\Data\StoreInterface;
+use Magento\Catalog\Model\CategoryRepository;
 use Magento\Catalog\Model\ResourceModel\Eav\Attribute;
 
 class Aggregations extends AggregationsBase {
@@ -26,6 +27,11 @@ class Aggregations extends AggregationsBase {
      * @var Attribute
      */
     protected $attribute;
+
+    /**
+     * @var CategoryRepository
+     */
+    protected $categoryRepository;
 
     /**
      * Code of the price attribute in aggregations
@@ -38,12 +44,18 @@ class Aggregations extends AggregationsBase {
     public const CATEGORY_ID_CODE = 'category_id';
 
     /**
+     * ID of the top level menu items
+     */
+    public const TOP_NAVIGATION_LEVEL_ID = 2;
+
+    /**
      * @inheritdoc
      */
     public function __construct(
         Filters $filtersDataProvider,
         LayerBuilder $layerBuilder,
-        Attribute $attribute
+        Attribute $attribute,
+        CategoryRepository $categoryRepository
     )
     {
         parent::__construct(
@@ -52,6 +64,7 @@ class Aggregations extends AggregationsBase {
         );
 
         $this->attribute = $attribute;
+        $this->categoryRepository = $categoryRepository;
     }
 
     /**
@@ -66,8 +79,15 @@ class Aggregations extends AggregationsBase {
     ) {
         $result = parent::resolve($field, $context, $info, $value);
 
+        $isSearch = isset($value['layer_type']) && $value['layer_type'] == 'search';
+
         $result = $this->processPriceFilter($result);
-        $result = $this->enhanceAttributes($result);
+        $result = $this->enhanceAttributes($result, $isSearch);
+
+        // on the search results page we should show only top level categories
+        if($isSearch){
+            $result = $this->removeNonTopLevelCategories($result);
+        }
 
         return $result;
     }
@@ -84,13 +104,13 @@ class Aggregations extends AggregationsBase {
 
                 foreach ($item['options'] as $index => $option) {
                     if ($lastIdx != 0 && $index == $lastIdx) {
-                        $item['options'][$index]['label'] = preg_replace('/(\d+)~\d+/', '$1~*', $option['label']);
-                        $item['options'][$index]['value'] = preg_replace('/(\d+)_\d+/', '$1_*', $option['value']);
+                        $item['options'][$index]['label'] = preg_replace('/(\d+\.?\d*)~(\d+\.?\d*)/', '$1~*', $option['label']);
+                        $item['options'][$index]['value'] = preg_replace('/(\d+\.?\d*)_(\d+\.?\d*)/', '$1_*', $option['value']);
                     } else {
-                        $item['options'][$index]['label'] = preg_replace_callback('/(\d+~)(\d+)/', function ($matches) {
+                        $item['options'][$index]['label'] = preg_replace_callback('/(\d+\.?\d*~)(\d+\.?\d*)/', function ($matches) {
                             return $matches[1].($matches[2]-0.01);
                         }, $option['label']);
-                        $item['options'][$index]['value'] = preg_replace_callback('/(\d+_)(\d+)/', function ($matches) {
+                        $item['options'][$index]['value'] = preg_replace_callback('/(\d+\.?\d*_)(\d+\.?\d*)/', function ($matches) {
                             return $matches[1].($matches[2]-0.01);
                         }, $option['value']);
                     }
@@ -106,7 +126,7 @@ class Aggregations extends AggregationsBase {
      * @param array $result Filters
      * @return array
      */
-    protected function enhanceAttributes(array $result): array {
+    protected function enhanceAttributes(array $result, $isSearch): array {
         foreach ($result as $attr => $attrGroup) {
             // Category ID is not a real attribute in Magento, so needs special handling
             if($attrGroup['attribute_code'] == self::CATEGORY_ID_CODE){
@@ -117,6 +137,14 @@ class Aggregations extends AggregationsBase {
             }
 
             $attribute = $this->attribute->loadByCode('catalog_product', $attrGroup['attribute_code']);
+
+            // Hide attributes based on the settings
+            if($isSearch){
+                if(!$attribute->getIsFilterableInSearch()){
+                    unset($result[$attr]);
+                    continue;
+                }
+            }
 
             // Add flag to indicate that attribute is boolean (Yes/No, Enable/Disable, etc.)
             $result[$attr]['is_boolean'] = $attribute->getFrontendInput() === 'boolean';
@@ -131,6 +159,30 @@ class Aggregations extends AggregationsBase {
             } else {
                 $additionalDataParsed = json_decode($additionalData, true);
                 $result[$attr]['has_swatch'] = isset($additionalDataParsed['swatch_input_type']);
+            }
+        }
+
+        return $result;
+    }
+
+    protected function removeNonTopLevelCategories(array $result) : array {
+        foreach ($result as $attr => $attrGroup){
+            if($attrGroup['attribute_code'] == self::CATEGORY_ID_CODE){
+                $newOptions = [];
+
+                foreach ($attrGroup['options'] as $option) {
+                    $category = $this->categoryRepository->get($option['value']);
+
+                    if(!$category->getIsActive()){
+                        continue;
+                    }
+
+                    if($category->getLevel() == self::TOP_NAVIGATION_LEVEL_ID){
+                        $newOptions[] = $option;
+                    }
+                }
+
+                $result[$attr]['options'] = $newOptions;
             }
         }
 

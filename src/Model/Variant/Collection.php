@@ -459,7 +459,11 @@ class Collection
 
         /** @var Product $product */
         foreach ($products as $product) {
-            if (!in_array($this->storeManager->getWebsite()->getId(), $product->getWebsiteIds())) {
+            // Skip disabled products
+            if (
+                $product->isDisabled()
+                || !in_array($this->storeManager->getWebsite()->getId(), $product->getWebsiteIds())
+            ) {
                 continue;
             }
 

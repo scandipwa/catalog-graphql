@@ -33,7 +33,7 @@ class Price implements LayerBuilderInterface
     /**
      * @var string
      */
-    private const PRICE_BUCKET = 'price_bucket';
+    const PRICE_BUCKET = 'price_bucket';
 
     /**
      * @var LayerFormatter
@@ -106,7 +106,7 @@ class Price implements LayerBuilderInterface
             // Builds graph-ql response
             $result['options'][] = $this->layerFormatter->buildItem(
                 $priceRange['from'] . '~' . $priceRange['to'],
-                $priceRange['from'] . '_' . $priceRange['to'],
+                $metrics['value'],
                 $metrics['count']
             );
         }

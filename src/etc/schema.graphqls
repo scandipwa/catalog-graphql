@@ -19,6 +19,7 @@ input ProductAttributeFilterInput {
     customer_group_id: FilterTypeInput @doc(description: "Modifies product prices based on customer group")
     news_from_date: FilterTypeInput @doc(description: "The beginning date for new product listings, and determines if the product is featured as a new product.")
     news_to_date: FilterTypeInput @doc(description: "The end date for new product listings.")
+    id: FilterTypeInput @doc(description: "Entity id filter for products")
 }
 
 type MediaGalleryEntry  @doc(description: "MediaGalleryEntry defines characteristics about images and videos associated with a specific product") {
@@ -114,6 +115,10 @@ type DownloadableProduct {
 
 type DownloadableProductLinks {
     sample_url: String @resolver(class: "ScandiPWA\\CatalogGraphQl\\Model\\Resolver\\Product\\SampleUrl")
+}
+
+interface CustomizableOptionInterface {
+    type: String
 }
 
 extend type CustomizableAreaValue {

@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * ScandiPWA - Progressive Web App for Magento
+ *
+ * Copyright © Scandiweb, Inc. All rights reserved.
+ * See LICENSE for license details.
+ *
+ * @license OSL-3.0 (Open Software License ("OSL") v. 3.0)
+ */
+-->
+<requests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:noNamespaceSchemaLocation="urn:magento:framework:Search/etc/search_request.xsd">
+    <!-- Request schema for product search excluding aggregation -->
+    <request query="graphql_product_search" index="catalogsearch_fulltext">
+        <queries>
+            <query xsi:type="boolQuery" name="graphql_product_search" boost="1">
+                <queryReference clause="must" ref="id"/>
+            </query>
+            <query name="id" xsi:type="filteredQuery">
+                <filterReference clause="must" ref="id_filter"/>
+            </query>
+        </queries>
+        <filters>
+            <filter xsi:type="termFilter" name="id_filter" field="_id" value="$id$"/>
+        </filters>
+    </request>
+</requests>
