@@ -19,7 +19,7 @@ use Magento\GraphQl\Model\Query\ContextInterface;
  */
 class PriceProcessor implements CollectionProcessorInterface
 {
-    const PRICE_FIELD = 'price_range';
+    const PRICE_FIELD = 's_price_range';
 
     /**
      * {@inheritdoc}
