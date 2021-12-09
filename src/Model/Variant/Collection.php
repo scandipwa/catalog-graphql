@@ -21,6 +21,7 @@ use Magento\Framework\App\ResourceConnection;
 use Magento\Framework\EntityManager\MetadataPool;
 use Magento\Framework\Api\SearchCriteriaBuilder;
 use Magento\Framework\Api\SearchCriteriaInterface;
+use Magento\Store\Model\StoreManagerInterface;
 use Magento\CatalogGraphQl\Model\Resolver\Products\DataProvider\Product\CollectionProcessorInterface;
 use ScandiPWA\CatalogGraphQl\Model\Resolver\Products\DataProvider\Product\CriteriaCheck;
 use ScandiPWA\Performance\Model\Resolver\Products\CollectionPostProcessor;
@@ -73,6 +74,9 @@ class Collection
     /** @var StockFilter */
     protected $stockFilter;
 
+    /** @var StoreManagerInterface */
+    protected $storeManager;
+
     /**
      * Collection constructor.
      *
@@ -85,7 +89,8 @@ class Collection
      * @param DataPostProcessor $dataPostProcessor
      * @param DataPostProcessor\Stocks $stocksPostProcessor
      * @param ResourceConnection $connection
-     * @oaran StockFilter $stockFilter
+     * @param StockFilter $stockFilter
+     * @param StoreManagerInterface $storeManager
      */
     public function __construct(
         CollectionFactory $childCollectionFactory,
@@ -97,7 +102,8 @@ class Collection
         DataPostProcessor $dataPostProcessor,
         DataPostProcessor\Stocks $stocksPostProcessor,
         ResourceConnection $connection,
-        StockFilter $stockFilter
+        StockFilter $stockFilter,
+        StoreManagerInterface $storeManager
     ) {
         $this->childCollectionFactory = $childCollectionFactory;
         $this->searchCriteriaBuilder = $searchCriteriaBuilder;
@@ -109,6 +115,7 @@ class Collection
         $this->collectionFactory = $collectionFactory;
         $this->connection = $connection;
         $this->stockFilter = $stockFilter;
+        $this->storeManager = $storeManager;
 
         $this->searchCriteria = $this->searchCriteriaBuilder->create();
     }
@@ -453,7 +460,10 @@ class Collection
         /** @var Product $product */
         foreach ($products as $product) {
             // Skip disabled products
-            if ($product->isDisabled()) {
+            if (
+                $product->isDisabled()
+                || !in_array($this->storeManager->getWebsite()->getId(), $product->getWebsiteIds())
+            ) {
                 continue;
             }
 
