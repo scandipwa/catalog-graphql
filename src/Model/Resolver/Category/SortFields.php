@@ -115,7 +115,7 @@ class SortFields implements ResolverInterface
     private function getSortOptionsByCategory(int $categoryId): array {
         $result = [];
         $category = $this->categoryRepository->get($categoryId);
-        $sortBy = $category->getAvailableSortBy();
+        $sortBy = $category->getAvailableSortBy() ?? [];
 
         foreach ($sortBy as $sortItem) {
             $result[] = [
