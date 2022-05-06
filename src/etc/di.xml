@@ -65,8 +65,8 @@
     <preference for="Magento\GroupedProductGraphQl\Model\Resolver\GroupedItems"
                 type="ScandiPWA\CatalogGraphQl\Model\Resolver\GroupedItems" />
 
-    <preference for="Magento\Elasticsearch\SearchAdapter\Query\Builder\Match"
-                type="ScandiPWA\CatalogGraphQl\SearchAdapter\Query\Builder\Match"/>
+    <preference for="Magento\Elasticsearch\SearchAdapter\Query\Builder\MatchQuery"
+                type="ScandiPWA\CatalogGraphQl\SearchAdapter\Query\Builder\MatchQuery"/>
 
     <type name="Magento\Framework\GraphQl\Query\QueryComplexityLimiter">
         <arguments>
