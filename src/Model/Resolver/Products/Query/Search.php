@@ -9,7 +9,7 @@ namespace ScandiPWA\CatalogGraphQl\Model\Resolver\Products\Query;
 
 use Exception;
 use Magento\Catalog\Api\Data\ProductSearchResultsInterfaceFactory;
-use Magento\Catalog\Model\ResourceModel\Category\CollectionFactory;
+use Magento\Catalog\Model\ResourceModel\Category\CollectionFactory as CategoryCollectionFactory;
 use Magento\CatalogGraphQl\DataProvider\Product\SearchCriteriaBuilder;
 use Magento\CatalogGraphQl\Model\Resolver\Products\DataProvider\ProductSearch;
 use Magento\Framework\GraphQl\Schema\Type\ResolveInfo;
@@ -89,9 +89,9 @@ class Search extends CoreSearch
     protected $emulateSearchResult;
 
     /**
-     * @var CollectionFactory
+     * @var CategoryCollectionFactory
      */
-    protected $categoryCollectionFactory;
+    protected CategoryCollectionFactory $categoryCollectionFactory;
 
     /**
      * @param SearchInterface $search
@@ -105,7 +105,7 @@ class Search extends CoreSearch
      * @param DataPostProcessor $productPostProcessor
      * @param QueryFactory $queryFactory
      * @param StoreManagerInterface $storeManager
-     * @param CollectionFactory $categoryCollectionFactory
+     * @param CategoryCollectionFactory $categoryCollectionFactory
      */
     public function __construct(
         SearchInterface $search,
@@ -119,7 +119,7 @@ class Search extends CoreSearch
         DataPostProcessor $productPostProcessor,
         QueryFactory $queryFactory,
         StoreManagerInterface $storeManager,
-        CollectionFactory $categoryCollectionFactory
+        CategoryCollectionFactory $categoryCollectionFactory
     ) {
         parent::__construct(
             $search,
