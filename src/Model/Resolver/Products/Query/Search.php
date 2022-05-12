@@ -162,6 +162,14 @@ class Search extends CoreSearch
         $searchCriteria = $this->buildSearchCriteria($args, $info);
         $itemsResults = $this->getSearchResults($searchCriteria, $info);
 
+        // When adding a new product through the admin panel, it does not appear
+        // on the category page (without cleaning cache), if the category won`t
+        // mentions in request in Magento Tags (and not just product Tags as now).
+        //
+        // To add the category to tags, need to cause category loading when receiving products for it
+        // (only loading is enough because the tags are added to load_after)
+        //
+        // Related task: https://github.com/scandipwa/scandipwa/issues/4353
         if (!empty($args['filter']['category_id'])) {
             $this->categoryCollectionFactory->create()
                 ->addAttributeToSelect('entity_id')
