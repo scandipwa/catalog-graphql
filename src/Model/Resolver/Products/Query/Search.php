@@ -9,6 +9,7 @@ namespace ScandiPWA\CatalogGraphQl\Model\Resolver\Products\Query;
 
 use Exception;
 use Magento\Catalog\Api\Data\ProductSearchResultsInterfaceFactory;
+use Magento\Catalog\Model\ResourceModel\Category\CollectionFactory as CategoryCollectionFactory;
 use Magento\CatalogGraphQl\DataProvider\Product\SearchCriteriaBuilder;
 use Magento\CatalogGraphQl\Model\Resolver\Products\DataProvider\ProductSearch;
 use Magento\Framework\GraphQl\Schema\Type\ResolveInfo;
@@ -88,6 +89,11 @@ class Search extends CoreSearch
     protected $emulateSearchResult;
 
     /**
+     * @var CategoryCollectionFactory
+     */
+    protected CategoryCollectionFactory $categoryCollectionFactory;
+
+    /**
      * @param SearchInterface $search
      * @param SearchResultFactory $searchResultFactory
      * @param ProductSearchResultsInterfaceFactory $productSearchResultsInterfaceFactory
@@ -99,6 +105,7 @@ class Search extends CoreSearch
      * @param DataPostProcessor $productPostProcessor
      * @param QueryFactory $queryFactory
      * @param StoreManagerInterface $storeManager
+     * @param CategoryCollectionFactory $categoryCollectionFactory
      */
     public function __construct(
         SearchInterface $search,
@@ -111,7 +118,8 @@ class Search extends CoreSearch
         SearchCriteriaBuilder $searchCriteriaBuilder,
         DataPostProcessor $productPostProcessor,
         QueryFactory $queryFactory,
-        StoreManagerInterface $storeManager
+        StoreManagerInterface $storeManager,
+        CategoryCollectionFactory $categoryCollectionFactory
     ) {
         parent::__construct(
             $search,
@@ -133,6 +141,7 @@ class Search extends CoreSearch
         $this->storeManager = $storeManager;
         $this->productSearchResultsInterfaceFactory = $productSearchResultsInterfaceFactory;
         $this->emulateSearchResult = $emulateSearchResult;
+        $this->categoryCollectionFactory = $categoryCollectionFactory;
     }
 
     /**
@@ -152,6 +161,21 @@ class Search extends CoreSearch
         $queryFields = $this->fieldSelection->getProductsFieldSelection($info);
         $searchCriteria = $this->buildSearchCriteria($args, $info);
         $itemsResults = $this->getSearchResults($searchCriteria, $info);
+
+        // When adding a new product through the admin panel, it does not appear
+        // on the category page (without cleaning cache), if the category won`t
+        // mentions in request in Magento Tags (and not just product Tags as now).
+        //
+        // To add the category to tags, need to cause category loading when receiving products for it
+        // (only loading is enough because the tags are added to load_after)
+        //
+        // Related task: https://github.com/scandipwa/scandipwa/issues/4353
+        if (!empty($args['filter']['category_id'])) {
+            $this->categoryCollectionFactory->create()
+                ->addAttributeToSelect('entity_id')
+                ->addAttributeToFilter('entity_id', $args['filter']['category_id'])
+                ->load();
+        }
 
         if ($this->includeItems($info)) {
             // load product collection only if items are requested
