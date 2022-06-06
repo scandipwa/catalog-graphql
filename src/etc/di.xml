@@ -105,4 +105,6 @@
         <plugin name="aggregation_equalize_products_count_handler"
                 type="ScandiPWA\CatalogGraphQl\Plugin\SearchAdapter\Aggregation\BuilderPlugin" />
     </type>
+    <preference for="Magento\Elasticsearch\Elasticsearch5\SearchAdapter\Aggregation\Interval"
+                type="ScandiPWA\CatalogGraphQl\Elasticsearch5\SearchAdapter\Aggregation\Interval" />
 </config>
