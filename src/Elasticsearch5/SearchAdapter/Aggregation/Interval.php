@@ -27,37 +27,37 @@ class Interval extends CoreInterval
     /**
      * @var ConnectionManager
      */
-    private $connectionManager;
+    protected $connectionManager;
 
     /**
      * @var FieldMapperInterface
      */
-    private $fieldMapper;
+    protected $fieldMapper;
 
     /**
      * @var Config
      */
-    private $clientConfig;
+    protected $clientConfig;
 
     /**
      * @var string
      */
-    private $fieldName;
+    protected $fieldName;
 
     /**
      * @var string
      */
-    private $storeId;
+    protected $storeId;
 
     /**
      * @var array
      */
-    private $entityIds;
+    protected $entityIds;
 
     /**
      * @var SearchIndexNameResolver
      */
-    private $searchIndexNameResolver;
+    protected $searchIndexNameResolver;
 
     /**
      * @param ConnectionManager $connectionManager
@@ -103,8 +103,8 @@ class Interval extends CoreInterval
     public function load($limit, $offset = null, $lower = null, $upper = null)
     {
 
-        $from = ['gte' => 0];
-        $to = ['lt' => 0];
+        $from = ['gte' => 0];       //Added this because in some situations the $lower is null and $from is not declared
+        $to = ['lt' => 0];          //Added this because in some situations the $data is null and $to is not declared
 
         if ($lower) {
             $from = ['gte' => $lower - self::DELTA];
@@ -137,8 +137,8 @@ class Interval extends CoreInterval
     public function loadPrevious($data, $index, $lower = null)
     {
 
-        $from = ['gte' => 0];
-        $to = ['lt' => 0];
+        $from = ['gte' => 0];       //Added this because in some situations the $lower is null and $from is not declared
+        $to = ['lt' => 0];          //Added this because in some situations the $data is null and $to is not declared
 
         if ($lower) {
             $from = ['gte' => $lower - self::DELTA];
@@ -176,7 +176,7 @@ class Interval extends CoreInterval
      *
      * @return float[]
      */
-    private function arrayValuesToFloat(array $hits, string $fieldName): array
+    protected function arrayValuesToFloat(array $hits, string $fieldName): array
     {
         $returnPrices = [];
         foreach ($hits as $hit) {
@@ -186,7 +186,6 @@ class Interval extends CoreInterval
         return $returnPrices;
     }
 
-
     /**
      * Prepare base query for search.
      *
@@ -194,7 +193,7 @@ class Interval extends CoreInterval
      * @param array|null $to
      * @return array
      */
-    private function prepareBaseRequestQuery($from = null, $to = null): array
+    protected function prepareBaseRequestQuery($from = null, $to = null): array
     {
         $requestQuery = [
             'index' => $this->searchIndexNameResolver->getIndexName($this->storeId, Fulltext::INDEXER_ID),
@@ -234,5 +233,4 @@ class Interval extends CoreInterval
 
         return $requestQuery;
     }
-
 }
