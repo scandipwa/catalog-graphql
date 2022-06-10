@@ -65,8 +65,8 @@
     <preference for="Magento\GroupedProductGraphQl\Model\Resolver\GroupedItems"
                 type="ScandiPWA\CatalogGraphQl\Model\Resolver\GroupedItems" />
 
-    <preference for="Magento\Elasticsearch\SearchAdapter\Query\Builder\Match"
-                type="ScandiPWA\CatalogGraphQl\SearchAdapter\Query\Builder\Match"/>
+    <preference for="Magento\Elasticsearch\SearchAdapter\Query\Builder\MatchQuery"
+                type="ScandiPWA\CatalogGraphQl\SearchAdapter\Query\Builder\MatchQuery"/>
 
     <type name="Magento\Framework\GraphQl\Query\QueryComplexityLimiter">
         <arguments>
@@ -105,4 +105,6 @@
         <plugin name="aggregation_equalize_products_count_handler"
                 type="ScandiPWA\CatalogGraphQl\Plugin\SearchAdapter\Aggregation\BuilderPlugin" />
     </type>
+    <preference for="Magento\Elasticsearch\Elasticsearch5\SearchAdapter\Aggregation\Interval"
+                type="ScandiPWA\CatalogGraphQl\Elasticsearch5\SearchAdapter\Aggregation\Interval" />
 </config>

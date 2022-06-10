@@ -15,13 +15,13 @@ use Magento\Elasticsearch\Model\Adapter\FieldMapper\Product\FieldProvider\FieldT
 use Magento\Elasticsearch\Model\Config;
 use Magento\Elasticsearch\SearchAdapter\Query\ValueTransformerPool;
 use Magento\Elasticsearch\Model\Adapter\FieldMapperInterface;
-use Magento\Elasticsearch\SearchAdapter\Query\Builder\Match as CoreMatch;
+use Magento\Elasticsearch\SearchAdapter\Query\Builder\MatchQuery as CoreMatch;
 
 /**
- * Class Match
+ * Class MatchQuery
  * @package ScandiPWA\CatalogGraphQl\SearchAdapter\Query\Builder
  */
-class Match extends CoreMatch
+class MatchQuery extends CoreMatch
 {
     /**
      * Define fuzziness level of search query
