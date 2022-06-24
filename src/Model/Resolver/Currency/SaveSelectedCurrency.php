@@ -6,9 +6,10 @@
  * See LICENSE for license details.
  *
  * @license OSL-3.0 (Open Software License ("OSL") v. 3.0)
- * @package scandipwa/module-customer-graph-ql
- * @link https://github.com/scandipwa/module-customer-graph-ql
+ * @package scandipwa/catalog-graphql
+ * @link https://github.com/scandipwa/catalog-graphql
  */
+
 declare(strict_types=1);
 
 namespace ScandiPWA\CatalogGraphQl\Model\Resolver\Currency;
@@ -21,35 +22,39 @@ use Magento\Framework\GraphQl\Query\Resolver\Value;
 use Magento\Framework\GraphQl\Query\ResolverInterface;
 use Magento\Framework\GraphQl\Schema\Type\ResolveInfo;
 use Magento\Store\Model\StoreManagerInterface;
-use \Magento\Checkout\Model\Session as SessionManager;
+use Magento\Quote\Api\CartManagementInterface;
+use Magento\Quote\Api\GuestCartRepositoryInterface;
+use ScandiPWA\QuoteGraphQl\Model\Resolver\CartResolver;
+use Magento\Webapi\Controller\Rest\ParamOverriderCustomerId;
 
 /**
  * Class SaveCartItem
  * @package ScandiPWA\QuoteGraphQl\Model\Resolver
  */
-class SaveSelectedCurrency implements ResolverInterface
+class SaveSelectedCurrency extends CartResolver
 {
     /**
      * @var StoreManagerInterface
      */
-    protected $storeManager;
-
-    /**
-     * @var SessionManager
-     */
-    protected $sessionManager;
+    protected StoreManagerInterface $storeManager;
 
     /**
      * SaveSelectedCurrency constructor.
      * @param StoreManagerInterface $storeManager
-     * @param SessionManager $sessionManager
      */
     public function __construct(
         StoreManagerInterface $storeManager,
-        SessionManager $sessionManager
+        ParamOverriderCustomerId $overriderCustomerId,
+        CartManagementInterface $quoteManagement,
+        GuestCartRepositoryInterface $guestCartRepository
     ) {
+        parent::__construct(
+            $guestCartRepository,
+            $overriderCustomerId,
+            $quoteManagement
+        );
+
         $this->storeManager = $storeManager;
-        $this->sessionManager = $sessionManager;
     }
 
     /**
@@ -77,7 +82,8 @@ class SaveSelectedCurrency implements ResolverInterface
 
             // Rebuilds active quotes all values (price, currency, etc.)
             try {
-                $this->sessionManager->getQuote()->collectTotals()->save();
+                $quote = $this->getCart($args);
+                $quote->collectTotals()->save();
             } catch (NoSuchEntityException $exception) {
                 // Ignore if quote is not set
             }

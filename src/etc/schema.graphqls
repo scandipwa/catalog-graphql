@@ -81,7 +81,7 @@ interface AggregationOptionInterface {
 }
 
 type Mutation {
-    saveSelectedCurrency(currency: String): Query @resolver(class:"ScandiPWA\\CatalogGraphQl\\Model\\Resolver\\Currency\\SaveSelectedCurrency")
+    saveSelectedCurrency(currency: String, guestCartId: String): Query @resolver(class:"ScandiPWA\\CatalogGraphQl\\Model\\Resolver\\Currency\\SaveSelectedCurrency")
 }
 
 type Query {
