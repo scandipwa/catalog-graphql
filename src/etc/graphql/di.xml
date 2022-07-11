@@ -53,14 +53,6 @@
 
     <preference for="Magento\CatalogGraphQl\Model\Resolver\Products\Query\Filter"
                 type="ScandiPWA\CatalogGraphQl\Model\Resolver\Products\Query\Filter"/>
-    <preference
-            for="Magento\CatalogGraphQl\Model\Resolver\Products\DataProvider\Product\CollectionProcessor\VisibilityStatusProcessor"
-            type="ScandiPWA\CatalogGraphQl\Model\Resolver\Products\DataProvider\Product\CollectionProcessor\VisibilityStatusProcessor"/>
-
-    <type name="Magento\CatalogGraphQl\Model\Resolver\Products\DataProvider\ProductSearch\ProductCollectionSearchCriteriaBuilder">
-        <plugin name="add_visibility_filter_on_single_product_requests"
-                type="ScandiPWA\CatalogGraphQl\Plugin\AddVisibilityFilterOnSingleProductRequests"/>
-    </type>
 
     <type name="Magento\Framework\App\ResourceConnection">
         <plugin name="get_catalog_category_product_index_table_name" type="Magento\Catalog\Model\Indexer\Category\Product\Plugin\TableResolver"/>

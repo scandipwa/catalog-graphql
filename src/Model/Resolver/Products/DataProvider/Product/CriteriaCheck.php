@@ -73,23 +73,4 @@ class CriteriaCheck
 
         return $type === 'eq' && in_array($field, ['url_key', 'id', 'entity_id', 'sku']);
     }
-
-    /**
-     * @param SearchCriteriaInterface $searchCriteria
-     * @return Filter|null
-     */
-    static public function getVisibilityFilter(SearchCriteriaInterface $searchCriteria): ?Filter
-    {
-        foreach ($searchCriteria->getFilterGroups() as $filterGroup) {
-            $filters = $filterGroup->getFilters();
-
-            foreach ($filters as $filter) {
-                if ($filter->getField() === 'visibility') {
-                    return $filter;
-                }
-            }
-        }
-
-        return null;
-    }
 }
