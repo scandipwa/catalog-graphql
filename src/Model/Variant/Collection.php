@@ -255,7 +255,8 @@ class Collection
         $childProductsList = [];
 
         $parentIds = array_map(function ($product) {
-            return $product->getId();
+            $linkField = $this->metadataPool->getMetadata(ProductInterface::class)->getLinkField();
+            return $product->getData($linkField);
         }, $this->parentProducts);
 
         $conn = $this->connection->getConnection();
@@ -386,7 +387,8 @@ class Collection
         );
 
         foreach ($this->parentProducts as $product) {
-            $parentId = $product->getId();
+            $linkField = $this->metadataPool->getMetadata(ProductInterface::class)->getLinkField();
+            $parentId = $product->getData($linkField);
             $childIds = $childCollectionMap[$parentId];
 
             $this->childrenMap[$parentId] = [];
@@ -419,6 +421,8 @@ class Collection
         if (empty($this->parentProducts) || !empty($this->childrenMap)) {
             return $this->childrenMap;
         }
+
+        $linkField = $this->metadataPool->getMetadata(ProductInterface::class)->getLinkField();
 
         [
             $childProductsList,
@@ -467,7 +471,7 @@ class Collection
                 continue;
             }
 
-            $productId = $product->getId();
+            $productId = $product->getData($linkField);
             $productIds[] = $productId;
 
             // Create storage for future attributes
@@ -492,14 +496,15 @@ class Collection
             // Set stock status
             $stockStatusCallback($product);
 
-            $productsData[$product->getId()] = $product->getData() + [
-                'model' => $product,
-                's_attributes' => $productAttributes[$productId]
-            ];
+
+            $productsData[$product->getData($linkField)] = $product->getData() + [
+                    'model' => $product,
+                    's_attributes' => $productAttributes[$productId]
+                ];
         }
 
         foreach ($this->parentProducts as $product) {
-            $parentId = $product->getId();
+            $parentId = $product->getData($linkField);
             $childIds = $childCollectionMap[$parentId];
 
             $this->childrenMap[$parentId] = [];
