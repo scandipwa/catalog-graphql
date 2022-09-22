@@ -253,9 +253,8 @@ class Collection
     protected function getChildCollectionMapAndList(): array {
         $childCollectionMap = [];
         $childProductsList = [];
-
-        $parentIds = array_map(function ($product) {
-            $linkField = $this->metadataPool->getMetadata(ProductInterface::class)->getLinkField();
+        $linkField = $this->metadataPool->getMetadata(ProductInterface::class)->getLinkField();
+        $parentIds = array_map(function ($product) use($linkField) {
             return $product->getData($linkField);
         }, $this->parentProducts);
 
@@ -386,11 +385,11 @@ class Collection
             ['isSingleProduct' => CriteriaCheck::isSingleProductFilter($this->searchCriteria)]
         );
 
+        $linkField = $this->metadataPool->getMetadata(ProductInterface::class)->getLinkField();
+
         foreach ($this->parentProducts as $product) {
-            $linkField = $this->metadataPool->getMetadata(ProductInterface::class)->getLinkField();
             $parentId = $product->getData($linkField);
             $childIds = $childCollectionMap[$parentId];
-
             $this->childrenMap[$parentId] = [];
 
             foreach ($childIds as $childId) {
