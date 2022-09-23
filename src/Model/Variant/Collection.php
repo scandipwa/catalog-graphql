@@ -364,11 +364,11 @@ class Collection
 
         if ($isReturnSingleChild) {
             foreach ($this->parentProducts as $parentProduct) {
-                $parentId = $parentProduct->getId();
+                $parentId = $parentProduct->getData('row_id');
                 $childIds = $childCollectionMap[$parentId];
 
                 foreach ($products as $childProduct) {
-                    if (in_array($childProduct->getId(), $childIds, true)) {
+                    if (in_array($childProduct->getData("row_id"), $childIds, true)) {
                         $productsToProcess[] = $childProduct;
                         break;
                     }
@@ -420,6 +420,8 @@ class Collection
         if (empty($this->parentProducts) || !empty($this->childrenMap)) {
             return $this->childrenMap;
         }
+
+
 
         $linkField = $this->metadataPool->getMetadata(ProductInterface::class)->getLinkField();
 
@@ -496,7 +498,7 @@ class Collection
             $stockStatusCallback($product);
 
 
-            $productsData[$product->getData($linkField)] = $product->getData() + [
+            $productsData[$product->getId()] = $product->getData() + [
                     'model' => $product,
                     's_attributes' => $productAttributes[$productId]
                 ];
@@ -505,7 +507,6 @@ class Collection
         foreach ($this->parentProducts as $product) {
             $parentId = $product->getData($linkField);
             $childIds = $childCollectionMap[$parentId];
-
             $this->childrenMap[$parentId] = [];
 
             foreach ($childIds as $childId) {
