@@ -336,6 +336,7 @@ class Collection
             $childCollectionMap
         ] = $this->getChildCollectionMapAndList();
 
+        $linkField = $this->metadataPool->getMetadata(ProductInterface::class)->getLinkField();
         $collection = $this->collectionFactory->create();
         $isReturnSingleChild = $this->getIsReturnSingleChild(true);
         $searchCriteria = $this->getSearchCriteria($childProductsList, $isReturnSingleChild);
@@ -364,11 +365,11 @@ class Collection
 
         if ($isReturnSingleChild) {
             foreach ($this->parentProducts as $parentProduct) {
-                $parentId = $parentProduct->getData('row_id');
+                $parentId = $parentProduct->getData($linkField);
                 $childIds = $childCollectionMap[$parentId];
 
                 foreach ($products as $childProduct) {
-                    if (in_array($childProduct->getData("row_id"), $childIds, true)) {
+                    if (in_array($childProduct->getData($linkField), $childIds, true)) {
                         $productsToProcess[] = $childProduct;
                         break;
                     }
@@ -385,7 +386,6 @@ class Collection
             ['isSingleProduct' => CriteriaCheck::isSingleProductFilter($this->searchCriteria)]
         );
 
-        $linkField = $this->metadataPool->getMetadata(ProductInterface::class)->getLinkField();
 
         foreach ($this->parentProducts as $product) {
             $parentId = $product->getData($linkField);
