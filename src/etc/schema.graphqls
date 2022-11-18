@@ -94,7 +94,6 @@ type MenuItem {
     title: String
     item_id: ID
     parent_id: Int
-    is_active: Boolean
     category_id: Int
     position: Int
 }

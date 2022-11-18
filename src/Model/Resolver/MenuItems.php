@@ -78,7 +78,6 @@ class MenuItems implements ResolverInterface
         $mapping = [
             [
                 'category_id' => $rootId,
-                'is_active' => true,
                 'item_id' => 0,
                 'parent_id' => 0,
                 'title' => '',
@@ -145,7 +144,6 @@ class MenuItems implements ResolverInterface
             'item_id' => $category->getEntityId(),
             'category_id' => $category->getId(),
             'url' => $this->catalogCategory->getCategoryUrl($category),
-            'is_active' => true,
             'parent_id' => $category->getParentId(),
             'position' => $category->getPosition()
         ];
