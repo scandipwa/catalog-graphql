@@ -19,6 +19,9 @@
     <preference for="Magento\CatalogGraphQl\Model\Resolver\Product\MediaGalleryEntries"
                 type="ScandiPWA\CatalogGraphQl\Model\Resolver\Product\MediaGalleryEntries"/>
 
+    <preference for="Magento\CatalogGraphQl\DataProvider\Product\SearchCriteriaBuilder"
+                type="ScandiPWA\CatalogGraphQl\DataProvider\Product\SearchCriteriaBuilder"/>
+
 <!--    <preference for="Magento\CatalogGraphQl\Model\Resolver\Category\Products"-->
 <!--                type="ScandiPWA\CatalogGraphQl\Model\Resolver\Category\Products"/>-->
 
