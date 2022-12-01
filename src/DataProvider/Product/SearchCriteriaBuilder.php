@@ -31,31 +31,31 @@ class SearchCriteriaBuilder extends MagentoSearchCriteriaBuilder
     /**
      * @var ScopeConfigInterface
      */
-    private $scopeConfig;
+    protected $scopeConfig;
 
     /**
      * @var FilterBuilder
      */
-    private $filterBuilder;
+    protected $filterBuilder;
 
     /**
      * @var FilterGroupBuilder
      */
-    private $filterGroupBuilder;
+    protected $filterGroupBuilder;
 
     /**
      * @var Builder
      */
-    private $builder;
+    protected $builder;
     /**
      * @var Visibility
      */
-    private $visibility;
+    protected $visibility;
 
     /**
      * @var SortOrderBuilder
      */
-    private $sortOrderBuilder;
+    protected $sortOrderBuilder;
 
     /**
      * @param Builder $builder
@@ -100,6 +100,7 @@ class SearchCriteriaBuilder extends MagentoSearchCriteriaBuilder
         } else {
             $requestName = 'graphql_product_search';
         }
+
         $searchCriteria->setRequestName($requestName);
 
         if ($isSearch) {
@@ -111,6 +112,7 @@ class SearchCriteriaBuilder extends MagentoSearchCriteriaBuilder
         }
 
         $this->addEntityIdSort($searchCriteria, $args);
+        // Removed $isFilter parameter
         $this->addVisibilityFilter($searchCriteria, $isSearch);
 
         $searchCriteria->setCurrentPage($args['currentPage']);
@@ -127,8 +129,9 @@ class SearchCriteriaBuilder extends MagentoSearchCriteriaBuilder
      * @param bool $isSearch
      * @param bool $isFilter
      */
-    private function addVisibilityFilter(SearchCriteriaInterface $searchCriteria, bool $isSearch): void
+    protected function addVisibilityFilter(SearchCriteriaInterface $searchCriteria, bool $isSearch): void
     {
+        // Removed $isFilter parameter and related check
         $visibilityIds = $isSearch
             ? $this->visibility->getVisibleInSearchIds()
             : $this->visibility->getVisibleInCatalogIds();
@@ -142,7 +145,7 @@ class SearchCriteriaBuilder extends MagentoSearchCriteriaBuilder
      * @param SearchCriteriaInterface $searchCriteria
      * @param array $args
      */
-    private function addEntityIdSort(SearchCriteriaInterface $searchCriteria, array $args): void
+    protected function addEntityIdSort(SearchCriteriaInterface $searchCriteria, array $args): void
     {
         $sortOrder = !empty($args['sort']) ? reset($args['sort']) : SortOrder::SORT_DESC;
         $sortOrderArray = $searchCriteria->getSortOrders();
@@ -159,12 +162,13 @@ class SearchCriteriaBuilder extends MagentoSearchCriteriaBuilder
      * @param SearchCriteriaInterface $searchCriteria
      * @return void
      */
-    private function preparePriceAggregation(SearchCriteriaInterface $searchCriteria): void
+    protected function preparePriceAggregation(SearchCriteriaInterface $searchCriteria): void
     {
         $priceRangeCalculation = $this->scopeConfig->getValue(
             \Magento\Catalog\Model\Layer\Filter\Dynamic\AlgorithmFactory::XML_PATH_RANGE_CALCULATION,
             \Magento\Store\Model\ScopeInterface::SCOPE_STORE
         );
+
         if ($priceRangeCalculation) {
             $this->addFilter($searchCriteria, 'price_dynamic_algorithm', $priceRangeCalculation);
         }
@@ -178,7 +182,7 @@ class SearchCriteriaBuilder extends MagentoSearchCriteriaBuilder
      * @param mixed $value
      * @param string|null $condition
      */
-    private function addFilter(
+    protected function addFilter(
         SearchCriteriaInterface $searchCriteria,
         string $field,
         $value,
@@ -203,9 +207,10 @@ class SearchCriteriaBuilder extends MagentoSearchCriteriaBuilder
      * @param array $args
      * @param bool $isSearch
      */
-    private function addDefaultSortOrder(SearchCriteriaInterface $searchCriteria, array $args, $isSearch = false): void
+    protected function addDefaultSortOrder(SearchCriteriaInterface $searchCriteria, array $args, $isSearch = false): void
     {
         $defaultSortOrder = [];
+
         if ($isSearch) {
             $defaultSortOrder[] = $this->sortOrderBuilder
                 ->setField('relevance')
@@ -213,6 +218,7 @@ class SearchCriteriaBuilder extends MagentoSearchCriteriaBuilder
                 ->create();
         } else {
             $categoryIdFilter = isset($args['filter']['category_id']) ? $args['filter']['category_id'] : false;
+
             if ($categoryIdFilter) {
                 if (!is_array($categoryIdFilter[array_key_first($categoryIdFilter)])
                     || count($categoryIdFilter[array_key_first($categoryIdFilter)]) <= 1
@@ -235,11 +241,13 @@ class SearchCriteriaBuilder extends MagentoSearchCriteriaBuilder
      *
      * @param SearchCriteriaInterface $searchCriteria
      */
-    private function updateRangeFilters(SearchCriteriaInterface $searchCriteria): void
+    protected function updateRangeFilters(SearchCriteriaInterface $searchCriteria): void
     {
         $filterGroups = $searchCriteria->getFilterGroups();
+
         foreach ($filterGroups as $filterGroup) {
             $filters = $filterGroup->getFilters();
+
             foreach ($filters as $filter) {
                 if (in_array($filter->getConditionType(), ['from', 'to'])) {
                     $filter->setField($filter->getField() . '.' . $filter->getConditionType());
