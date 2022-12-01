@@ -77,8 +77,8 @@ class MenuItems implements ResolverInterface
         // Creating root category for FE compatibility
         $mapping = [
             [
-                'category_id' => $rootId,
-                'item_id' => 0,
+                'category_id' => 0,
+                'item_id' => $rootId,
                 'parent_id' => 0,
                 'title' => '',
                 'url' => '/'
@@ -141,7 +141,7 @@ class MenuItems implements ResolverInterface
     {
         return [
             'title' => $category->getName(),
-            'item_id' => $category->getEntityId(),
+            'item_id' => $category->getId(),
             'category_id' => $category->getId(),
             'url' => $this->catalogCategory->getCategoryUrl($category),
             'parent_id' => $category->getParentId(),
