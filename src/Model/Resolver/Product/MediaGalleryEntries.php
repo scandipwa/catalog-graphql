@@ -71,9 +71,6 @@ class MediaGalleryEntries implements ResolverInterface
         $imageId,
         $type
     ) {
-        $storeId = $this->storeManager->getStore()->getId();
-        $this->emulation->startEnvironmentEmulation($storeId, Area::AREA_FRONTEND, true);
-
         $image = $this->helperFactory->init($mediaGalleryEntry, $imageId, ['type' => $type])
             ->setImageFile($mediaGalleryEntry->getData('file'))
             ->constrainOnly(true)
@@ -82,8 +79,6 @@ class MediaGalleryEntries implements ResolverInterface
             ->keepFrame(false);
 
         $url = $image->getUrl();
-
-        $this->emulation->stopEnvironmentEmulation();
 
         return [
             'url' => $url,
@@ -116,6 +111,9 @@ class MediaGalleryEntries implements ResolverInterface
         $mediaGalleryEntries = [];
 
         if (!empty($product->getMediaGalleryEntries())) {
+            $storeId = $this->storeManager->getStore()->getId();
+            $this->emulation->startEnvironmentEmulation($storeId, Area::AREA_FRONTEND, true);
+
             foreach ($product->getMediaGalleryEntries() as $key => $entry) {
                 $thumbnail = $this->getImageOfType($entry, 'scandipwa_media_thumbnail', 'thumbnail');
                 $base = $this->getImageOfType($entry, 'scandipwa_media_base', 'small_image');
@@ -127,6 +125,8 @@ class MediaGalleryEntries implements ResolverInterface
                         = $entry->getExtensionAttributes()->getVideoContent()->getData();
                 }
             }
+
+            $this->emulation->stopEnvironmentEmulation();
         }
 
         $result = function () use ($mediaGalleryEntries) {
