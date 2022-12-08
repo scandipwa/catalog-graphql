@@ -96,6 +96,7 @@ type MenuItem {
     parent_id: Int
     category_id: Int
     position: Int
+    display_mode: String
 }
 
 type CurrencyConfig {
