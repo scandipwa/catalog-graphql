@@ -10,14 +10,15 @@ declare(strict_types=1);
 
 namespace ScandiPWA\CatalogGraphQl\Model\Resolver;
 
-use Magento\Catalog\Helper\Category;
+use Magento\Catalog\Model\Category;
+use Magento\Catalog\Api\CategoryRepositoryInterface;
+use Magento\Catalog\Helper\Category as CategoryHelper;
 use Magento\Catalog\Model\ResourceModel\Category\StateDependentCollectionFactory;
 use Magento\Framework\GraphQl\Config\Element\Field;
 use Magento\Framework\GraphQl\Schema\Type\ResolveInfo;
 use Magento\Framework\Data\Collection;
 use Magento\Framework\GraphQl\Query\ResolverInterface;
 use Magento\Store\Model\StoreManagerInterface;
-
 
 /**
  * Class MenuItems
@@ -27,7 +28,7 @@ use Magento\Store\Model\StoreManagerInterface;
 class MenuItems implements ResolverInterface
 {
     /**
-     * @var Category
+     * @var CategoryHelper
      */
     protected $catalogCategory;
 
@@ -42,18 +43,26 @@ class MenuItems implements ResolverInterface
     protected $storeManager;
 
     /**
-     * @param Category $catalogCategory
+     * @var CategoryRepositoryInterface
+     */
+    protected $categoryRepository;
+
+    /**
+     * @param CategoryHelper $catalogCategory
      * @param StateDependentCollectionFactory $categoryCollectionFactory
      * @param StoreManagerInterface $storeManager
+     * @param CategoryRepositoryInterface $categoryRepository
      */
     public function __construct(
-        Category $catalogCategory,
+        CategoryHelper $catalogCategory,
         StateDependentCollectionFactory $categoryCollectionFactory,
-        StoreManagerInterface $storeManager
+        StoreManagerInterface $storeManager,
+        CategoryRepositoryInterface $categoryRepository
     ) {
         $this->catalogCategory = $catalogCategory;
         $this->collectionFactory = $categoryCollectionFactory;
         $this->storeManager = $storeManager;
+        $this->categoryRepository = $categoryRepository;
     }
 
     /**
@@ -96,7 +105,7 @@ class MenuItems implements ResolverInterface
                 }
             }
 
-            $categoryArray = $this->getCategoryAsArray($category, $categoryParentId);
+            $categoryArray = $this->getCategoryAsArray($category);
             $mapping[$category->getId()] = $categoryArray;
         }
 
@@ -145,7 +154,25 @@ class MenuItems implements ResolverInterface
             'category_id' => $category->getId(),
             'url' => $this->catalogCategory->getCategoryUrl($category),
             'parent_id' => $category->getParentId(),
-            'position' => $category->getPosition()
+            'position' => $category->getPosition(),
+            // For correct placeholders on FE
+            // Default value is Products because if
+            // display mode wasn't changed it returns null
+            'display_mode' => $this->getCategoryDisplayMode($category) ?? Category::DM_PRODUCT
         ];
+    }
+
+    /**
+     * Get category display mode
+     * $category from collection doesn't have this
+     *
+     * @param Category $categoryData
+     * @return string
+     */
+    protected function getCategoryDisplayMode($categoryData)
+    {
+        $category = $this->categoryRepository->get($categoryData->getId());
+
+        return $category->getDisplayMode();
     }
 }
