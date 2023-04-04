@@ -13,14 +13,16 @@ declare(strict_types=1);
 
 namespace ScandiPWA\CatalogGraphQl\Model\Layer\Filter;
 
-use Magento\CatalogGraphQl\DataProvider\CategoryAttributesMapper;
+use Magento\Catalog\Model\ResourceModel\Category\CollectionFactory;
 use Magento\CatalogGraphQl\DataProvider\Category\Query\CategoryAttributeQuery;
+use Magento\CatalogGraphQl\DataProvider\CategoryAttributesMapper;
 use Magento\CatalogGraphQl\DataProvider\Product\LayeredNavigation\Builder\Aggregations\Category\IncludeDirectChildrenOnly;
+use Magento\CatalogGraphQl\DataProvider\Product\LayeredNavigation\Builder\Category as OriginalCategoryBuilder;
+use Magento\CatalogGraphQl\DataProvider\Product\LayeredNavigation\Formatter\LayerFormatter;
 use Magento\CatalogGraphQl\DataProvider\Product\LayeredNavigation\RootCategoryProvider;
 use Magento\Framework\Api\Search\AggregationInterface;
 use Magento\Framework\App\ResourceConnection;
-use Magento\CatalogGraphQl\DataProvider\Product\LayeredNavigation\Formatter\LayerFormatter;
-use Magento\CatalogGraphQl\DataProvider\Product\LayeredNavigation\Builder\Category as OriginalCategoryBuilder;
+use Magento\Framework\GraphQl\Query\Uid;
 use ScandiPWA\CatalogGraphQl\Model\Layer\AttributeDataProvider;
 
 /**
@@ -50,15 +52,20 @@ class Category extends OriginalCategoryBuilder
         ResourceConnection $resourceConnection,
         LayerFormatter $layerFormatter,
         IncludeDirectChildrenOnly $includeDirectChildrenOnly,
+        CollectionFactory $categoryCollectionFactory,
+        Uid $uidEncoder,
         AttributeDataProvider $attributeDataProvider
-    ) {
+    )
+    {
         parent::__construct(
-          $categoryAttributeQuery,
-          $attributesMapper,
-          $rootCategoryProvider,
-          $resourceConnection,
-          $layerFormatter,
-          $includeDirectChildrenOnly
+            $categoryAttributeQuery,
+            $attributesMapper,
+            $rootCategoryProvider,
+            $resourceConnection,
+            $layerFormatter,
+            $includeDirectChildrenOnly,
+            $categoryCollectionFactory,
+            $uidEncoder
         );
 
         $this->attributeDataProvider = $attributeDataProvider;
