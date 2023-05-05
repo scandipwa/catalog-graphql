@@ -253,9 +253,9 @@ class Collection
     protected function getChildCollectionMapAndList(): array {
         $childCollectionMap = [];
         $childProductsList = [];
-
-        $parentIds = array_map(function ($product) {
-            return $product->getId();
+        $linkField = $this->metadataPool->getMetadata(ProductInterface::class)->getLinkField();
+        $parentIds = array_map(function ($product) use($linkField) {
+            return $product->getData($linkField);
         }, $this->parentProducts);
 
         $conn = $this->connection->getConnection();
@@ -336,6 +336,7 @@ class Collection
             $childCollectionMap
         ] = $this->getChildCollectionMapAndList();
 
+        $linkField = $this->metadataPool->getMetadata(ProductInterface::class)->getLinkField();
         $collection = $this->collectionFactory->create();
         $isReturnSingleChild = $this->getIsReturnSingleChild(true);
         $searchCriteria = $this->getSearchCriteria($childProductsList, $isReturnSingleChild);
@@ -364,11 +365,11 @@ class Collection
 
         if ($isReturnSingleChild) {
             foreach ($this->parentProducts as $parentProduct) {
-                $parentId = $parentProduct->getId();
+                $parentId = $parentProduct->getData($linkField);
                 $childIds = $childCollectionMap[$parentId];
 
                 foreach ($products as $childProduct) {
-                    if (in_array($childProduct->getId(), $childIds, true)) {
+                    if (in_array($childProduct->getData($linkField), $childIds, true)) {
                         $productsToProcess[] = $childProduct;
                         break;
                     }
@@ -385,10 +386,10 @@ class Collection
             ['isSingleProduct' => CriteriaCheck::isSingleProductFilter($this->searchCriteria)]
         );
 
-        foreach ($this->parentProducts as $product) {
-            $parentId = $product->getId();
-            $childIds = $childCollectionMap[$parentId];
 
+        foreach ($this->parentProducts as $product) {
+            $parentId = $product->getData($linkField);
+            $childIds = $childCollectionMap[$parentId];
             $this->childrenMap[$parentId] = [];
 
             foreach ($childIds as $childId) {
@@ -419,6 +420,10 @@ class Collection
         if (empty($this->parentProducts) || !empty($this->childrenMap)) {
             return $this->childrenMap;
         }
+
+
+
+        $linkField = $this->metadataPool->getMetadata(ProductInterface::class)->getLinkField();
 
         [
             $childProductsList,
@@ -467,7 +472,7 @@ class Collection
                 continue;
             }
 
-            $productId = $product->getId();
+            $productId = $product->getData($linkField);
             $productIds[] = $productId;
 
             // Create storage for future attributes
@@ -492,16 +497,16 @@ class Collection
             // Set stock status
             $stockStatusCallback($product);
 
+
             $productsData[$product->getId()] = $product->getData() + [
-                'model' => $product,
-                's_attributes' => $productAttributes[$productId]
-            ];
+                    'model' => $product,
+                    's_attributes' => $productAttributes[$productId]
+                ];
         }
 
         foreach ($this->parentProducts as $product) {
-            $parentId = $product->getId();
+            $parentId = $product->getData($linkField);
             $childIds = $childCollectionMap[$parentId];
-
             $this->childrenMap[$parentId] = [];
 
             foreach ($childIds as $childId) {
