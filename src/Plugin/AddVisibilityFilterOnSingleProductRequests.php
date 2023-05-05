@@ -15,6 +15,7 @@ use Magento\Framework\Api\SearchCriteriaInterface;
 use Magento\Framework\Api\Filter;
 use Magento\CatalogGraphQl\Model\Resolver\Products\DataProvider\ProductSearch\ProductCollectionSearchCriteriaBuilder;
 use ScandiPWA\CatalogGraphQl\Model\Resolver\Products\DataProvider\Product\CriteriaCheck;
+use Magento\Catalog\Model\Product\Visibility;
 
 /**
  * Class AddVisibilityFilterOnSingleProductRequests
@@ -33,15 +34,23 @@ class AddVisibilityFilterOnSingleProductRequests
     protected FilterGroupBuilder $filterGroupBuilder;
 
     /**
+     * @var Visibility
+     */
+    protected Visibility $visibility;
+
+    /**
      * @param FilterBuilder $filterBuilder
      * @param FilterGroupBuilder $filterGroupBuilder
+     * @param Visibility $visibility
      */
     public function __construct(
         FilterBuilder $filterBuilder,
-        FilterGroupBuilder $filterGroupBuilder
+        FilterGroupBuilder $filterGroupBuilder,
+        Visibility $visibility
     ) {
         $this->filterBuilder = $filterBuilder;
         $this->filterGroupBuilder = $filterGroupBuilder;
+        $this->visibility = $visibility;
     }
 
     /**
@@ -59,6 +68,8 @@ class AddVisibilityFilterOnSingleProductRequests
     ): SearchCriteriaInterface {
         if (CriteriaCheck::isOnlySingleIdFilter($searchCriteria) &&
             $visibilityFilter = CriteriaCheck::getVisibilityFilter($searchCriteria)) {
+            // Single product collection should have all 'visible in site' filters
+            $visibilityFilter->setValue($this->visibility->getVisibleInSiteIds());
             $filterForCollection = $this->createVisibilityFilter($visibilityFilter);
             $this->filterGroupBuilder->addFilter($filterForCollection);
             $visibilityGroup = $this->filterGroupBuilder->create();
