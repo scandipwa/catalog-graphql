@@ -44,6 +44,11 @@ class Aggregations extends AggregationsBase {
     public const CATEGORY_ID_CODE = 'category_id';
 
     /**
+     * Code of the category uid in aggregations
+     */
+    public const CATEGORY_UID_CODE = 'category_uid';
+    
+    /**
      * ID of the top level menu items
      */
     public const TOP_NAVIGATION_LEVEL_ID = 2;
@@ -129,7 +134,8 @@ class Aggregations extends AggregationsBase {
     protected function enhanceAttributes(array $result, $isSearch): array {
         foreach ($result as $attr => $attrGroup) {
             // Category ID is not a real attribute in Magento, so needs special handling
-            if($attrGroup['attribute_code'] == self::CATEGORY_ID_CODE){
+            if($attrGroup['attribute_code'] == self::CATEGORY_ID_CODE ||
+              $attrGroup['attribute_code'] == self::CATEGORY_UID_CODE){
                 $result[$attr]['is_boolean'] = false;
                 $result[$attr]['position'] = 0;
                 $result[$attr]['has_swatch'] = false;
@@ -167,7 +173,8 @@ class Aggregations extends AggregationsBase {
 
     protected function removeNonTopLevelCategories(array $result) : array {
         foreach ($result as $attr => $attrGroup){
-            if($attrGroup['attribute_code'] == self::CATEGORY_ID_CODE){
+            if($attrGroup['attribute_code'] == self::CATEGORY_ID_CODE ||
+              $attrGroup['attribute_code'] == self::CATEGORY_UID_CODE){
                 $newOptions = [];
 
                 foreach ($attrGroup['options'] as $option) {
