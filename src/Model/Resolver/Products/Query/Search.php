@@ -13,6 +13,7 @@ use Magento\Catalog\Model\ResourceModel\Category\CollectionFactory as CategoryCo
 use Magento\CatalogGraphQl\DataProvider\Product\SearchCriteriaBuilder;
 use Magento\CatalogGraphQl\Model\Resolver\Products\DataProvider\ProductSearch;
 use Magento\Framework\GraphQl\Schema\Type\ResolveInfo;
+use Magento\Framework\App\ObjectManager;
 use Magento\Framework\Api\Search\SearchCriteriaInterface;
 use Magento\Framework\Api\Search\SearchResultInterface;
 use Magento\CatalogGraphQl\Model\Resolver\Products\SearchResult;
@@ -94,6 +95,11 @@ class Search extends CoreSearch
     protected CategoryCollectionFactory $categoryCollectionFactory;
 
     /**
+     * @var ArgumentsProcessorInterface
+     */
+    protected ArgumentsProcessorInterface $argsSelection;
+
+    /**
      * @param SearchInterface $search
      * @param SearchResultFactory $searchResultFactory
      * @param ProductSearchResultsInterfaceFactory $productSearchResultsInterfaceFactory
@@ -106,6 +112,7 @@ class Search extends CoreSearch
      * @param QueryFactory $queryFactory
      * @param StoreManagerInterface $storeManager
      * @param CategoryCollectionFactory $categoryCollectionFactory
+     * @param ArgumentsProcessorInterface $argsSelection
      */
     public function __construct(
         SearchInterface $search,
@@ -119,7 +126,8 @@ class Search extends CoreSearch
         DataPostProcessor $productPostProcessor,
         QueryFactory $queryFactory,
         StoreManagerInterface $storeManager,
-        CategoryCollectionFactory $categoryCollectionFactory
+        CategoryCollectionFactory $categoryCollectionFactory,
+        ArgumentsProcessorInterface $argsSelection
     ) {
         parent::__construct(
             $search,
@@ -127,7 +135,8 @@ class Search extends CoreSearch
             $pageSize,
             $fieldSelection,
             $productsProvider,
-            $searchCriteriaBuilder
+            $searchCriteriaBuilder,
+            $argsSelection
         );
 
         $this->search = $search;
@@ -142,6 +151,8 @@ class Search extends CoreSearch
         $this->productSearchResultsInterfaceFactory = $productSearchResultsInterfaceFactory;
         $this->emulateSearchResult = $emulateSearchResult;
         $this->categoryCollectionFactory = $categoryCollectionFactory;
+        $this->argsSelection = $argsSelection ?: ObjectManager::getInstance()
+            ->get(ArgumentsProcessorInterface::class);
     }
 
     /**
@@ -261,7 +272,10 @@ class Search extends CoreSearch
      */
     private function buildSearchCriteria(array $args, ResolveInfo $info): SearchCriteriaInterface
     {
-        $searchCriteria = $this->searchCriteriaBuilder->build($args, $this->includeAggregations($info));
+        $productFields = (array)$info->getFieldSelection(1);
+        $fieldName = $info->fieldName ?? "";
+        $processedArgs = $this->argsSelection->process((string) $fieldName, $args);
+        $searchCriteria = $this->searchCriteriaBuilder->build($processedArgs, $this->getIsIncludeAggregations($info));
 
         return $searchCriteria;
     }
@@ -270,7 +284,7 @@ class Search extends CoreSearch
      * @param ResolveInfo $info
      * @return bool
      */
-    private function includeAggregations(ResolveInfo $info): bool
+    private function getIsIncludeAggregations(ResolveInfo $info): bool
     {
         $productFields = (array)$info->getFieldSelection(1);
 
