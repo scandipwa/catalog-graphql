@@ -53,6 +53,14 @@
         </arguments>
     </type>
 
+    <type name="Magento\Framework\GraphQl\Query\Resolver\ArgumentsCompositeProcessor">
+        <arguments>
+            <argument name="processors" xsi:type="array">
+                <item name="category_uid" xsi:type="object">ScandiPWA\CatalogGraphQl\Model\Resolver\Products\Query\CategoryUidArgsProcessor</item>
+            </argument>
+        </arguments>
+    </type>
+
     <type name="Magento\CatalogGraphQl\Model\Resolver\Products\DataProvider\Product\CompositeCollectionProcessor">
         <arguments>
             <argument name="collectionProcessors" xsi:type="array">
