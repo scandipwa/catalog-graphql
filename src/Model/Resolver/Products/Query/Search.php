@@ -28,6 +28,7 @@ use Magento\CatalogGraphQl\Model\Resolver\Products\Query\Search as CoreSearch;
 use ScandiPWA\CatalogGraphQl\Model\Resolver\Products\DataProvider\Product\CriteriaCheck;
 use ScandiPWA\CatalogGraphQl\Model\Resolver\Products\DataProvider\Product\EmulateSearchResult;
 use ScandiPWA\Performance\Model\Resolver\Products\DataPostProcessor;
+use Magento\Framework\GraphQl\Query\Resolver\ArgumentsProcessorInterface;
 
 /**
  * Full text search for catalog using given search criteria.
