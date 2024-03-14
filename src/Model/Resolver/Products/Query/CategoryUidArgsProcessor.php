@@ -62,5 +62,7 @@ class CategoryUidArgsProcessor implements ArgumentsProcessorInterface
         }
 
         unset($args['filter'][self::UID]);
+
+        return $args;
     }
 }
