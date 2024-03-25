@@ -97,6 +97,8 @@ type MenuItem {
     category_id: Int
     position: Int
     display_mode: String
+    category_banner: String
+    category_description: String
 }
 
 type CurrencyConfig {

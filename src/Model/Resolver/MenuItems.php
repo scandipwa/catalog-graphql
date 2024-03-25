@@ -11,6 +11,7 @@ declare(strict_types=1);
 namespace ScandiPWA\CatalogGraphQl\Model\Resolver;
 
 use Magento\Catalog\Model\Category;
+use Magento\Cms\Model\BlockFactory;
 use Magento\Catalog\Api\CategoryRepositoryInterface;
 use Magento\Catalog\Helper\Category as CategoryHelper;
 use Magento\Catalog\Model\ResourceModel\Category\StateDependentCollectionFactory;
@@ -48,21 +49,29 @@ class MenuItems implements ResolverInterface
     protected $categoryRepository;
 
     /**
+     * @var BlockFactory
+     */
+    protected BlockFactory $blockFactory;
+
+    /**
      * @param CategoryHelper $catalogCategory
      * @param StateDependentCollectionFactory $categoryCollectionFactory
      * @param StoreManagerInterface $storeManager
      * @param CategoryRepositoryInterface $categoryRepository
+     * @param BlockFactory $blockFactory
      */
     public function __construct(
         CategoryHelper $catalogCategory,
         StateDependentCollectionFactory $categoryCollectionFactory,
         StoreManagerInterface $storeManager,
-        CategoryRepositoryInterface $categoryRepository
+        CategoryRepositoryInterface $categoryRepository,
+        BlockFactory $blockFactory,
     ) {
         $this->catalogCategory = $catalogCategory;
         $this->collectionFactory = $categoryCollectionFactory;
         $this->storeManager = $storeManager;
         $this->categoryRepository = $categoryRepository;
+        $this->blockFactory = $blockFactory;
     }
 
     /**
@@ -125,7 +134,7 @@ class MenuItems implements ResolverInterface
         /** @var \Magento\Catalog\Model\ResourceModel\Category\Collection $collection */
         $collection = $this->collectionFactory->create();
         $collection->setStoreId($storeId);
-        $collection->addAttributeToSelect('name');
+        $collection->addAttributeToSelect(['name', 'description', 'landing_page']);
         $collection->addFieldToFilter('path', ['like' => '1/' . $rootId . '/%']); //load only from store root
         $collection->addAttributeToFilter('include_in_menu', 1);
         $collection->addIsActiveFilter();
@@ -143,11 +152,18 @@ class MenuItems implements ResolverInterface
      * Convert category to array
      *
      * @param \Magento\Catalog\Model\Category $category
-     * @param int $itemId
      * @return array
      */
     protected function getCategoryAsArray($category)
     {
+        $landingPageId = $category->getData('landing_page');
+        $landingPageContent = '';
+
+        if ($landingPageId) {
+            $landingPageBlock = $this->blockFactory->create()->load($landingPageId);
+            $landingPageContent = $landingPageBlock->getContent();
+        }
+
         return [
             'title' => $category->getName(),
             'item_id' => $category->getId(),
@@ -158,7 +174,9 @@ class MenuItems implements ResolverInterface
             // For correct placeholders on FE
             // Default value is Products because if
             // display mode wasn't changed it returns null
-            'display_mode' => $this->getCategoryDisplayMode($category) ?? Category::DM_PRODUCT
+            'display_mode' => $this->getCategoryDisplayMode($category) ?? Category::DM_PRODUCT,
+            'category_banner' => $landingPageContent,
+            'category_description' => $category->getDescription() ?? '',
         ];
     }
 
