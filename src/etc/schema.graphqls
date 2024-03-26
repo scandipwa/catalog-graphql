@@ -74,6 +74,8 @@ type ProductStockItem {
 extends type Breadcrumb {
     category_url: String @doc(description: "Trimmed URL rewrite")
     category_is_active: Boolean @doc(description: "Is category active")
+    category_description: String @doc(description: "Category description")
+    category_banner: String @doc(description: "Category banner")
 }
 
 interface AggregationOptionInterface {
