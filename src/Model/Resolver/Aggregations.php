@@ -13,16 +13,16 @@ declare(strict_types=1);
 namespace ScandiPWA\CatalogGraphQl\Model\Resolver;
 
 use Magento\CatalogGraphQl\Model\Resolver\Aggregations as AggregationsBase;
-use Magento\CatalogGraphQl\Model\Resolver\Layer\DataProvider\Filters;
 use Magento\CatalogGraphQl\DataProvider\Product\LayeredNavigation\LayerBuilder;
+use Magento\Directory\Model\PriceCurrency;
 use Magento\Framework\GraphQl\Config\Element\Field;
 use Magento\Framework\GraphQl\Schema\Type\ResolveInfo;
-use Magento\Framework\Exception\LocalizedException;
-use Magento\Store\Api\Data\StoreInterface;
+use Magento\CatalogGraphQl\DataProvider\Product\LayeredNavigation\Builder\Aggregations\Category;
 use Magento\Catalog\Model\CategoryRepository;
 use Magento\Catalog\Model\ResourceModel\Eav\Attribute;
 
-class Aggregations extends AggregationsBase {
+class Aggregations extends AggregationsBase
+{
     /**
      * @var Attribute
      */
@@ -52,15 +52,19 @@ class Aggregations extends AggregationsBase {
      * @inheritdoc
      */
     public function __construct(
-        Filters $filtersDataProvider,
         LayerBuilder $layerBuilder,
         Attribute $attribute,
-        CategoryRepository $categoryRepository
+        CategoryRepository $categoryRepository,
+        PriceCurrency $priceCurrency = null,
+        Category\IncludeDirectChildrenOnly $includeDirectChildrenOnly = null
+
     )
     {
         parent::__construct(
-            $filtersDataProvider,
-            $layerBuilder
+            $layerBuilder,
+            $priceCurrency,
+            $includeDirectChildrenOnly
+
         );
 
         $this->attribute = $attribute;
