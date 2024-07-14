@@ -47,10 +47,19 @@ class Breadcrumbs extends CoreBreadcrumbs
 
         if (count($parentCategoryIds)) {
             $collection = $this->collectionFactory->create();
-            $collection->addAttributeToSelect(['name', 'url_key', 'url_path', 'is_active']);
+            $collection->addAttributeToSelect(['name', 'url_key', 'url_path', 'is_active', 'description', 'landing_page']);
             $collection->addAttributeToFilter('entity_id', $parentCategoryIds);
 
             foreach ($collection as $category) {
+
+                $landingPageId = $category->getData('landing_page');
+                $landingPageContent = '';
+
+                if ($landingPageId) {
+                    $landingPageBlock = $this->blockFactory->create()->load($landingPageId);
+                    $landingPageContent = $landingPageBlock->getContent();
+                }
+
                 $breadcrumbsData[] = [
                     'category_id' => $category->getId(),
                     'category_name' => $category->getName(),
@@ -59,7 +68,10 @@ class Breadcrumbs extends CoreBreadcrumbs
                     'category_url_path' => $category->getUrlPath(),
                     // the only change to fix breadcrumbs
                     'category_url' => parse_url($category->getUrl(), PHP_URL_PATH),
-                    'category_is_active' => (bool) $category->getIsActive()
+                    'category_is_active' => (bool) $category->getIsActive(),
+                    'category_description' => $category->getDescription() ?? '',
+                    'category_banner' => $landingPageContent,
+
                 ];
             }
         }
