@@ -23,6 +23,7 @@ use Magento\Framework\Pricing\PriceCurrencyInterface;
 use Magento\Store\Api\Data\StoreInterface;
 use Magento\CatalogGraphQl\Model\Resolver\Product\PriceRange as CorePriceRange;
 use Magento\ConfigurableProduct\Model\Product\Type\Configurable;
+use Magento\CatalogGraphQl\Model\PriceRangeDataProvider;
 
 /**
  * Format product's pricing information for price_range field
@@ -63,6 +64,11 @@ class PriceRange extends CorePriceRange
     protected $taxHelper;
 
     /**
+     * @var PriceRangeDataProvider
+     */
+    private PriceRangeDataProvider $priceRangeDataProvider;
+
+    /**
      * @param PriceProviderPool $priceProviderPool
      * @param Discount $discount
      */
@@ -71,12 +77,12 @@ class PriceRange extends CorePriceRange
         Discount $discount,
         PriceCurrencyInterface $priceCurrency,
         ScopeConfigInterface $scopeConfig,
-        TaxHelper $taxHelper
+        TaxHelper $taxHelper,
+        PriceRangeDataProvider $priceRangeDataProvider
     )
     {
         parent::__construct(
-            $priceProviderPool,
-            $discount
+            $priceRangeDataProvider,
         );
 
         $this->priceProviderPool = $priceProviderPool;
