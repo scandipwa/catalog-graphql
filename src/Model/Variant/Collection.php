@@ -62,9 +62,6 @@ class Collection
     /** @var DataPostProcessor  */
     protected $dataPostProcessor;
 
-    /** @var DataPostProcessor\Stocks  */
-    protected $stocksPostProcessor;
-
     /** @var ProductCollectionFactory  */
     protected $collectionFactory;
 
@@ -87,7 +84,6 @@ class Collection
      * @param CollectionProcessorInterface $collectionProcessor
      * @param CollectionPostProcessor $collectionPostProcessor
      * @param DataPostProcessor $dataPostProcessor
-     * @param DataPostProcessor\Stocks $stocksPostProcessor
      * @param ResourceConnection $connection
      * @param StockFilter $stockFilter
      * @param StoreManagerInterface $storeManager
@@ -100,7 +96,6 @@ class Collection
         CollectionProcessorInterface $collectionProcessor,
         CollectionPostProcessor $collectionPostProcessor,
         DataPostProcessor $dataPostProcessor,
-        DataPostProcessor\Stocks $stocksPostProcessor,
         ResourceConnection $connection,
         StockFilter $stockFilter,
         StoreManagerInterface $storeManager
@@ -111,7 +106,6 @@ class Collection
         $this->collectionProcessor = $collectionProcessor;
         $this->collectionPostProcessor = $collectionPostProcessor;
         $this->dataPostProcessor = $dataPostProcessor;
-        $this->stocksPostProcessor = $stocksPostProcessor;
         $this->collectionFactory = $collectionFactory;
         $this->connection = $connection;
         $this->stockFilter = $stockFilter;
@@ -445,14 +439,6 @@ class Collection
 
         $products = $collection->getItems();
 
-        // Populate stock status (use same post processor as for non-plp variants)
-        $stockStatusCallback = $this->stocksPostProcessor->process(
-            $products,
-            'variants_plp/product',
-            $info,
-            ['isSingleProduct' => false]
-        );
-
         // Populate attributes (use more simple logic)
         $productsData = [];
         $productAttributes = [];
@@ -488,9 +474,6 @@ class Collection
                     'attribute_value' => $product->getData($attributeCode)
                 ];
             }
-
-            // Set stock status
-            $stockStatusCallback($product);
 
             $productsData[$product->getId()] = $product->getData() + [
                 'model' => $product,

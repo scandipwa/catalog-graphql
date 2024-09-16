@@ -38,7 +38,6 @@ type CategoryTree {
 
 interface ProductInterface {
     qty: Float @doc(description: "Qty field for checkout order view")
-    stock_item: ProductStockItem @resolver(class: "ScandiPWA\\CatalogGraphQl\\Model\\Resolver\\Inventory\\StockCount")
     url: String @resolver(class: "ScandiPWA\\CatalogGraphQl\\Model\\Resolver\\Product\\Url")
 }
 
@@ -61,14 +60,6 @@ type ProductPrice @doc(description: "Represents a product price.") {
     default_final_price: Money! @doc(description: "The base price of the product after discounts applied.")
     default_final_price_excl_tax: Money! @doc(description: "The base price of the product after discounts applied excluding taxes.")
     discount: ProductDiscount @doc(description: "The price discount. Represents the difference between the regular and final price.")
-}
-
-type ProductStockItem {
-    in_stock: Boolean @doc(description: "Product in stock status")
-    qty: Float @doc(description: "Product quantity available in stock")
-    min_sale_qty: Int @doc(description: "Minimal amount of item that can be bought")
-    max_sale_qty: Int @doc(description: "Maximal amount of item that can be bought")
-    qty_increments: Int @doc(description: "Increment for number of items that can be bought")
 }
 
 extends type Breadcrumb {
